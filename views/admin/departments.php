@@ -27,6 +27,8 @@
                     <td class="px-6 py-4 text-right space-x-2">
                         <button onclick="editDepartment(<?= $dept['id'] ?>, '<?= htmlspecialchars(addslashes($dept['name'])) ?>')" class="font-medium text-blue-600 dark:text-blue-500 hover:underline"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
                         <form action="/payrollsystem/admin/departments" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this department?');">
+    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+
                             <input type="hidden" name="action" value="delete">
                             <input type="hidden" name="id" value="<?= $dept['id'] ?>">
                             <button type="submit" class="font-medium text-red-600 dark:text-red-500 hover:underline"><i class="fa-solid fa-trash"></i> Delete</button>
@@ -49,6 +51,8 @@
             </button>
         </div>
         <form action="/payrollsystem/admin/departments" method="POST" class="p-6">
+    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+
             <input type="hidden" name="action" value="add">
             <div class="mb-4">
                 <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Department Name</label>
@@ -72,6 +76,8 @@
             </button>
         </div>
         <form action="/payrollsystem/admin/departments" method="POST" class="p-6">
+    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+
             <input type="hidden" name="action" value="edit">
             <input type="hidden" name="id" id="edit_id">
             <div class="mb-4">

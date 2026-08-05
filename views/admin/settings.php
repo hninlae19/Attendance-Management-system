@@ -6,6 +6,8 @@
 </div>
 
 <form action="/payrollsystem/admin/settings" method="POST" x-data="{ tab: 'general' }" class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden" data-aos="fade-up" data-aos-delay="100">
+    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+
     
     <div class="border-b border-gray-200 dark:border-gray-700 px-6 pt-4 bg-gray-50/50 dark:bg-gray-700/30">
         <nav class="flex space-x-8" aria-label="Tabs">
@@ -133,6 +135,23 @@
                 <div>
                     <label for="half_day_deduction_rate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Half-Day Deduction Rate (Multiplier of Daily Wage)</label>
                     <input type="number" step="0.01" name="half_day_deduction_rate" id="half_day_deduction_rate" value="<?= htmlspecialchars($data['settings']['half_day_deduction_rate'] ?? 0.50) ?>" required class="w-full px-4 py-2 bg-white/50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm transition-colors">
+                </div>
+                <div>
+                    <label for="unpaid_leave_deduction_rate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unpaid Leave Deduction Rate (Multiplier of Daily Wage)</label>
+                    <input type="number" step="0.01" name="unpaid_leave_deduction_rate" id="unpaid_leave_deduction_rate" value="<?= htmlspecialchars($data['settings']['unpaid_leave_deduction_rate'] ?? 1.00) ?>" required class="w-full px-4 py-2 bg-white/50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm transition-colors">
+                </div>
+                <div>
+                    <label for="deduction_calculation_method" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Deduction Calculation Method</label>
+                    <select name="deduction_calculation_method" id="deduction_calculation_method" class="w-full px-4 py-2 bg-white/50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm transition-colors">
+                        <option value="Salary-Based" <?= (isset($data['settings']['deduction_calculation_method']) && $data['settings']['deduction_calculation_method'] === 'Salary-Based') ? 'selected' : '' ?>>Salary-Based</option>
+                        <option value="Fixed Amount" <?= (isset($data['settings']['deduction_calculation_method']) && $data['settings']['deduction_calculation_method'] === 'Fixed Amount') ? 'selected' : '' ?>>Fixed Amount</option>
+                    </select>
+                </div>
+                <div class="md:col-span-2 flex items-center mt-2">
+                    <input type="checkbox" name="auto_deduction_enabled" id="auto_deduction_enabled" value="1" <?= (!isset($data['settings']['auto_deduction_enabled']) || $data['settings']['auto_deduction_enabled'] == 1) ? 'checked' : '' ?> class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                    <label for="auto_deduction_enabled" class="ml-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Enable Automatic Deductions
+                    </label>
                 </div>
             </div>
         </div>

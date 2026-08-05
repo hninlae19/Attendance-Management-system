@@ -5,63 +5,63 @@
     </button>
 </div>
 
-<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-    <div class="overflow-x-auto">
-        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                <tr>
-                    <th scope="col" class="px-6 py-4">Applied On</th>
-                    <th scope="col" class="px-6 py-4">Leave Type</th>
-                    <th scope="col" class="px-6 py-4">Duration</th>
-                    <th scope="col" class="px-6 py-4">Reason</th>
-                    <th scope="col" class="px-6 py-4">Status</th>
-                    <th scope="col" class="px-6 py-4">Admin Remark</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if(empty($data['myLeaves'])): ?>
-                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                        <td colspan="6" class="px-6 py-4 text-center">No leave applications found.</td>
-                    </tr>
-                <?php else: ?>
-                    <?php foreach($data['myLeaves'] as $lr): ?>
-                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
-                        <td class="px-6 py-4"><?= date('M j, Y', strtotime($lr['created_at'])) ?></td>
-                        <td class="px-6 py-4">
-                            <?= htmlspecialchars($lr['leave_type_name']) ?>
-                            <?php if($lr['is_paid']): ?>
-                                <span class="ml-1 px-1.5 py-0.5 text-[10px] font-medium bg-green-100 text-green-800 rounded dark:bg-green-900 dark:text-green-300">Paid</span>
-                            <?php else: ?>
-                                <span class="ml-1 px-1.5 py-0.5 text-[10px] font-medium bg-gray-100 text-gray-800 rounded dark:bg-gray-700 dark:text-gray-300">Unpaid</span>
-                            <?php endif; ?>
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="text-xs">
-                                <?= date('M j', strtotime($lr['start_date'])) ?> - <?= date('M j, Y', strtotime($lr['end_date'])) ?>
-                                <div class="font-semibold mt-0.5"><?= $lr['days'] ?> Day(s)</div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 max-w-[150px] truncate" title="<?= htmlspecialchars($lr['reason']) ?>">
-                            <?= htmlspecialchars($lr['reason']) ?>
-                        </td>
-                        <td class="px-6 py-4">
-                            <?php if($lr['status'] === 'Approved'): ?>
-                                <span class="px-2.5 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full dark:bg-green-900 dark:text-green-300">Approved</span>
-                            <?php elseif($lr['status'] === 'Rejected'): ?>
-                                <span class="px-2.5 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full dark:bg-red-900 dark:text-red-300">Rejected</span>
-                            <?php else: ?>
-                                <span class="px-2.5 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full dark:bg-yellow-900 dark:text-yellow-300">Pending</span>
-                            <?php endif; ?>
-                        </td>
-                        <td class="px-6 py-4 text-xs italic text-gray-500 max-w-[150px] truncate" title="<?= htmlspecialchars($lr['admin_remark'] ?? '') ?>">
-                            <?= !empty($lr['admin_remark']) ? htmlspecialchars($lr['admin_remark']) : '-' ?>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
-    </div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <?php if(empty($data['myLeaves'])): ?>
+        <div class="col-span-full p-8 text-center bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+            <p class="text-gray-500 dark:text-gray-400">No leave applications found.</p>
+        </div>
+    <?php else: ?>
+        <?php foreach($data['myLeaves'] as $lr): ?>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 hover:shadow-md transition-shadow relative overflow-hidden group">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
+                        <?= htmlspecialchars($lr['leave_type_name']) ?>
+                        <?php if($lr['is_paid']): ?>
+                            <span class="ml-2 px-2 py-0.5 text-[10px] uppercase font-bold bg-green-100 text-green-800 rounded-full dark:bg-green-900/50 dark:text-green-300">Paid</span>
+                        <?php else: ?>
+                            <span class="ml-2 px-2 py-0.5 text-[10px] uppercase font-bold bg-gray-100 text-gray-800 rounded-full dark:bg-gray-700 dark:text-gray-300">Unpaid</span>
+                        <?php endif; ?>
+                    </h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Applied: <?= date('M j, Y', strtotime($lr['created_at'])) ?></p>
+                </div>
+                <div>
+                    <?php if($lr['status'] === 'Approved'): ?>
+                        <span class="px-2.5 py-1 text-xs font-bold bg-green-100 text-green-800 rounded-xl dark:bg-green-900/30 dark:text-green-400"><i class="fa-solid fa-check mr-1"></i> Approved</span>
+                    <?php elseif($lr['status'] === 'Rejected'): ?>
+                        <span class="px-2.5 py-1 text-xs font-bold bg-red-100 text-red-800 rounded-xl dark:bg-red-900/30 dark:text-red-400"><i class="fa-solid fa-xmark mr-1"></i> Rejected</span>
+                    <?php else: ?>
+                        <span class="px-2.5 py-1 text-xs font-bold bg-yellow-100 text-yellow-800 rounded-xl dark:bg-yellow-900/30 dark:text-yellow-400"><i class="fa-solid fa-clock mr-1"></i> Pending</span>
+                    <?php endif; ?>
+                </div>
+            </div>
+            
+            <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl mb-4">
+                <div class="text-center w-1/2 border-r border-gray-200 dark:border-gray-700">
+                    <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-1">From</p>
+                    <p class="text-sm font-semibold text-gray-800 dark:text-gray-300"><?= date('M j', strtotime($lr['start_date'])) ?></p>
+                </div>
+                <div class="text-center w-1/2">
+                    <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-1">To</p>
+                    <p class="text-sm font-semibold text-gray-800 dark:text-gray-300"><?= date('M j, Y', strtotime($lr['end_date'])) ?></p>
+                </div>
+            </div>
+            
+            <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                <span class="font-medium text-gray-900 dark:text-white">Duration:</span> <?= $lr['days'] ?> Day(s)
+            </div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">
+                <span class="font-medium text-gray-900 dark:text-white">Reason:</span> <?= htmlspecialchars($lr['reason']) ?>
+            </div>
+            <?php if(!empty($lr['admin_remark'])): ?>
+            <div class="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-sm text-blue-800 dark:text-blue-300 border border-blue-100 dark:border-blue-800">
+                <span class="font-bold text-[10px] uppercase tracking-wider block mb-1">Admin Remark:</span>
+                <?= htmlspecialchars($lr['admin_remark']) ?>
+            </div>
+            <?php endif; ?>
+        </div>
+        <?php endforeach; ?>
+    <?php endif; ?>
 </div>
 
 <!-- Apply Modal -->
@@ -74,6 +74,8 @@
             </button>
         </div>
         <form action="/payrollsystem/employee/leaves" method="POST" class="p-6 space-y-4" id="leaveForm">
+    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+
             <input type="hidden" name="action" value="apply">
             
             <div>

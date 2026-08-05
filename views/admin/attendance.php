@@ -3,8 +3,13 @@
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4" data-aos="fade-down">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Attendance Management</h1>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Attendance Management</h1>
             <p class="text-gray-500 text-sm mt-1">Manage and view detailed employee attendance records.</p>
+        </div>
+        <div class="flex gap-2">
+            <button class="bg-white hover:bg-gray-50 text-gray-700 font-medium py-2.5 px-4 rounded-xl border border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors shadow-sm text-sm">
+                <i class="fa-solid fa-file-export mr-2"></i> Export
+            </button>
         </div>
     </div>
 
@@ -114,7 +119,7 @@
 
         <div class="overflow-x-auto min-h-[300px]">
             <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700/50 dark:text-gray-400 sticky top-0 z-0">
+                <thead class="text-xs text-gray-500 uppercase bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-700 sticky top-0 z-0">
                     <tr>
                         <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Employee</th>
                         <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Department</th>
@@ -140,10 +145,15 @@
                     </template>
                     
                     <template x-for="record in records" :key="record.id">
-                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group">
+                        <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors group">
                             <td class="px-6 py-3">
-                                <div class="font-bold text-gray-900 dark:text-white" x-text="record.first_name + ' ' + record.last_name"></div>
-                                <div class="text-xs text-gray-500" x-text="record.employee_code"></div>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-9 h-9 rounded-full bg-gradient-to-br from-primary/20 to-blue-500/20 text-primary dark:text-blue-400 flex items-center justify-center font-bold text-xs ring-2 ring-white dark:ring-gray-800 group-hover:ring-primary/20 transition-all shadow-sm" x-text="record.first_name.charAt(0) + record.last_name.charAt(0)"></div>
+                                    <div>
+                                        <div class="font-bold text-gray-900 dark:text-white" x-text="record.first_name + ' ' + record.last_name"></div>
+                                        <div class="text-xs text-primary font-medium">EMP-<span x-text="record.employee_code"></span></div>
+                                    </div>
+                                </div>
                             </td>
                             <td class="px-6 py-3 text-gray-700 dark:text-gray-300" x-text="record.department_name"></td>
                             <td class="px-6 py-3 font-medium text-gray-900 dark:text-white" x-text="formatDate(record.date)"></td>
@@ -163,13 +173,20 @@
                                 <span x-show="!record.ot_hours" class="text-gray-400">-</span>
                             </td>
                             <td class="px-6 py-3 text-center">
-                                <span class="px-2.5 py-1 text-xs font-medium rounded-full border" 
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold shadow-sm border" 
                                       :class="{
-                                          'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800': record.status === 'Present',
-                                          'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800': record.status === 'Late',
-                                          'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800': record.status === 'Half Day',
-                                          'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800': record.status === 'Absent'
-                                      }" x-text="record.status">
+                                          'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800/30': record.status === 'Present',
+                                          'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800/30': record.status === 'Late',
+                                          'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800/30': record.status === 'Half Day',
+                                          'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800/30': record.status === 'Absent'
+                                      }">
+                                      <span class="w-1.5 h-1.5 rounded-full mr-1.5" :class="{
+                                          'bg-emerald-500': record.status === 'Present',
+                                          'bg-amber-500': record.status === 'Late',
+                                          'bg-orange-500': record.status === 'Half Day',
+                                          'bg-rose-500': record.status === 'Absent'
+                                      }"></span>
+                                      <span x-text="record.status"></span>
                                 </span>
                             </td>
                             <td class="px-6 py-3 text-right">
@@ -203,7 +220,7 @@
     <div x-show="filters.view_type === 'corrections'" x-cloak class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden" data-aos="fade-up" data-aos-delay="200">
         <div class="overflow-x-auto">
             <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700/50 dark:text-gray-400 sticky top-0">
+                <thead class="text-xs text-gray-500 uppercase bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-700 sticky top-0">
                     <tr>
                         <th scope="col" class="px-6 py-4 font-semibold">Employee</th>
                         <th scope="col" class="px-6 py-4 font-semibold">Date</th>
@@ -240,6 +257,8 @@
                             <td class="px-6 py-4 text-right space-x-2">
                                 <?php if($corr['status'] === 'Pending'): ?>
                                 <form action="/payrollsystem/admin/attendance" method="POST" class="inline">
+    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+
                                     <input type="hidden" name="id" value="<?= $corr['id'] ?>">
                                     <button type="submit" name="action" value="approve" class="text-green-600 dark:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/30 p-2 rounded-full transition-colors"><i class="fa-solid fa-check w-4"></i></button>
                                     <button type="submit" name="action" value="reject" class="text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 p-2 rounded-full transition-colors"><i class="fa-solid fa-xmark w-4"></i></button>

@@ -77,7 +77,10 @@ class Attendance {
         $stmt->bindParam(":time", $time);
         $stmt->bindParam(":status", $status);
         
-        return $stmt->execute();
+        if ($stmt->execute()) {
+            return true;
+        }
+        return false;
     }
 
     public function clockOut($id, $check_in_time) {
@@ -89,15 +92,28 @@ class Attendance {
 
         $status = 'Present';
         if ($hours >= 8) {
-            $status = 'Present'; // Full day
-        } elseif ($hours >= 4) {
-            $status = 'Half Day';
+            $status = 'Present'; // Full Pay
+        } elseif ($hours >= 4 && $hours < 8) {
+            $status = 'Half Day'; // 0.5 Day Pay
         } else {
-            $status = 'Absent';
+            $status = 'Absent'; // No Pay
         }
 
-        // if checked out before 12 PM (assuming early leave)
-        if (strtotime($time) < strtotime('12:00:00')) {
+        $settingModel = new Setting();
+        $settings = $settingModel->getSettings();
+        $office_end = $settings['office_end_time'] ?? '17:00:00';
+
+        // Half-Day Rules overrides
+        // Check-in between 12 PM and office_end
+        if (strtotime($check_in_time) >= strtotime('12:00:00') && strtotime($check_in_time) <= strtotime($office_end)) {
+            $status = 'Half Day';
+        }
+        // Check-out between 12 PM and office_end
+        if (strtotime($time) >= strtotime('12:00:00') && strtotime($time) < strtotime($office_end) && $hours < 7) {
+            $status = 'Half Day';
+        }
+        // if total hours < 4, it is always Absent regardless of time overrides.
+        if ($hours < 4) {
             $status = 'Absent';
         }
 
@@ -108,7 +124,10 @@ class Attendance {
         $stmt->bindParam(":status", $status);
         $stmt->bindParam(":id", $id);
         
-        return $stmt->execute();
+        if ($stmt->execute()) {
+            return true;
+        }
+        return false;
     }
 
     public function getCorrections() {
@@ -146,15 +165,71 @@ class Attendance {
             $updStmt->execute();
 
             if ($action === 'approve') {
+                $check_in = $correction['corrected_check_in'];
+                $check_out = $correction['corrected_check_out'];
+                
+                $hours = 0;
+                $newStatus = 'Absent';
+                
+                if ($check_in && $check_out) {
+                    $t1 = strtotime($check_in);
+                    $t2 = strtotime($check_out);
+                    $hours = round(($t2 - $t1) / 3600, 2);
+                    
+                    if ($hours >= 8) {
+                        $newStatus = 'Present';
+                    } elseif ($hours >= 4 && $hours < 8) {
+                        $newStatus = 'Half Day';
+                    } else {
+                        $newStatus = 'Absent';
+                    }
+
+                    if (strtotime($check_in) >= strtotime('12:00:00') && strtotime($check_in) <= strtotime('17:00:00')) {
+                        $newStatus = 'Half Day';
+                    }
+                    if (strtotime($check_out) >= strtotime('12:00:00') && strtotime($check_out) < strtotime('17:00:00') && $hours < 7) {
+                        $newStatus = 'Half Day';
+                    }
+                    if ($hours < 4) {
+                        $newStatus = 'Absent';
+                    }
+                } elseif ($check_in) {
+                    $settingModel = new Setting();
+                    $settings = $settingModel->getSettings();
+                    $newStatus = 'Present';
+                    if (strtotime($check_in) > strtotime($settings['late_time'] ?? '09:00:00')) {
+                        $newStatus = 'Late';
+                    }
+                }
+
                 // Update actual attendance record
-                $attQuery = "UPDATE attendance SET check_in = :check_in, check_out = :check_out WHERE id = :att_id";
+                $attQuery = "UPDATE attendance SET check_in = :check_in, check_out = :check_out, working_hours = :hours, status = :status WHERE id = :att_id";
                 $attStmt = $this->conn->prepare($attQuery);
-                $attStmt->bindParam(':check_in', $correction['corrected_check_in']);
-                $attStmt->bindParam(':check_out', $correction['corrected_check_out']);
+                $attStmt->bindParam(':check_in', $check_in);
+                $attStmt->bindParam(':check_out', $check_out);
+                $attStmt->bindParam(':hours', $hours);
+                $attStmt->bindParam(':status', $newStatus);
                 $attStmt->bindParam(':att_id', $correction['attendance_id']);
                 $attStmt->execute();
                 
-                // Note: we should recalculate working hours and status here in a real robust app
+                // Handle Deductions
+                require_once __DIR__ . '/Deduction.php';
+                $deduction = new Deduction();
+                $attStmt2 = $this->conn->prepare("SELECT date FROM attendance WHERE id = ?");
+                $attStmt2->execute([$correction['attendance_id']]);
+                $att_date = $attStmt2->fetchColumn();
+                
+                $deduction->cancelAutomatedDeduction($correction['employee_id'], 'Full Day Absence', $att_date);
+                $deduction->cancelAutomatedDeduction($correction['employee_id'], 'Half Day Absence', $att_date);
+                $deduction->cancelAutomatedDeduction($correction['employee_id'], 'Late', $att_date);
+                
+                if ($newStatus === 'Absent') {
+                    $deduction->applyAutomatedDeduction($correction['employee_id'], 'Full Day Absence', $att_date, 'Automated Full Day Absence Deduction', 'Attendance System');
+                } elseif ($newStatus === 'Half Day') {
+                    $deduction->applyAutomatedDeduction($correction['employee_id'], 'Half Day Absence', $att_date, 'Automated Half Day Absence Deduction', 'Attendance System');
+                } elseif ($newStatus === 'Late') {
+                    $deduction->applyAutomatedDeduction($correction['employee_id'], 'Late', $att_date, 'Automated Late Deduction', 'Attendance System');
+                }
             }
 
             $this->conn->commit();

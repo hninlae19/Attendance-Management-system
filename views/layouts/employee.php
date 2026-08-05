@@ -45,7 +45,8 @@
         <div class="px-3 py-3 lg:px-5 lg:pl-3">
             <div class="flex items-center justify-between">
                 <div class="flex items-center justify-start rtl:justify-end">
-                    <button @click="sidebarOpen = !sidebarOpen" type="button" class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
+                    <!-- Sidebar Toggle (hidden on mobile, only desktop if needed, or remove completely) -->
+                    <button @click="sidebarOpen = !sidebarOpen" type="button" class="hidden sm:inline-flex items-center p-2 text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
                         <span class="sr-only">Open sidebar</span>
                         <i class="fa-solid fa-bars text-xl"></i>
                     </button>
@@ -136,8 +137,8 @@
         </div>
     </nav>
 
-    <!-- Sidebar -->
-    <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform bg-white border-r border-gray-200 sm:translate-x-0 dark:bg-dark dark:border-gray-700" aria-label="Sidebar">
+    <!-- Desktop Sidebar (Hidden on Mobile) -->
+    <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform bg-white border-r border-gray-200 hidden sm:block sm:translate-x-0 dark:bg-dark dark:border-gray-700" aria-label="Sidebar">
         <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-dark">
             <ul class="space-y-2 font-medium">
                 <li>
@@ -168,8 +169,32 @@
         </div>
     </aside>
 
+    <!-- Mobile Bottom Navigation -->
+    <nav class="sm:hidden fixed bottom-0 w-full bg-white dark:bg-dark border-t border-gray-200 dark:border-gray-700 z-50 flex justify-between items-center px-6 py-2 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+        <a href="/payrollsystem/employee" class="flex flex-col items-center p-2 text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary group">
+            <i class="fa-solid fa-home text-lg mb-1 group-hover:-translate-y-1 transition-transform"></i>
+            <span class="text-[10px] font-medium">Home</span>
+        </a>
+        <a href="/payrollsystem/employee/attendance" class="flex flex-col items-center p-2 text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary group">
+            <i class="fa-solid fa-clock text-lg mb-1 group-hover:-translate-y-1 transition-transform"></i>
+            <span class="text-[10px] font-medium">History</span>
+        </a>
+        <!-- Floating Action Button for Check In/Out or Add -->
+        <a href="/payrollsystem/employee" class="relative -top-5 flex items-center justify-center w-14 h-14 bg-primary text-white rounded-full shadow-lg shadow-blue-500/50 hover:bg-blue-600 hover:scale-105 transition-all">
+            <i class="fa-solid fa-fingerprint text-2xl"></i>
+        </a>
+        <a href="/payrollsystem/employee/leaves" class="flex flex-col items-center p-2 text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary group">
+            <i class="fa-solid fa-calendar-alt text-lg mb-1 group-hover:-translate-y-1 transition-transform"></i>
+            <span class="text-[10px] font-medium">Leaves</span>
+        </a>
+        <a href="/payrollsystem/employee/profile" class="flex flex-col items-center p-2 text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary group">
+            <i class="fa-solid fa-user text-lg mb-1 group-hover:-translate-y-1 transition-transform"></i>
+            <span class="text-[10px] font-medium">Profile</span>
+        </a>
+    </nav>
+
     <!-- Main Content -->
-    <div class="p-4 sm:ml-64 mt-14">
+    <div class="p-4 sm:ml-64 mt-14 mb-20 sm:mb-4 min-h-screen">
         <?php if(isset($data['content'])) {
             require_once __DIR__ . '/../' . $data['content'] . '.php';
         } ?>

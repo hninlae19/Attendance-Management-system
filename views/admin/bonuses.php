@@ -32,21 +32,23 @@
                     <?php foreach($data['bonuses'] as $bonus): ?>
                     <tr class="bg-white/50 border-b dark:bg-gray-800/50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                         <td class="px-6 py-4">
-                            <div class="font-bold text-gray-900 dark:text-white"><?= htmlspecialchars($bonus['first_name'] . ' ' . $bonus['last_name']) ?></div>
-                            <div class="text-xs text-gray-500 mt-1"><?= htmlspecialchars($bonus['employee_code']) ?></div>
+                            <div class="font-bold text-gray-900 dark:text-white"><?= htmlspecialchars(($bonus['first_name'] ?? '') . ' ' . ($bonus['last_name'] ?? '')) ?></div>
+                            <div class="text-xs text-gray-500 mt-1"><?= htmlspecialchars($bonus['employee_code'] ?? '') ?></div>
                         </td>
                         <td class="px-6 py-4 font-bold text-teal-600 dark:text-teal-400">
-                            <?= number_format($bonus['amount']) ?> MMK
+                            <?= number_format($bonus['amount'] ?? 0) ?> MMK
                         </td>
                         <td class="px-6 py-4">
-                            <span class="px-2.5 py-1 text-xs font-medium bg-teal-100 text-teal-800 rounded-full dark:bg-teal-900 dark:text-teal-300"><?= htmlspecialchars($bonus['type']) ?></span>
-                            <div class="text-xs text-gray-500 mt-1"><?= htmlspecialchars($bonus['reason']) ?></div>
+                            <span class="px-2.5 py-1 text-xs font-medium bg-teal-100 text-teal-800 rounded-full dark:bg-teal-900 dark:text-teal-300"><?= htmlspecialchars($bonus['type'] ?? '') ?></span>
+                            <div class="text-xs text-gray-500 mt-1"><?= htmlspecialchars($bonus['reason'] ?? '') ?></div>
                         </td>
                         <td class="px-6 py-4">
-                            <div class="font-semibold text-gray-900 dark:text-gray-300"><?= date('M j, Y', strtotime($bonus['date'])) ?></div>
+                            <div class="font-semibold text-gray-900 dark:text-gray-300"><?= date('M j, Y', strtotime($bonus['date'] ?? 'now')) ?></div>
                         </td>
                         <td class="px-6 py-4 text-right">
                             <form action="/payrollsystem/admin/bonuses" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this bonus?');">
+    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+
                                 <input type="hidden" name="action" value="delete">
                                 <input type="hidden" name="id" value="<?= $bonus['id'] ?>">
                                 <button type="submit" class="font-medium text-red-600 dark:text-red-500 hover:underline"><i class="fa-solid fa-trash-can"></i></button>
@@ -70,6 +72,8 @@
             </button>
         </div>
         <form action="/payrollsystem/admin/bonuses" method="POST" class="p-6 space-y-4">
+    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+
             <input type="hidden" name="action" value="add">
             
             <div>

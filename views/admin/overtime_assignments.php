@@ -56,6 +56,8 @@
                         <td class="px-6 py-4 text-right">
                             <?php if($assign['status'] === 'Active'): ?>
                                 <form action="/payrollsystem/admin/overtime_assignments" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to cancel this assignment?');">
+    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+
                                     <input type="hidden" name="action" value="cancel">
                                     <input type="hidden" name="id" value="<?= $assign['id'] ?>">
                                     <button type="submit" class="font-medium text-red-600 dark:text-red-500 hover:underline">Cancel</button>
@@ -80,6 +82,8 @@
             </button>
         </div>
         <form action="/payrollsystem/admin/overtime_assignments" method="POST" class="p-6 space-y-5">
+    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+
             <input type="hidden" name="action" value="add">
             
             <div>

@@ -185,34 +185,33 @@ class AdminController extends Controller {
         $db = new Database();
         $conn = $db->getConnection();
         
-        $period = $_GET['period'] ?? 'monthly'; // monthly, quarterly, yearly
-        $year = date('Y');
-        
         $labels = [];
         $payrollData = [];
         $bonusData = [];
         $deductionData = [];
-        $overtimeData = [];
         
-        if ($period === 'monthly') {
-            for ($i = 1; $i <= 12; $i++) {
-                $labels[] = date('M', mktime(0, 0, 0, $i, 1));
-                
-                // Payroll
-                $stmt = $conn->prepare("SELECT SUM(net_salary) as total FROM payroll WHERE month = :m AND year = :y");
-                $stmt->execute([':m' => $i, ':y' => $year]);
-                $payrollData[] = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
-                
-                // Bonuses
-                $stmt = $conn->prepare("SELECT SUM(amount) as total FROM bonuses WHERE MONTH(date) = :m AND YEAR(date) = :y");
-                $stmt->execute([':m' => $i, ':y' => $year]);
-                $bonusData[] = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
-                
-                // Deductions
-                $stmt = $conn->prepare("SELECT SUM(amount) as total FROM deductions WHERE MONTH(date) = :m AND YEAR(date) = :y");
-                $stmt->execute([':m' => $i, ':y' => $year]);
-                $deductionData[] = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
-            }
+        // Fetch last 6 months
+        for ($i = 5; $i >= 0; $i--) {
+            $monthStr = date('Y-m', strtotime("-$i months"));
+            $m = date('n', strtotime($monthStr));
+            $y = date('Y', strtotime($monthStr));
+            
+            $labels[] = date('M Y', strtotime($monthStr));
+            
+            // Payroll
+            $stmt = $conn->prepare("SELECT SUM(net_salary) as total FROM payroll WHERE month = :m AND year = :y");
+            $stmt->execute([':m' => $m, ':y' => $y]);
+            $payrollData[] = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+            
+            // Bonuses
+            $stmt = $conn->prepare("SELECT SUM(amount) as total FROM bonuses WHERE MONTH(date) = :m AND YEAR(date) = :y");
+            $stmt->execute([':m' => $m, ':y' => $y]);
+            $bonusData[] = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+            
+            // Deductions
+            $stmt = $conn->prepare("SELECT SUM(amount) as total FROM deductions WHERE MONTH(date) = :m AND YEAR(date) = :y");
+            $stmt->execute([':m' => $m, ':y' => $y]);
+            $deductionData[] = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
         }
         
         echo json_encode([
@@ -228,6 +227,7 @@ class AdminController extends Controller {
         $departmentModel = $this->model('Department');
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $this->validateCsrfToken($_POST['csrf_token'] ?? '');
             if (isset($_POST['action'])) {
                 if ($_POST['action'] === 'add') {
                     $departmentModel->name = $_POST['name'];
@@ -258,6 +258,7 @@ class AdminController extends Controller {
         $departmentModel = $this->model('Department');
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $this->validateCsrfToken($_POST['csrf_token'] ?? '');
             if (isset($_POST['action'])) {
                 if ($_POST['action'] === 'add') {
                     $positionModel->name = $_POST['name'];
@@ -293,6 +294,7 @@ class AdminController extends Controller {
         $positionModel = $this->model('Position');
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $this->validateCsrfToken($_POST['csrf_token'] ?? '');
             if (isset($_POST['action'])) {
                 if ($_POST['action'] === 'add') {
                     $employeeModel->employee_code = $_POST['employee_code'];
@@ -464,6 +466,7 @@ class AdminController extends Controller {
         $leaveTypeModel = $this->model('LeaveType');
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $this->validateCsrfToken($_POST['csrf_token'] ?? '');
             if (isset($_POST['action'])) {
                 if ($_POST['action'] === 'add') {
                     $leaveTypeModel->name = $_POST['name'];
@@ -518,6 +521,7 @@ class AdminController extends Controller {
         $departmentModel = $this->model('Department');
         
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
+            $this->validateCsrfToken($_POST['csrf_token'] ?? '');
             if ($_POST['action'] === 'add') {
                 $title = $_POST['title'];
                 $date = $_POST['date'];
@@ -594,6 +598,7 @@ class AdminController extends Controller {
         $employeeModel = $this->model('Employee');
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
+            $this->validateCsrfToken($_POST['csrf_token'] ?? '');
             if ($_POST['action'] === 'add') {
                 $employee_id = $_POST['employee_id'];
                 $amount = $_POST['amount'];
@@ -629,6 +634,7 @@ class AdminController extends Controller {
         $employeeModel = $this->model('Employee');
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
+            $this->validateCsrfToken($_POST['csrf_token'] ?? '');
             if ($_POST['action'] === 'add') {
                 $employee_id = $_POST['employee_id'];
                 $amount = $_POST['amount'];
@@ -667,6 +673,7 @@ class AdminController extends Controller {
         $year = $_GET['year'] ?? date('Y');
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
+            $this->validateCsrfToken($_POST['csrf_token'] ?? '');
             if ($_POST['action'] === 'generate') {
                 $genMonth = $_POST['month'];
                 $genYear = $_POST['year'];
@@ -743,6 +750,7 @@ class AdminController extends Controller {
         $holidayModel = $this->model('Holiday');
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $this->validateCsrfToken($_POST['csrf_token'] ?? '');
             if (isset($_POST['action'])) {
                 if ($_POST['action'] === 'add') {
                     $holidayModel->name = $_POST['name'];
@@ -774,6 +782,7 @@ class AdminController extends Controller {
         $settingModel = $this->model('Setting');
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $this->validateCsrfToken($_POST['csrf_token'] ?? '');
             $settingModel->company_name = $_POST['company_name'];
             $settingModel->office_start_time = $_POST['office_start_time'];
             $settingModel->office_end_time = $_POST['office_end_time'];
@@ -793,6 +802,9 @@ class AdminController extends Controller {
             $settingModel->half_day_leave_rules = $_POST['half_day_leave_rules'] ?? '';
             $settingModel->absent_deduction_rate = $_POST['absent_deduction_rate'] ?? 0;
             $settingModel->half_day_deduction_rate = $_POST['half_day_deduction_rate'] ?? 0;
+            $settingModel->unpaid_leave_deduction_rate = $_POST['unpaid_leave_deduction_rate'] ?? 0;
+            $settingModel->auto_deduction_enabled = isset($_POST['auto_deduction_enabled']) ? 1 : 0;
+            $settingModel->deduction_calculation_method = $_POST['deduction_calculation_method'] ?? 'Salary-Based';
             $settingModel->late_deduction_rules = $_POST['late_deduction_rules'] ?? '';
             $settingModel->excess_paid_leave_deduction_rules = $_POST['excess_paid_leave_deduction_rules'] ?? '';
             $settingModel->custom_deduction_rules = $_POST['custom_deduction_rules'] ?? '';
@@ -807,6 +819,20 @@ class AdminController extends Controller {
             'title' => 'System Settings',
             'content' => 'admin/settings',
             'settings' => $settings
+        ]);
+    }
+
+    public function reports() {
+        $this->view('layouts/main', [
+            'title' => 'Reports',
+            'content' => 'admin/reports'
+        ]);
+    }
+
+    public function notifications() {
+        $this->view('layouts/main', [
+            'title' => 'Notifications',
+            'content' => 'admin/notifications'
         ]);
     }
 }

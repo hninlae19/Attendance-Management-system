@@ -15,10 +15,10 @@ $currentMonthName = $monthNames[(int)$data['selectedMonth']];
     }
 }">
     <!-- Header & Controls -->
-    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6" data-aos="fade-down">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Monthly Payroll Summary</h1>
-            <p class="text-gray-500 dark:text-gray-400 mt-1"><?= $currentMonthName ?> <?= htmlspecialchars($data['selectedYear']) ?></p>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Monthly Payroll Summary</h1>
+            <p class="text-gray-500 dark:text-gray-400 text-sm mt-1"><?= $currentMonthName ?> <?= htmlspecialchars($data['selectedYear']) ?></p>
         </div>
         
         <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
@@ -39,6 +39,8 @@ $currentMonthName = $monthNames[(int)$data['selectedMonth']];
             
             <!-- Generate -->
             <form method="POST" action="/payrollsystem/admin/payroll" class="inline">
+    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+
                 <input type="hidden" name="action" value="generate">
                 <input type="hidden" name="month" value="<?= $data['selectedMonth'] ?>">
                 <input type="hidden" name="year" value="<?= $data['selectedYear'] ?>">
@@ -50,13 +52,12 @@ $currentMonthName = $monthNames[(int)$data['selectedMonth']];
     </div>
 
     <!-- Data Table -->
-    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-gray-700 overflow-hidden" data-aos="fade-up" data-aos-delay="100">
         <div class="overflow-x-auto">
             <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700/50 dark:text-gray-300">
+                <thead class="text-xs text-gray-500 uppercase bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-700">
                     <tr>
-                        <th class="px-4 py-3">Code</th>
-                        <th class="px-4 py-3">Employee</th>
+                        <th class="px-4 py-3 font-semibold tracking-wider">Employee</th>
                         <th class="px-4 py-3">Department</th>
                         <th class="px-4 py-3">Position</th>
                         <th class="px-4 py-3 bg-gray-100 dark:bg-gray-800/50">Basic Salary (MMK)</th>
@@ -86,9 +87,18 @@ $currentMonthName = $monthNames[(int)$data['selectedMonth']];
                     </tr>
                     <?php else: ?>
                         <?php foreach($data['payrolls'] as $p): ?>
-                        <tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                            <td class="px-4 py-3 font-medium text-gray-900 dark:text-white"><?= htmlspecialchars($p['employee_code']) ?></td>
-                            <td class="px-4 py-3 font-bold text-gray-900 dark:text-white"><?= htmlspecialchars($p['first_name'] . ' ' . $p['last_name']) ?></td>
+                        <tr class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors group">
+                            <td class="px-4 py-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-blue-500/20 text-primary dark:text-blue-400 flex items-center justify-center font-bold text-xs ring-2 ring-white dark:ring-gray-800 group-hover:ring-primary/20 transition-all shadow-sm">
+                                        <?= strtoupper(substr($p['first_name'],0,1) . substr($p['last_name'],0,1)) ?>
+                                    </div>
+                                    <div>
+                                        <div class="font-bold text-gray-900 dark:text-white"><?= htmlspecialchars($p['first_name'] . ' ' . $p['last_name']) ?></div>
+                                        <div class="text-xs text-primary font-medium">EMP-<?= htmlspecialchars($p['employee_code']) ?></div>
+                                    </div>
+                                </div>
+                            </td>
                             <td class="px-4 py-3"><?= htmlspecialchars($p['department_name']) ?></td>
                             <td class="px-4 py-3">N/A</td> <!-- Join pos query later if needed -->
                             <td class="px-4 py-3 bg-gray-50 dark:bg-gray-800/30"><?= number_format($p['basic_salary']) ?></td>
@@ -111,9 +121,9 @@ $currentMonthName = $monthNames[(int)$data['selectedMonth']];
                             
                             <td class="px-4 py-3">
                                 <?php if($p['status'] === 'Paid'): ?>
-                                    <span class="px-2.5 py-1 text-xs font-medium bg-emerald-100 text-emerald-800 rounded-full dark:bg-emerald-900/50 dark:text-emerald-300">Paid</span>
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800/30 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span> Paid</span>
                                 <?php else: ?>
-                                    <span class="px-2.5 py-1 text-xs font-medium bg-amber-100 text-amber-800 rounded-full dark:bg-amber-900/50 dark:text-amber-300">Pending</span>
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800/30 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5"></span> Pending</span>
                                 <?php endif; ?>
                             </td>
                             
@@ -149,6 +159,8 @@ $currentMonthName = $monthNames[(int)$data['selectedMonth']];
                 </button>
             </div>
             <form method="POST" action="/payrollsystem/admin/payroll" class="p-4 md:p-5">
+    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+
                 <input type="hidden" name="action" value="pay">
                 <input type="hidden" name="payroll_id" :value="selectedPayrollId">
                 <input type="hidden" name="month" value="<?= $data['selectedMonth'] ?>">

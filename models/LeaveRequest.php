@@ -45,19 +45,18 @@ class LeaveRequest {
                 $leaveStmt->execute([$id]);
                 $leave = $leaveStmt->fetch(PDO::FETCH_ASSOC);
 
+                require_once __DIR__ . '/Deduction.php';
+                $deduction = new Deduction();
+
                 if ($leave && $leave['is_paid'] == 1) {
                     $year = date('Y', strtotime($leave['start_date']));
-                    // Get Settings
-                    $setStmt = $this->conn->query("SELECT paid_leave_limit FROM settings LIMIT 1");
-                    $settings = $setStmt->fetch(PDO::FETCH_ASSOC);
-                    $limit = $settings['paid_leave_limit'] ?? 35;
+                    
+                    // Get limit from leave_types
+                    $limit = $leave['days_allowed'] ?? 0;
 
-                    // Get total approved paid leaves for this year (excluding the current one since it was just approved? Wait, if it was just approved, the sum WILL include it. So we must calculate the excess.
-                    // Wait, if it includes it, total = sum. If total > limit, excess = total - limit.
-                    // But we only want to deduct for THIS request's excess, not past ones if they were already deducted.
-                    // So we get total BEFORE this request.
-                    $sumStmt = $this->conn->prepare("SELECT SUM(lr.days) as total FROM " . $this->table . " lr JOIN leave_types lt ON lr.leave_type_id = lt.id WHERE lr.employee_id = ? AND lr.status = 'Approved' AND lt.is_paid = 1 AND YEAR(lr.start_date) = ? AND lr.id != ?");
-                    $sumStmt->execute([$leave['employee_id'], $year, $id]);
+                    // Get total approved paid leaves of this type for this year
+                    $sumStmt = $this->conn->prepare("SELECT SUM(lr.days) as total FROM " . $this->table . " lr WHERE lr.employee_id = ? AND lr.status = 'Approved' AND lr.leave_type_id = ? AND YEAR(lr.start_date) = ? AND lr.id != ?");
+                    $sumStmt->execute([$leave['employee_id'], $leave['leave_type_id'], $year, $id]);
                     $past_total = $sumStmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
 
                     $new_total = $past_total + $leave['days'];
@@ -68,18 +67,22 @@ class LeaveRequest {
                         }
 
                         if ($excess_days > 0) {
-                            // Get employee salary to calculate deduction
-                            $empStmt = $this->conn->prepare("SELECT basic_salary FROM employees WHERE id = ?");
-                            $empStmt->execute([$leave['employee_id']]);
-                            $emp = $empStmt->fetch(PDO::FETCH_ASSOC);
-                            
-                            $daily_rate = ($emp['basic_salary'] ?? 0) / 30;
-                            $deduction_amount = $excess_days * $daily_rate;
-
-                            // Insert into deductions table
-                            $deductStmt = $this->conn->prepare("INSERT INTO deductions (employee_id, amount, type, reason, date, created_by, status) VALUES (?, ?, 'Automated Excess Leave', 'Exceeded Paid Leave Limit by {$excess_days} days', ?, 'System', 'Applied')");
-                            $deductStmt->execute([$leave['employee_id'], $deduction_amount, $leave['start_date']]);
+                            $current_date = strtotime($leave['end_date']);
+                            for ($i = 0; $i < $excess_days; $i++) {
+                                $date_str = date('Y-m-d', $current_date);
+                                $deduction->applyAutomatedDeduction($leave['employee_id'], 'Unpaid Leave', $date_str, 'Exceeded Paid Leave Limit (Unpaid Leave)', 'Leave Management System');
+                                $current_date = strtotime("-1 day", $current_date);
+                            }
                         }
+                    }
+                } elseif ($leave && $leave['is_paid'] == 0) {
+                    // Unpaid leave creates deductions for all days
+                    $current_date = strtotime($leave['start_date']);
+                    $end_date = strtotime($leave['end_date']);
+                    while ($current_date <= $end_date) {
+                        $date_str = date('Y-m-d', $current_date);
+                        $deduction->applyAutomatedDeduction($leave['employee_id'], 'Unpaid Leave', $date_str, 'Approved Unpaid Leave', 'Leave Management System');
+                        $current_date = strtotime("+1 day", $current_date);
                     }
                 }
             }

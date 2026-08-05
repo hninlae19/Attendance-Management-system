@@ -253,99 +253,111 @@
         return strpos($currentPath, $path) !== false;
     };
     ?>
-    <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform duration-300 bg-white border-r border-gray-200 sm:translate-x-0 dark:bg-dark dark:border-gray-700" aria-label="Sidebar">
+    <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform duration-300 bg-white border-r border-gray-200 sm:translate-x-0 dark:bg-darker dark:border-gray-800" aria-label="Sidebar">
         <div class="h-full px-4 pb-4 overflow-y-auto">
-            <ul class="space-y-2 font-medium">
+            <ul class="space-y-2 font-medium text-sm">
+                
+                <!-- DASHBOARD -->
                 <li>
                     <a href="/payrollsystem/admin" class="flex items-center p-3 rounded-xl transition-all duration-300 group relative overflow-hidden <?= $currentPath == '/payrollsystem/admin' ? 'bg-primary/10 text-primary border-l-4 border-primary' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600' ?>">
                         <i class="fa-solid fa-chart-pie w-6 h-6 flex items-center justify-center transition-all duration-300 <?= $currentPath == '/payrollsystem/admin' ? 'text-primary scale-110 drop-shadow-[0_0_8px_rgba(79,70,229,0.5)]' : 'text-gray-400 group-hover:text-primary' ?>"></i>
                         <span class="ms-3 font-semibold relative z-10">Dashboard</span>
                     </a>
                 </li>
-                
-                <li>
-                    <a href="/payrollsystem/admin/employees" class="flex items-center p-3 rounded-xl transition-all duration-300 group relative overflow-hidden <?= $isActive('/employees') ? 'bg-primary/10 text-primary border-l-4 border-primary' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600' ?>">
-                        <i class="fa-solid fa-users w-6 h-6 flex items-center justify-center transition-all duration-300 <?= $isActive('/employees') ? 'text-primary scale-110 drop-shadow-[0_0_8px_rgba(79,70,229,0.5)]' : 'text-gray-400 group-hover:text-primary' ?>"></i>
-                        <span class="ms-3 font-semibold relative z-10">Employees</span>
-                    </a>
-                </li>
-                
-                <li>
-                    <a href="/payrollsystem/admin/departments" class="flex items-center p-3 rounded-xl transition-all duration-300 group relative overflow-hidden <?= $isActive('/departments') ? 'bg-primary/10 text-primary border-l-4 border-primary' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600' ?>">
-                        <i class="fa-solid fa-sitemap w-6 h-6 flex items-center justify-center transition-all duration-300 <?= $isActive('/departments') ? 'text-primary scale-110 drop-shadow-[0_0_8px_rgba(79,70,229,0.5)]' : 'text-gray-400 group-hover:text-primary' ?>"></i>
-                        <span class="ms-3 font-semibold relative z-10">Departments</span>
-                    </a>
+
+                <!-- EMPLOYEE MANAGEMENT -->
+                <li x-data="{ open: <?= $isActive('/employees') || $isActive('/departments') || $isActive('/positions') ? 'true' : 'false' ?> }">
+                    <button @click="open = !open" class="flex items-center w-full p-3 rounded-xl transition-all duration-300 group relative overflow-hidden <?= $isActive('/employees') || $isActive('/departments') || $isActive('/positions') ? 'text-primary' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600' ?>">
+                        <i class="fa-solid fa-users w-6 h-6 flex items-center justify-center transition-all duration-300 <?= $isActive('/employees') || $isActive('/departments') || $isActive('/positions') ? 'text-primary scale-110 drop-shadow-[0_0_8px_rgba(79,70,229,0.5)]' : 'text-gray-400 group-hover:text-primary' ?>"></i>
+                        <span class="ms-3 font-semibold text-left whitespace-nowrap flex-1">Employee Mgmt</span>
+                        <i class="fa-solid fa-chevron-down text-sm transition-transform duration-300" :class="open ? 'rotate-180 text-primary' : 'text-gray-400'"></i>
+                    </button>
+                    <ul x-show="open" x-collapse.duration.300ms class="py-2 space-y-1">
+                        <li><a href="/payrollsystem/admin/employees" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/employees') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Employees</a></li>
+                        <li><a href="/payrollsystem/admin/departments" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/departments') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Departments</a></li>
+                        <li><a href="/payrollsystem/admin/positions" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/positions') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Positions</a></li>
+                    </ul>
                 </li>
 
-                <li>
-                    <a href="/payrollsystem/admin/positions" class="flex items-center p-3 rounded-xl transition-all duration-300 group relative overflow-hidden <?= $isActive('/positions') ? 'bg-primary/10 text-primary border-l-4 border-primary' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600' ?>">
-                        <i class="fa-solid fa-briefcase w-6 h-6 flex items-center justify-center transition-all duration-300 <?= $isActive('/positions') ? 'text-primary scale-110 drop-shadow-[0_0_8px_rgba(79,70,229,0.5)]' : 'text-gray-400 group-hover:text-primary' ?>"></i>
-                        <span class="ms-3 font-semibold relative z-10">Positions</span>
-                    </a>
-                </li>
-
-                <!-- Attendance Dropdown -->
+                <!-- ATTENDANCE MANAGEMENT -->
                 <li x-data="{ open: <?= $isActive('/attendance') ? 'true' : 'false' ?> }">
                     <button @click="open = !open" class="flex items-center w-full p-3 rounded-xl transition-all duration-300 group relative overflow-hidden <?= $isActive('/attendance') ? 'text-primary' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600' ?>">
                         <i class="fa-solid fa-clock-rotate-left w-6 h-6 flex items-center justify-center transition-all duration-300 <?= $isActive('/attendance') ? 'text-primary scale-110 drop-shadow-[0_0_8px_rgba(79,70,229,0.5)]' : 'text-gray-400 group-hover:text-primary' ?>"></i>
-                        <span class="ms-3 font-semibold text-left whitespace-nowrap flex-1">Attendance</span>
+                        <span class="ms-3 font-semibold text-left whitespace-nowrap flex-1">Attendance Mgmt</span>
                         <i class="fa-solid fa-chevron-down text-sm transition-transform duration-300" :class="open ? 'rotate-180 text-primary' : 'text-gray-400'"></i>
                     </button>
                     <ul x-show="open" x-collapse.duration.300ms class="py-2 space-y-1">
-                        <li><a href="/payrollsystem/admin/attendance" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/attendance') && !isset($_GET['tab']) ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>"><i class="fa-solid fa-list mr-2 text-xs"></i> Records</a></li>
-                        <li><a href="/payrollsystem/admin/attendance?tab=corrections" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= isset($_GET['tab']) && $_GET['tab'] == 'corrections' ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>"><i class="fa-solid fa-code-pull-request mr-2 text-xs"></i> Corrections</a></li>
+                        <li><a href="/payrollsystem/admin/attendance?view=daily" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/attendance') && (isset($_GET['view']) && $_GET['view'] == 'daily' || !isset($_GET['view']) && !isset($_GET['tab'])) ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Daily Attendance</a></li>
+                        <li><a href="/payrollsystem/admin/attendance?view=weekly" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= isset($_GET['view']) && $_GET['view'] == 'weekly' ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Weekly Attendance</a></li>
+                        <li><a href="/payrollsystem/admin/attendance?view=monthly" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= isset($_GET['view']) && $_GET['view'] == 'monthly' ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Monthly Attendance</a></li>
+                        <li><a href="/payrollsystem/admin/attendance?tab=corrections" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= isset($_GET['tab']) && $_GET['tab'] == 'corrections' ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Corrections</a></li>
                     </ul>
                 </li>
 
-                <!-- Leave Management Dropdown -->
+                <!-- LEAVE MANAGEMENT -->
                 <li x-data="{ open: <?= $isActive('/leave') ? 'true' : 'false' ?> }">
                     <button @click="open = !open" class="flex items-center w-full p-3 rounded-xl transition-all duration-300 group relative overflow-hidden <?= $isActive('/leave') ? 'text-primary' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600' ?>">
                         <i class="fa-solid fa-calendar-minus w-6 h-6 flex items-center justify-center transition-all duration-300 <?= $isActive('/leave') ? 'text-primary scale-110 drop-shadow-[0_0_8px_rgba(79,70,229,0.5)]' : 'text-gray-400 group-hover:text-primary' ?>"></i>
-                        <span class="ms-3 font-semibold text-left whitespace-nowrap flex-1">Leave Management</span>
-                        <!-- Notification Badge for Leave -->
-                        <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full mr-2 dark:bg-emerald-900/30 dark:text-emerald-400">New</span>
+                        <span class="ms-3 font-semibold text-left whitespace-nowrap flex-1">Leave Mgmt</span>
                         <i class="fa-solid fa-chevron-down text-sm transition-transform duration-300" :class="open ? 'rotate-180 text-primary' : 'text-gray-400'"></i>
                     </button>
                     <ul x-show="open" x-collapse.duration.300ms class="py-2 space-y-1">
-                        <li><a href="/payrollsystem/admin/leaves" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/leaves') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>"><i class="fa-solid fa-inbox mr-2 text-xs"></i> Requests</a></li>
-                        <li><a href="/payrollsystem/admin/leave_types" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/leave_types') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>"><i class="fa-solid fa-tags mr-2 text-xs"></i> Leave Types</a></li>
+                        <li><a href="/payrollsystem/admin/leaves" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/leaves') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Leave Requests</a></li>
+                        <li><a href="/payrollsystem/admin/leave_types" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/leave_types') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Leave Types</a></li>
                     </ul>
                 </li>
 
-                <!-- Overtime Management Dropdown -->
+                <!-- OVERTIME MANAGEMENT -->
                 <li x-data="{ open: <?= $isActive('/overtime') ? 'true' : 'false' ?> }">
                     <button @click="open = !open" class="flex items-center w-full p-3 rounded-xl transition-all duration-300 group relative overflow-hidden <?= $isActive('/overtime') ? 'text-primary' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600' ?>">
                         <i class="fa-solid fa-business-time w-6 h-6 flex items-center justify-center transition-all duration-300 <?= $isActive('/overtime') ? 'text-primary scale-110 drop-shadow-[0_0_8px_rgba(79,70,229,0.5)]' : 'text-gray-400 group-hover:text-primary' ?>"></i>
-                        <span class="ms-3 font-semibold text-left whitespace-nowrap flex-1">Overtime</span>
+                        <span class="ms-3 font-semibold text-left whitespace-nowrap flex-1">Overtime Mgmt</span>
                         <i class="fa-solid fa-chevron-down text-sm transition-transform duration-300" :class="open ? 'rotate-180 text-primary' : 'text-gray-400'"></i>
                     </button>
                     <ul x-show="open" x-collapse.duration.300ms class="py-2 space-y-1">
-                        <li><a href="/payrollsystem/admin/overtime" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/overtime') && !$isActive('/overtime_assignments') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>"><i class="fa-solid fa-list-check mr-2 text-xs"></i> Requests</a></li>
-                        <li><a href="/payrollsystem/admin/overtime_assignments" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/overtime_assignments') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>"><i class="fa-solid fa-user-plus mr-2 text-xs"></i> Assignments</a></li>
+                        <li><a href="/payrollsystem/admin/overtime" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/overtime') && !$isActive('/overtime_assignments') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">OT Requests</a></li>
+                        <li><a href="/payrollsystem/admin/overtime_assignments" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/overtime_assignments') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">OT Assignments</a></li>
                     </ul>
                 </li>
 
-                <!-- Payroll Management Dropdown -->
+                <!-- PAYROLL MANAGEMENT -->
                 <li x-data="{ open: <?= $isActive('/payroll') || $isActive('/bonus') || $isActive('/deduction') ? 'true' : 'false' ?> }">
                     <button @click="open = !open" class="flex items-center w-full p-3 rounded-xl transition-all duration-300 group relative overflow-hidden <?= $isActive('/payroll') || $isActive('/bonus') || $isActive('/deduction') ? 'text-primary' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600' ?>">
                         <i class="fa-solid fa-file-invoice-dollar w-6 h-6 flex items-center justify-center transition-all duration-300 <?= $isActive('/payroll') || $isActive('/bonus') || $isActive('/deduction') ? 'text-primary scale-110 drop-shadow-[0_0_8px_rgba(79,70,229,0.5)]' : 'text-gray-400 group-hover:text-primary' ?>"></i>
-                        <span class="ms-3 font-semibold text-left whitespace-nowrap flex-1">Payroll Management</span>
+                        <span class="ms-3 font-semibold text-left whitespace-nowrap flex-1">Payroll Mgmt</span>
                         <i class="fa-solid fa-chevron-down text-sm transition-transform duration-300" :class="open ? 'rotate-180 text-primary' : 'text-gray-400'"></i>
                     </button>
                     <ul x-show="open" x-collapse.duration.300ms class="py-2 space-y-1">
-                        <li><a href="/payrollsystem/admin/payroll" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/payroll') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>"><i class="fa-solid fa-file-invoice mr-2 text-xs"></i> Records</a></li>
-                        <li><a href="/payrollsystem/admin/bonuses" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/bonuses') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>"><i class="fa-solid fa-gift mr-2 text-xs"></i> Bonuses</a></li>
-                        <li><a href="/payrollsystem/admin/deductions" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/deductions') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>"><i class="fa-solid fa-minus-circle mr-2 text-xs"></i> Deductions</a></li>
+                        <li><a href="/payrollsystem/admin/payroll" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/payroll') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Payroll List</a></li>
+                        <li><a href="/payrollsystem/admin/bonuses" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/bonuses') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Bonuses</a></li>
+                        <li><a href="/payrollsystem/admin/deductions" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/deductions') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Deductions</a></li>
                     </ul>
                 </li>
-
-                <!-- Settings & Others -->
+                
+                <!-- REPORTS -->
+                <li x-data="{ open: <?= $isActive('/report') ? 'true' : 'false' ?> }">
+                    <button @click="open = !open" class="flex items-center w-full p-3 rounded-xl transition-all duration-300 group relative overflow-hidden <?= $isActive('/report') ? 'text-primary' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600' ?>">
+                        <i class="fa-solid fa-chart-line w-6 h-6 flex items-center justify-center transition-all duration-300 <?= $isActive('/report') ? 'text-primary scale-110 drop-shadow-[0_0_8px_rgba(79,70,229,0.5)]' : 'text-gray-400 group-hover:text-primary' ?>"></i>
+                        <span class="ms-3 font-semibold text-left whitespace-nowrap flex-1">Reports</span>
+                        <i class="fa-solid fa-chevron-down text-sm transition-transform duration-300" :class="open ? 'rotate-180 text-primary' : 'text-gray-400'"></i>
+                    </button>
+                    <ul x-show="open" x-collapse.duration.300ms class="py-2 space-y-1">
+                        <li><a href="/payrollsystem/admin/reports_attendance" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/reports_attendance') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Attendance Reports</a></li>
+                        <li><a href="/payrollsystem/admin/reports_payroll" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/reports_payroll') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Payroll Reports</a></li>
+                        <li><a href="/payrollsystem/admin/reports_leave" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/reports_leave') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Leave Reports</a></li>
+                        <li><a href="/payrollsystem/admin/reports_ot" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/reports_ot') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">OT Reports</a></li>
+                    </ul>
+                </li>
+                
+                <!-- NOTIFICATIONS -->
                 <li>
-                    <a href="/payrollsystem/admin/holidays" class="flex items-center p-3 rounded-xl transition-all duration-300 group relative overflow-hidden <?= $isActive('/holidays') ? 'bg-primary/10 text-primary border-l-4 border-primary' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600' ?>">
-                        <i class="fa-solid fa-umbrella-beach w-6 h-6 flex items-center justify-center transition-all duration-300 <?= $isActive('/holidays') ? 'text-primary scale-110 drop-shadow-[0_0_8px_rgba(79,70,229,0.5)]' : 'text-gray-400 group-hover:text-primary' ?>"></i>
-                        <span class="ms-3 font-semibold relative z-10">Holidays</span>
+                    <a href="/payrollsystem/admin/notifications" class="flex items-center p-3 rounded-xl transition-all duration-300 group relative overflow-hidden <?= $isActive('/notifications') ? 'bg-primary/10 text-primary border-l-4 border-primary' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600' ?>">
+                        <i class="fa-solid fa-bell w-6 h-6 flex items-center justify-center transition-all duration-300 <?= $isActive('/notifications') ? 'text-primary scale-110 drop-shadow-[0_0_8px_rgba(79,70,229,0.5)]' : 'text-gray-400 group-hover:text-primary' ?>"></i>
+                        <span class="ms-3 font-semibold relative z-10">Notifications</span>
                     </a>
                 </li>
+                
+                <!-- SETTINGS -->
                 <li>
                     <a href="/payrollsystem/admin/settings" class="flex items-center p-3 rounded-xl transition-all duration-300 group relative overflow-hidden <?= $isActive('/settings') ? 'bg-primary/10 text-primary border-l-4 border-primary' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600' ?>">
                         <i class="fa-solid fa-gear w-6 h-6 flex items-center justify-center transition-all duration-300 <?= $isActive('/settings') ? 'text-primary scale-110 drop-shadow-[0_0_8px_rgba(79,70,229,0.5)]' : 'text-gray-400 group-hover:text-primary' ?>"></i>

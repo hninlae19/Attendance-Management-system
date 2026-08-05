@@ -1,215 +1,211 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<div class="mb-6 flex justify-between items-center" data-aos="fade-down">
-    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
-    <p class="text-gray-500 text-sm"><i class="fa-solid fa-clock mr-1"></i> <span id="current-time"><?= date('l, F j, Y h:i A') ?></span></p>
-</div>
-
-<!-- Dashboard Sections -->
-<div class="space-y-8 mb-8" id="dashboard-stats">
-
-    <!-- Attendance Dashboard -->
-    <section data-aos="fade-up" data-aos-delay="0">
-        <h2 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-4 flex items-center">
-            <i class="fa-solid fa-clock-rotate-left text-blue-500 mr-2"></i> Attendance Overview
-        </h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <!-- Present -->
-            <div class="bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/20 dark:to-gray-800 backdrop-blur-md rounded-2xl shadow-sm p-5 border border-blue-100 dark:border-blue-800/30 hover:shadow-md transition-all duration-300 relative overflow-hidden group">
-                <div class="absolute -right-4 -top-4 w-16 h-16 bg-blue-500/10 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
-                <div class="flex justify-between items-start relative z-10">
-                    <div>
-                        <p class="text-sm font-medium text-blue-600/80 dark:text-blue-400/80 mb-1">Present Today</p>
-                        <h3 class="text-3xl font-bold text-blue-700 dark:text-blue-300" id="stat-present"><?= $presentToday ?? 0 ?></h3>
-                    </div>
-                    <div class="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center shadow-lg shadow-blue-500/30">
-                        <i class="fa-solid fa-user-check"></i>
-                    </div>
-                </div>
-            </div>
-            <!-- Absent -->
-            <div class="bg-gradient-to-br from-red-50 to-white dark:from-red-900/20 dark:to-gray-800 backdrop-blur-md rounded-2xl shadow-sm p-5 border border-red-100 dark:border-red-800/30 hover:shadow-md transition-all duration-300 relative overflow-hidden group">
-                <div class="absolute -right-4 -top-4 w-16 h-16 bg-red-500/10 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
-                <div class="flex justify-between items-start relative z-10">
-                    <div>
-                        <p class="text-sm font-medium text-red-600/80 dark:text-red-400/80 mb-1">Absent Today</p>
-                        <h3 class="text-3xl font-bold text-red-700 dark:text-red-300" id="stat-absent"><?= $absentToday ?? 0 ?></h3>
-                    </div>
-                    <div class="w-10 h-10 rounded-xl bg-red-500 text-white flex items-center justify-center shadow-lg shadow-red-500/30">
-                        <i class="fa-solid fa-user-xmark"></i>
-                    </div>
-                </div>
-            </div>
-            <!-- Late -->
-            <div class="bg-gradient-to-br from-orange-50 to-white dark:from-orange-900/20 dark:to-gray-800 backdrop-blur-md rounded-2xl shadow-sm p-5 border border-orange-100 dark:border-orange-800/30 hover:shadow-md transition-all duration-300 relative overflow-hidden group">
-                <div class="absolute -right-4 -top-4 w-16 h-16 bg-orange-500/10 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
-                <div class="flex justify-between items-start relative z-10">
-                    <div>
-                        <p class="text-sm font-medium text-orange-600/80 dark:text-orange-400/80 mb-1">Late Today</p>
-                        <h3 class="text-3xl font-bold text-orange-700 dark:text-orange-300" id="stat-late"><?= $lateToday ?? 0 ?></h3>
-                    </div>
-                    <div class="w-10 h-10 rounded-xl bg-orange-500 text-white flex items-center justify-center shadow-lg shadow-orange-500/30">
-                        <i class="fa-solid fa-person-running"></i>
-                    </div>
-                </div>
-            </div>
-            <!-- Overtime -->
-            <div class="bg-gradient-to-br from-indigo-50 to-white dark:from-indigo-900/20 dark:to-gray-800 backdrop-blur-md rounded-2xl shadow-sm p-5 border border-indigo-100 dark:border-indigo-800/30 hover:shadow-md transition-all duration-300 relative overflow-hidden group">
-                <div class="absolute -right-4 -top-4 w-16 h-16 bg-indigo-500/10 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
-                <div class="flex justify-between items-start relative z-10">
-                    <div>
-                        <p class="text-sm font-medium text-indigo-600/80 dark:text-indigo-400/80 mb-1">Pending Overtime</p>
-                        <h3 class="text-3xl font-bold text-indigo-700 dark:text-indigo-300" id="stat-ot"><?= $pendingOvertime ?? 0 ?></h3>
-                    </div>
-                    <div class="w-10 h-10 rounded-xl bg-indigo-500 text-white flex items-center justify-center shadow-lg shadow-indigo-500/30">
-                        <i class="fa-solid fa-bolt"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Leave Dashboard -->
-    <section data-aos="fade-up" data-aos-delay="100">
-        <h2 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-4 flex items-center">
-            <i class="fa-solid fa-calendar-minus text-emerald-500 mr-2"></i> Leave Management
-        </h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- Pending -->
-            <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-2xl shadow-sm p-5 border border-gray-100 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-500 transition-all duration-300 flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Pending Requests</p>
-                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white"><?= $pendingLeaves ?? 0 ?></h3>
-                </div>
-                <div class="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 flex items-center justify-center text-xl">
-                    <i class="fa-solid fa-hourglass-half"></i>
-                </div>
-            </div>
-            <!-- Approved -->
-            <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-2xl shadow-sm p-5 border border-emerald-100 dark:border-emerald-800/30 hover:border-emerald-300 dark:hover:border-emerald-500 transition-all duration-300 flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-emerald-600/80 dark:text-emerald-400/80 mb-1">Approved Requests</p>
-                    <h3 class="text-2xl font-bold text-emerald-600 dark:text-emerald-400"><?= $approvedLeaves ?? 0 ?></h3>
-                </div>
-                <div class="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-500 dark:text-emerald-400 flex items-center justify-center text-xl">
-                    <i class="fa-solid fa-check"></i>
-                </div>
-            </div>
-            <!-- Rejected -->
-            <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-2xl shadow-sm p-5 border border-red-100 dark:border-red-800/30 hover:border-red-300 dark:hover:border-red-500 transition-all duration-300 flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-red-600/80 dark:text-red-400/80 mb-1">Rejected Requests</p>
-                    <h3 class="text-2xl font-bold text-red-600 dark:text-red-400"><?= $rejectedLeaves ?? 0 ?></h3>
-                </div>
-                <div class="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 text-red-500 dark:text-red-400 flex items-center justify-center text-xl">
-                    <i class="fa-solid fa-xmark"></i>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Payroll Dashboard -->
-    <section data-aos="fade-up" data-aos-delay="200">
-        <h2 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-4 flex items-center">
-            <i class="fa-solid fa-money-check-dollar text-cyan-500 mr-2"></i> Payroll & Finance
-        </h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <!-- Total Cost -->
-            <div class="bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl shadow-lg shadow-blue-500/20 p-5 text-white hover:-translate-y-1 transition-transform duration-300">
-                <p class="text-cyan-100 text-sm font-medium mb-1">Total Payroll Cost</p>
-                <h3 class="text-2xl font-bold mb-4"><?= number_format($monthlyPayroll ?? 0) ?> MMK</h3>
-                <div class="w-full bg-black/10 rounded-full h-1.5"><div class="bg-white h-1.5 rounded-full" style="width: 100%"></div></div>
-            </div>
-            <!-- Overtime Cost -->
-            <div class="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-lg shadow-gray-900/20 p-5 text-white hover:-translate-y-1 transition-transform duration-300">
-                <p class="text-gray-400 text-sm font-medium mb-1">Overtime Cost</p>
-                <h3 class="text-2xl font-bold mb-4 text-orange-400"><?= number_format($monthlyOvertimeCost ?? 0) ?> MMK</h3>
-                <div class="w-full bg-white/10 rounded-full h-1.5"><div class="bg-orange-400 h-1.5 rounded-full" style="width: 40%"></div></div>
-            </div>
-            <!-- Bonus Amount -->
-            <div class="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl shadow-lg shadow-emerald-500/20 p-5 text-white hover:-translate-y-1 transition-transform duration-300">
-                <p class="text-emerald-100 text-sm font-medium mb-1">Bonus Amount</p>
-                <h3 class="text-2xl font-bold mb-4"><?= number_format($monthlyBonus ?? 0) ?> MMK</h3>
-                <div class="w-full bg-black/10 rounded-full h-1.5"><div class="bg-white h-1.5 rounded-full" style="width: 25%"></div></div>
-            </div>
-            <!-- Deduction Amount -->
-            <div class="bg-gradient-to-br from-rose-500 to-red-600 rounded-2xl shadow-lg shadow-rose-500/20 p-5 text-white hover:-translate-y-1 transition-transform duration-300">
-                <p class="text-rose-100 text-sm font-medium mb-1">Deduction Amount</p>
-                <h3 class="text-2xl font-bold mb-4"><?= number_format($monthlyDeduction ?? 0) ?> MMK</h3>
-                <div class="w-full bg-black/10 rounded-full h-1.5"><div class="bg-white h-1.5 rounded-full" style="width: 15%"></div></div>
-            </div>
-        </div>
-    </section>
-
-</div>
-
-<!-- Charts Section -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8" data-aos="fade-up">
-    <!-- Attendance Overview Chart -->
-    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-        <h2 class="font-bold text-gray-900 dark:text-white mb-4">Today's Attendance Overview</h2>
-        <canvas id="attendanceChart" height="250"></canvas>
+<div class="mb-8 flex justify-between items-end" data-aos="fade-down">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Dashboard Overview</h1>
+        <p class="text-gray-500 text-sm mt-1">Welcome back! Here's what's happening today.</p>
     </div>
-    <!-- Payroll Trend Chart -->
-    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6" x-data="{ trendPeriod: 'monthly' }">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="font-bold text-gray-900 dark:text-white">Payroll Trend</h2>
-            <select x-model="trendPeriod" @change="updatePayrollTrend(trendPeriod)" class="text-sm border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-primary focus:border-primary">
-                <option value="monthly">Monthly</option>
-                <option value="quarterly">Quarterly</option>
-                <option value="yearly">Yearly</option>
-            </select>
-        </div>
-        <canvas id="payrollChart" height="250"></canvas>
+    <div class="text-right">
+        <p class="text-sm font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 px-4 py-2 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+            <i class="fa-solid fa-calendar-day text-primary mr-2"></i> <span id="current-time"><?= date('l, F j, Y') ?></span>
+        </p>
     </div>
 </div>
 
-<!-- Recent Activity & Quick Actions -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6" data-aos="fade-up">
+<!-- Primary Stats Row -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8" data-aos="fade-up" data-aos-delay="100">
     
-    <!-- Recent Attendance -->
-    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 lg:col-span-2">
-        <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
-            <h2 class="font-bold text-gray-900 dark:text-white">Recent Attendance Check-ins</h2>
-            <a href="/payrollsystem/admin/attendance" class="text-sm text-primary hover:underline">View All</a>
+    <!-- Total Employees -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-gray-700 relative overflow-hidden group hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+        <div class="absolute -right-6 -top-6 w-24 h-24 bg-primary/5 rounded-full group-hover:scale-150 transition-transform duration-700 ease-out"></div>
+        <div class="flex justify-between items-start relative z-10">
+            <div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Total Employees</p>
+                <h3 class="text-3xl font-bold text-gray-900 dark:text-white" id="stat-total-emp"><?= $totalEmployees ?? 0 ?></h3>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-primary dark:bg-indigo-900/30 dark:text-indigo-400 flex items-center justify-center text-xl shadow-inner">
+                <i class="fa-solid fa-users"></i>
+            </div>
+        </div>
+        <div class="mt-4 flex items-center text-sm">
+            <span class="text-emerald-500 font-medium flex items-center"><i class="fa-solid fa-arrow-trend-up mr-1 text-xs"></i> Active: <span id="stat-active-emp" class="ml-1"><?= $activeEmployees ?? 0 ?></span></span>
+        </div>
+    </div>
+
+    <!-- Monthly Payroll Cost -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-gray-700 relative overflow-hidden group hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+        <div class="absolute -right-6 -top-6 w-24 h-24 bg-emerald-500/5 rounded-full group-hover:scale-150 transition-transform duration-700 ease-out"></div>
+        <div class="flex justify-between items-start relative z-10">
+            <div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Monthly Payroll</p>
+                <h3 class="text-3xl font-bold text-gray-900 dark:text-white" id="stat-payroll">$<?= number_format($monthlyPayroll ?? 0, 2) ?></h3>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400 flex items-center justify-center text-xl shadow-inner">
+                <i class="fa-solid fa-money-bill-wave"></i>
+            </div>
+        </div>
+        <div class="mt-4 flex items-center text-sm">
+            <span class="text-gray-500 dark:text-gray-400 font-medium">Bonuses: <span id="stat-bonus" class="text-emerald-500">$<?= number_format($monthlyBonus ?? 0, 2) ?></span></span>
+        </div>
+    </div>
+
+    <!-- Present Today -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-gray-700 relative overflow-hidden group hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+        <div class="absolute -right-6 -top-6 w-24 h-24 bg-blue-500/5 rounded-full group-hover:scale-150 transition-transform duration-700 ease-out"></div>
+        <div class="flex justify-between items-start relative z-10">
+            <div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Present Today</p>
+                <h3 class="text-3xl font-bold text-gray-900 dark:text-white" id="stat-present"><?= $presentToday ?? 0 ?></h3>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 flex items-center justify-center text-xl shadow-inner">
+                <i class="fa-solid fa-user-check"></i>
+            </div>
+        </div>
+        <div class="mt-4 flex items-center text-sm">
+            <span class="text-orange-500 font-medium flex items-center"><i class="fa-solid fa-person-running mr-1 text-xs"></i> Late: <span id="stat-late" class="ml-1"><?= $lateToday ?? 0 ?></span></span>
+        </div>
+    </div>
+
+    <!-- On Leave & Absent -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-gray-700 relative overflow-hidden group hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+        <div class="absolute -right-6 -top-6 w-24 h-24 bg-red-500/5 rounded-full group-hover:scale-150 transition-transform duration-700 ease-out"></div>
+        <div class="flex justify-between items-start relative z-10">
+            <div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Absent / Leave</p>
+                <h3 class="text-3xl font-bold text-gray-900 dark:text-white"><span id="stat-absent" class="text-red-500"><?= $absentToday ?? 0 ?></span> <span class="text-gray-300 dark:text-gray-600 font-light mx-1">/</span> <span id="stat-leave" class="text-amber-500"><?= $employeesOnLeave ?? 0 ?></span></h3>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400 flex items-center justify-center text-xl shadow-inner">
+                <i class="fa-solid fa-user-xmark"></i>
+            </div>
+        </div>
+        <div class="mt-4 flex items-center text-sm w-full gap-2">
+             <div class="h-1.5 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden flex">
+                 <div class="bg-red-500 h-full" style="width: 50%"></div>
+                 <div class="bg-amber-500 h-full" style="width: 50%"></div>
+             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Secondary Stats Row (Pending Requests & Analytics) -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8" data-aos="fade-up" data-aos-delay="200">
+    
+    <!-- Action Center (Pending Items) -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-gray-700 p-6">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+            <i class="fa-solid fa-clipboard-list text-primary mr-2"></i> Action Center
+        </h2>
+        
+        <div class="space-y-4">
+            <div class="flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 hover:border-primary/30 transition-colors">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-full bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400 flex items-center justify-center"><i class="fa-solid fa-calendar-minus"></i></div>
+                    <div>
+                        <p class="text-sm font-bold text-gray-900 dark:text-white">Pending Leaves</p>
+                        <p class="text-xs text-gray-500">Requires manager approval</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="text-xl font-bold text-gray-900 dark:text-white" id="stat-pend-leave"><?= $pendingLeaves ?? 0 ?></span>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 hover:border-primary/30 transition-colors">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 flex items-center justify-center"><i class="fa-solid fa-business-time"></i></div>
+                    <div>
+                        <p class="text-sm font-bold text-gray-900 dark:text-white">Pending Overtime</p>
+                        <p class="text-xs text-gray-500">Awaiting verification</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="text-xl font-bold text-gray-900 dark:text-white" id="stat-pend-ot"><?= $pendingOvertime ?? 0 ?></span>
+                </div>
+            </div>
+            
+            <a href="/payrollsystem/admin/leaves" class="block w-full py-2.5 px-4 text-center text-sm font-bold text-primary bg-primary/5 hover:bg-primary/10 rounded-xl transition-colors">
+                View All Requests <i class="fa-solid fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Analytics Chart: Attendance Trend -->
+    <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-gray-700 p-6 relative">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
+                <i class="fa-solid fa-chart-area text-primary mr-2"></i> Attendance Overview (This Week)
+            </h2>
+            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-1 flex text-xs font-medium">
+                <button class="px-3 py-1 bg-white dark:bg-gray-600 text-gray-900 dark:text-white rounded-md shadow-sm">Week</button>
+                <button class="px-3 py-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">Month</button>
+            </div>
+        </div>
+        <div class="h-[250px] w-full">
+            <canvas id="attendanceChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Row: Recent Activity & Data Table -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8" data-aos="fade-up" data-aos-delay="300">
+    
+    <!-- Recent Attendance Table -->
+    <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50">
+            <h2 class="font-bold text-gray-900 dark:text-white">Live Attendance Feed</h2>
+            <a href="/payrollsystem/admin/attendance" class="text-sm font-bold text-primary hover:text-blue-700 transition-colors">View All</a>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                <thead class="text-xs text-gray-500 uppercase bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-700">
                     <tr>
-                        <th scope="col" class="px-6 py-3">Employee</th>
-                        <th scope="col" class="px-6 py-3">Department</th>
-                        <th scope="col" class="px-6 py-3">Check In</th>
-                        <th scope="col" class="px-6 py-3">Status</th>
+                        <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Employee</th>
+                        <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Department</th>
+                        <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Time In</th>
+                        <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Status</th>
                     </tr>
                 </thead>
-                <tbody id="recent-att-table">
+                <tbody id="recent-att-table" class="divide-y divide-gray-100 dark:divide-gray-700">
                     <?php if(!empty($recentAttendance)): ?>
                         <?php foreach($recentAttendance as $att): ?>
-                            <tr class="bg-white/50 border-b dark:bg-gray-800/50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                                <td class="px-6 py-4 font-medium text-gray-900 dark:text-white flex items-center">
-                                    <div class="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center mr-3 font-bold text-xs">
-                                        <?= strtoupper(substr($att['first_name'],0,1) . substr($att['last_name'],0,1)) ?>
+                            <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors group">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center">
+                                        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-primary/20 to-blue-500/20 text-primary dark:text-blue-400 flex items-center justify-center mr-3 font-bold text-xs ring-2 ring-white dark:ring-gray-800 group-hover:ring-primary/20 transition-all">
+                                            <?= strtoupper(substr($att['first_name'],0,1) . substr($att['last_name'],0,1)) ?>
+                                        </div>
+                                        <div>
+                                            <div class="font-bold text-gray-900 dark:text-white"><?= htmlspecialchars($att['first_name'] . ' ' . $att['last_name']) ?></div>
+                                            <div class="text-xs text-gray-500">ID: EMP-<?= str_pad($att['employee_id'], 4, '0', STR_PAD_LEFT) ?></div>
+                                        </div>
                                     </div>
-                                    <?= htmlspecialchars($att['first_name'] . ' ' . $att['last_name']) ?>
                                 </td>
-                                <td class="px-6 py-4"><?= htmlspecialchars($att['department_name'] ?? 'N/A') ?></td>
-                                <td class="px-6 py-4"><?= date('h:i A', strtotime($att['check_in'])) ?></td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                                        <?= htmlspecialchars($att['department_name'] ?? 'N/A') ?>
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 font-medium text-gray-900 dark:text-gray-300">
+                                    <?= date('h:i A', strtotime($att['check_in'])) ?>
+                                </td>
                                 <td class="px-6 py-4">
                                     <?php if($att['status'] == 'Present'): ?>
-                                        <span class="px-2.5 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full dark:bg-green-900 dark:text-green-300">Present</span>
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800/30 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span> Present</span>
                                     <?php elseif($att['status'] == 'Late'): ?>
-                                        <span class="px-2.5 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full dark:bg-yellow-900 dark:text-yellow-300">Late</span>
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800/30 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5"></span> Late</span>
                                     <?php else: ?>
-                                        <span class="px-2.5 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full dark:bg-gray-900 dark:text-gray-300"><?= $att['status'] ?></span>
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-gray-50 text-gray-700 border border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-gray-500 mr-1.5"></span> <?= htmlspecialchars($att['status']) ?></span>
                                     <?php endif; ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr id="no-att-row">
-                            <td colspan="4" class="px-6 py-8 text-center text-gray-500">
-                                <i class="fa-solid fa-folder-open text-4xl mb-3 text-gray-300 dark:text-gray-600 block"></i>
-                                No attendance recorded today.
+                            <td colspan="4" class="px-6 py-12 text-center text-gray-500">
+                                <div class="w-16 h-16 mx-auto bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mb-3">
+                                    <i class="fa-solid fa-folder-open text-2xl text-gray-300 dark:text-gray-600"></i>
+                                </div>
+                                <p class="font-medium text-gray-900 dark:text-white">No attendance recorded yet</p>
+                                <p class="text-sm mt-1">Check-ins will appear here in real-time.</p>
                             </td>
                         </tr>
                     <?php endif; ?>
@@ -218,132 +214,136 @@
         </div>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-        <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
-            <h2 class="font-bold text-gray-900 dark:text-white">Quick Actions</h2>
-        </div>
-        <div class="p-6 space-y-4">
-            <a href="/payrollsystem/admin/payroll" class="flex items-center p-4 text-base font-bold text-gray-900 rounded-xl bg-gray-50 hover:bg-primary hover:text-white group transition-all duration-300 hover:shadow-lg dark:bg-gray-700 dark:text-white dark:hover:bg-primary">
-                <i class="fa-solid fa-file-invoice-dollar text-primary group-hover:text-white transition-colors text-xl"></i>
-                <span class="flex-1 ms-4 whitespace-nowrap">Generate Payroll</span>
-            </a>
-            <a href="/payrollsystem/admin/employees" class="flex items-center p-4 text-base font-bold text-gray-900 rounded-xl bg-gray-50 hover:bg-primary hover:text-white group transition-all duration-300 hover:shadow-lg dark:bg-gray-700 dark:text-white dark:hover:bg-primary">
-                <i class="fa-solid fa-user-plus text-secondary group-hover:text-white transition-colors text-xl"></i>
-                <span class="flex-1 ms-4 whitespace-nowrap">Add New Employee</span>
-            </a>
-            <a href="/payrollsystem/admin/settings" class="flex items-center p-4 text-base font-bold text-gray-900 rounded-xl bg-gray-50 hover:bg-primary hover:text-white group transition-all duration-300 hover:shadow-lg dark:bg-gray-700 dark:text-white dark:hover:bg-primary">
-                <i class="fa-solid fa-gear text-gray-500 group-hover:text-white transition-colors text-xl"></i>
-                <span class="flex-1 ms-4 whitespace-nowrap">System Settings</span>
-            </a>
+    <!-- Quick Actions / Setup -->
+    <div class="bg-gradient-to-br from-primary to-indigo-700 rounded-2xl shadow-xl shadow-primary/20 p-6 text-white relative overflow-hidden">
+        <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+        <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-black/10 rounded-full blur-2xl"></div>
+        
+        <div class="relative z-10">
+            <h2 class="text-xl font-bold mb-2">Quick Actions</h2>
+            <p class="text-primary-100 text-sm mb-6 opacity-90">Manage your workforce efficiently</p>
+            
+            <div class="space-y-3">
+                <a href="/payrollsystem/admin/payroll" class="flex items-center p-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 backdrop-blur-sm transition-all duration-300 group">
+                    <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-bold text-sm">Process Payroll</p>
+                        <p class="text-xs text-indigo-200">Run monthly salary calculation</p>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-xs opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all"></i>
+                </a>
+                
+                <a href="/payrollsystem/admin/employees" class="flex items-center p-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 backdrop-blur-sm transition-all duration-300 group">
+                    <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-bold text-sm">Onboard Employee</p>
+                        <p class="text-xs text-indigo-200">Add new staff member</p>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-xs opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all"></i>
+                </a>
+
+                <a href="/payrollsystem/admin/settings" class="flex items-center p-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 backdrop-blur-sm transition-all duration-300 group">
+                    <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-sliders"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-bold text-sm">System Settings</p>
+                        <p class="text-xs text-indigo-200">Configure rules & policies</p>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-xs opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all"></i>
+                </a>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-let payChart;
-
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Charts
-    const attCtx = document.getElementById('attendanceChart').getContext('2d');
-    const attChart = new Chart(attCtx, {
-        type: 'doughnut',
+    
+    // Initialize Chart.js
+    const ctx = document.getElementById('attendanceChart').getContext('2d');
+    
+    // Gradient for chart area
+    let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(79, 70, 229, 0.5)'); // primary color
+    gradient.addColorStop(1, 'rgba(79, 70, 229, 0.0)');
+    
+    const attendanceChart = new Chart(ctx, {
+        type: 'line',
         data: {
-            labels: ['Present', 'Late', 'Absent', 'On Leave'],
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
             datasets: [{
-                data: [<?= $presentToday ?? 0 ?>, <?= $lateToday ?? 0 ?>, <?= $absentToday ?? 0 ?>, <?= $employeesOnLeave ?? 0 ?>],
-                backgroundColor: ['#10b981', '#f59e0b', '#ef4444', '#6366f1'],
-                borderWidth: 0,
-                hoverOffset: 4
+                label: 'Present',
+                data: [45, 48, 46, 49, 47, 20, 5], // Mock data for presentation
+                borderColor: '#4f46e5', // Tailwind primary
+                backgroundColor: gradient,
+                borderWidth: 3,
+                pointBackgroundColor: '#ffffff',
+                pointBorderColor: '#4f46e5',
+                pointBorderWidth: 2,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                fill: true,
+                tension: 0.4 // Smooth curves
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { position: 'bottom' }
-            }
-        }
-    });
-
-    const payCtx = document.getElementById('payrollChart').getContext('2d');
-    payChart = new Chart(payCtx, {
-        type: 'bar',
-        data: {
-            labels: [],
-            datasets: [
-                {
-                    label: 'Net Payroll',
-                    data: [],
-                    backgroundColor: '#10b981',
-                    borderRadius: 4
-                },
-                {
-                    label: 'Bonuses',
-                    data: [],
-                    backgroundColor: '#14b8a6',
-                    borderRadius: 4
-                },
-                {
-                    label: 'Deductions',
-                    data: [],
-                    backgroundColor: '#e11d48',
-                    borderRadius: 4
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                    titleFont: { size: 13, family: "'Inter', sans-serif" },
+                    bodyFont: { size: 13, family: "'Inter', sans-serif" },
+                    padding: 10,
+                    cornerRadius: 8,
+                    displayColors: false
                 }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
+            },
             scales: {
-                x: { stacked: true },
-                y: { stacked: true }
-            }
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(156, 163, 175, 0.1)', drawBorder: false },
+                    ticks: { color: '#9ca3af', font: { family: "'Inter', sans-serif", size: 11 } }
+                },
+                x: {
+                    grid: { display: false, drawBorder: false },
+                    ticks: { color: '#9ca3af', font: { family: "'Inter', sans-serif", size: 12 } }
+                }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index',
+            },
         }
     });
-
-    window.updatePayrollTrend = function(period = 'monthly') {
-        fetch('/payrollsystem/admin/payrollTrendApi?period=' + period)
-            .then(res => res.json())
-            .then(data => {
-                payChart.data.labels = data.labels;
-                payChart.data.datasets[0].data = data.payroll;
-                payChart.data.datasets[1].data = data.bonus;
-                payChart.data.datasets[2].data = data.deduction;
-                payChart.update();
-            });
-    };
-
-    // Load initial trend data
-    updatePayrollTrend('monthly');
-
-    // Clock
-    setInterval(() => {
-        const now = new Date();
-        document.getElementById('current-time').innerText = now.toLocaleString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
-    }, 60000);
 
     // AJAX Polling every 30 seconds
     setInterval(() => {
         fetch('/payrollsystem/admin/dashboardApi')
             .then(res => res.json())
             .then(data => {
-                // Update stats
-                document.getElementById('stat-total-emp').innerText = data.totalEmployees;
-                document.getElementById('stat-active-emp').innerText = data.activeEmployees;
-                document.getElementById('stat-present').innerText = data.presentToday;
-                document.getElementById('stat-late').innerText = data.lateToday;
-                document.getElementById('stat-absent').innerText = data.absentToday;
-                document.getElementById('stat-leave').innerText = data.employeesOnLeave;
-                document.getElementById('stat-pend-leave').innerText = data.pendingLeaves;
-                document.getElementById('stat-pend-ot').innerText = data.pendingOvertime;
-                document.getElementById('stat-payroll').innerText = '$' + parseFloat(data.monthlyPayroll).toFixed(2);
-                document.getElementById('stat-bonus').innerText = '$' + parseFloat(data.monthlyBonus).toFixed(2);
-                document.getElementById('stat-deduction').innerText = '$' + parseFloat(data.monthlyDeduction).toFixed(2);
+                // Safely update stats if they exist in the DOM
+                const updateStat = (id, value) => {
+                    const el = document.getElementById(id);
+                    if (el) el.innerText = value;
+                };
 
-                // Update Attendance Chart
-                attChart.data.datasets[0].data = [data.presentToday, data.lateToday, data.absentToday, data.employeesOnLeave];
-                attChart.update();
+                updateStat('stat-total-emp', data.totalEmployees);
+                updateStat('stat-active-emp', data.activeEmployees);
+                updateStat('stat-present', data.presentToday);
+                updateStat('stat-late', data.lateToday);
+                updateStat('stat-absent', data.absentToday);
+                updateStat('stat-leave', data.employeesOnLeave);
+                updateStat('stat-pend-leave', data.pendingLeaves);
+                updateStat('stat-pend-ot', data.pendingOvertime);
+                updateStat('stat-payroll', '$' + parseFloat(data.monthlyPayroll).toFixed(2));
+                updateStat('stat-bonus', '$' + parseFloat(data.monthlyBonus).toFixed(2));
 
                 // Build Table HTML
                 const tbody = document.getElementById('recent-att-table');
@@ -351,28 +351,40 @@ document.addEventListener('DOMContentLoaded', function() {
                     let html = '';
                     data.recentAttendance.forEach(att => {
                         let statusBadge = '';
-                        if(att.status === 'Present') statusBadge = '<span class="px-2.5 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Present</span>';
-                        else if(att.status === 'Late') statusBadge = '<span class="px-2.5 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">Late</span>';
-                        else statusBadge = '<span class="px-2.5 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">'+att.status+'</span>';
+                        if(att.status === 'Present') {
+                            statusBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span> Present</span>`;
+                        } else if(att.status === 'Late') {
+                            statusBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5"></span> Late</span>`;
+                        } else {
+                            statusBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-gray-50 text-gray-700 border border-gray-200 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-gray-500 mr-1.5"></span> ${att.status}</span>`;
+                        }
                         
                         let initials = (att.first_name.charAt(0) + att.last_name.charAt(0)).toUpperCase();
                         let time = new Date('1970-01-01T' + att.check_in + 'Z').toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
+                        let empId = String(att.employee_id).padStart(4, '0');
 
                         html += `
-                            <tr class="bg-white/50 border-b dark:bg-gray-800/50 dark:border-gray-700 hover:bg-gray-50 transition-colors">
-                                <td class="px-6 py-4 font-medium text-gray-900 dark:text-white flex items-center">
-                                    <div class="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center mr-3 font-bold text-xs">${initials}</div>
-                                    ${att.first_name} ${att.last_name}
+                            <tr class="hover:bg-gray-50/50 transition-colors group">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center">
+                                        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-primary/20 to-blue-500/20 text-primary flex items-center justify-center mr-3 font-bold text-xs ring-2 ring-white group-hover:ring-primary/20 transition-all">${initials}</div>
+                                        <div>
+                                            <div class="font-bold text-gray-900">${att.first_name} ${att.last_name}</div>
+                                            <div class="text-xs text-gray-500">ID: EMP-${empId}</div>
+                                        </div>
+                                    </div>
                                 </td>
-                                <td class="px-6 py-4">${att.department_name || 'N/A'}</td>
-                                <td class="px-6 py-4">${time}</td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">${att.department_name || 'N/A'}</span>
+                                </td>
+                                <td class="px-6 py-4 font-medium text-gray-900">${time}</td>
                                 <td class="px-6 py-4">${statusBadge}</td>
                             </tr>
                         `;
                     });
                     tbody.innerHTML = html;
                 } else {
-                    tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500"><i class="fa-solid fa-folder-open text-4xl mb-3 text-gray-300 block"></i>No attendance recorded today.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-12 text-center text-gray-500"><div class="w-16 h-16 mx-auto bg-gray-50 rounded-full flex items-center justify-center mb-3"><i class="fa-solid fa-folder-open text-2xl text-gray-300"></i></div><p class="font-medium text-gray-900">No attendance recorded yet</p></td></tr>`;
                 }
             })
             .catch(err => console.error('Error fetching dashboard data:', err));

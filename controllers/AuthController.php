@@ -13,6 +13,7 @@ class AuthController extends Controller {
 
     public function login() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $this->validateCsrfToken($_POST['csrf_token'] ?? '');
             $userModel = $this->model('User');
             
             $email = trim($_POST['email'] ?? '');

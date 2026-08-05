@@ -14,12 +14,52 @@ class EmployeeController extends Controller {
         $employee = $employeeModel->getByUserId($_SESSION['user_id']);
         
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
+            $this->validateCsrfToken($_POST['csrf_token'] ?? '');
             if ($_POST['action'] === 'clock_in') {
-                $attendanceModel->clockIn($employee['id']);
+                if ($employee['status'] !== 'Active') {
+                    $_SESSION['att_error'] = "Inactive employees cannot check in.";
+                } else {
+                    $date = date('Y-m-d');
+                    $time = date('H:i:s');
+                    
+                    $holidayModel = $this->model('Holiday');
+                    if ($holidayModel->isHoliday($date) || date('N', strtotime($date)) >= 6) {
+                        $_SESSION['att_error'] = "Attendance submission is not allowed on weekends or public holidays.";
+                    } else {
+                        $db = new Database();
+                        $conn = $db->getConnection();
+                        $leaveQuery = "SELECT id FROM leave_requests WHERE employee_id = :emp_id AND start_date <= :date AND end_date >= :date AND status = 'Approved'";
+                        $leaveStmt = $conn->prepare($leaveQuery);
+                        $leaveStmt->bindParam(':emp_id', $employee['id']);
+                        $leaveStmt->bindParam(':date', $date);
+                        $leaveStmt->execute();
+                        
+                        if ($leaveStmt->rowCount() > 0) {
+                            $_SESSION['att_error'] = "You are on approved leave today. Check-in is not allowed.";
+                        } else {
+                            if (strtotime($time) < strtotime('08:30:00')) {
+                                $_SESSION['att_error'] = "Check-in is not allowed before 8:30 AM.";
+                            } elseif (strtotime($time) > strtotime('17:00:00')) {
+                                $_SESSION['att_error'] = "Check-in is not allowed after 5:00 PM.";
+                            } else {
+                                $todayAtt = $attendanceModel->getToday($employee['id']);
+                                if ($todayAtt) {
+                                    $_SESSION['att_error'] = "You have already checked in today.";
+                                } else {
+                                    $attendanceModel->clockIn($employee['id']);
+                                    $_SESSION['att_success'] = "Checked in successfully.";
+                                }
+                            }
+                        }
+                    }
+                }
             } elseif ($_POST['action'] === 'clock_out') {
                 $todayAtt = $attendanceModel->getToday($employee['id']);
                 if ($todayAtt && !$todayAtt['check_out']) {
                     $attendanceModel->clockOut($todayAtt['id'], $todayAtt['check_in']);
+                    $_SESSION['att_success'] = "Checked out successfully.";
+                } else {
+                    $_SESSION['att_error'] = "You cannot check out without a valid check-in.";
                 }
             }
             $this->redirect('/payrollsystem/employee'); 
@@ -53,6 +93,7 @@ class EmployeeController extends Controller {
         $employee = $employeeModel->getByUserId($_SESSION['user_id']);
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] === 'correction') {
+            $this->validateCsrfToken($_POST['csrf_token'] ?? '');
             $att_id = $_POST['attendance_id'];
             $req_in = !empty($_POST['corrected_check_in']) ? $_POST['corrected_check_in'] : null;
             $req_out = !empty($_POST['corrected_check_out']) ? $_POST['corrected_check_out'] : null;
@@ -101,6 +142,7 @@ class EmployeeController extends Controller {
         $conn = $db->getConnection();
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] === 'apply') {
+            $this->validateCsrfToken($_POST['csrf_token'] ?? '');
             $leave_type_id = $_POST['leave_type_id'];
             $start_date = $_POST['start_date'];
             $end_date = $_POST['end_date'];
@@ -172,6 +214,7 @@ class EmployeeController extends Controller {
         $conn = $db->getConnection();
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] === 'apply') {
+            $this->validateCsrfToken($_POST['csrf_token'] ?? '');
             $date = $_POST['date'];
             $start_time = $_POST['start_time'];
             $end_time = $_POST['end_time'];

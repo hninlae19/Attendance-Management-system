@@ -26,6 +26,9 @@ class Setting {
     public $late_deduction_rules;
     public $excess_paid_leave_deduction_rules;
     public $custom_deduction_rules;
+    public $unpaid_leave_deduction_rate;
+    public $auto_deduction_enabled;
+    public $deduction_calculation_method;
 
     public function __construct() {
         $database = new Database();
@@ -59,6 +62,9 @@ class Setting {
                     half_day_leave_rules=:half_day_leave_rules,
                     absent_deduction_rate=:absent_deduction_rate,
                     half_day_deduction_rate=:half_day_deduction_rate,
+                    unpaid_leave_deduction_rate=:unpaid_leave_deduction_rate,
+                    auto_deduction_enabled=:auto_deduction_enabled,
+                    deduction_calculation_method=:deduction_calculation_method,
                     late_deduction_rules=:late_deduction_rules,
                     excess_paid_leave_deduction_rules=:excess_paid_leave_deduction_rules,
                     custom_deduction_rules=:custom_deduction_rules
@@ -84,6 +90,9 @@ class Setting {
         $stmt->bindParam(":half_day_leave_rules", $this->half_day_leave_rules);
         $stmt->bindParam(":absent_deduction_rate", $this->absent_deduction_rate);
         $stmt->bindParam(":half_day_deduction_rate", $this->half_day_deduction_rate);
+        $stmt->bindParam(":unpaid_leave_deduction_rate", $this->unpaid_leave_deduction_rate);
+        $stmt->bindParam(":auto_deduction_enabled", $this->auto_deduction_enabled);
+        $stmt->bindParam(":deduction_calculation_method", $this->deduction_calculation_method);
         $stmt->bindParam(":late_deduction_rules", $this->late_deduction_rules);
         $stmt->bindParam(":excess_paid_leave_deduction_rules", $this->excess_paid_leave_deduction_rules);
         $stmt->bindParam(":custom_deduction_rules", $this->custom_deduction_rules);

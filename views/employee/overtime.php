@@ -5,62 +5,53 @@
     </button>
 </div>
 
-<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-    <div class="overflow-x-auto">
-        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                <tr>
-                    <th scope="col" class="px-6 py-4">Applied On</th>
-                    <th scope="col" class="px-6 py-4">Date & Time</th>
-                    <th scope="col" class="px-6 py-4">Duration</th>
-                    <th scope="col" class="px-6 py-4">Type</th>
-                    <th scope="col" class="px-6 py-4">Reason</th>
-                    <th scope="col" class="px-6 py-4">Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if(empty($data['myOvertime'])): ?>
-                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                        <td colspan="6" class="px-6 py-4 text-center">No overtime applications found.</td>
-                    </tr>
-                <?php else: ?>
-                    <?php foreach($data['myOvertime'] as $ot): ?>
-                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
-                        <td class="px-6 py-4"><?= date('M j, Y', strtotime($ot['created_at'])) ?></td>
-                        <td class="px-6 py-4">
-                            <?= date('M j, Y', strtotime($ot['date'])) ?>
-                            <div class="text-xs text-gray-500 mt-0.5"><?= date('h:i A', strtotime($ot['start_time'])) ?> - <?= date('h:i A', strtotime($ot['end_time'])) ?></div>
-                        </td>
-                        <td class="px-6 py-4 font-semibold">
-                            <?= $ot['hours'] ?> Hrs
-                        </td>
-                        <td class="px-6 py-4">
-                            <?php if($ot['type'] === 'Working Day'): ?>
-                                <span class="px-2.5 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full dark:bg-blue-900 dark:text-blue-300">Working Day</span>
-                            <?php elseif($ot['type'] === 'Weekend'): ?>
-                                <span class="px-2.5 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded-full dark:bg-purple-900 dark:text-purple-300">Weekend</span>
-                            <?php else: ?>
-                                <span class="px-2.5 py-1 text-xs font-medium bg-orange-100 text-orange-800 rounded-full dark:bg-orange-900 dark:text-orange-300">Holiday</span>
-                            <?php endif; ?>
-                        </td>
-                        <td class="px-6 py-4 max-w-[200px] truncate" title="<?= htmlspecialchars($ot['reason']) ?>">
-                            <?= htmlspecialchars($ot['reason']) ?>
-                        </td>
-                        <td class="px-6 py-4">
-                            <?php if($ot['status'] === 'Approved'): ?>
-                                <span class="px-2.5 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full dark:bg-green-900 dark:text-green-300">Approved</span>
-                            <?php elseif($ot['status'] === 'Rejected'): ?>
-                                <span class="px-2.5 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full dark:bg-red-900 dark:text-red-300">Rejected</span>
-                            <?php else: ?>
-                                <span class="px-2.5 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full dark:bg-yellow-900 dark:text-yellow-300">Pending</span>
-                            <?php endif; ?>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
-    </div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <?php if(empty($data['myOvertime'])): ?>
+        <div class="col-span-full p-8 text-center bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+            <p class="text-gray-500 dark:text-gray-400">No overtime applications found.</p>
+        </div>
+    <?php else: ?>
+        <?php foreach($data['myOvertime'] as $ot): ?>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 hover:shadow-md transition-shadow relative overflow-hidden group">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
+                        <?php if($ot['type'] === 'Working Day'): ?>
+                            <span class="text-blue-500"><i class="fa-solid fa-briefcase mr-2"></i> Working Day</span>
+                        <?php elseif($ot['type'] === 'Weekend'): ?>
+                            <span class="text-purple-500"><i class="fa-solid fa-umbrella-beach mr-2"></i> Weekend</span>
+                        <?php else: ?>
+                            <span class="text-orange-500"><i class="fa-solid fa-gifts mr-2"></i> Holiday</span>
+                        <?php endif; ?>
+                    </h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Applied: <?= date('M j, Y', strtotime($ot['created_at'])) ?></p>
+                </div>
+                <div>
+                    <?php if($ot['status'] === 'Approved'): ?>
+                        <span class="px-2.5 py-1 text-xs font-bold bg-green-100 text-green-800 rounded-xl dark:bg-green-900/30 dark:text-green-400"><i class="fa-solid fa-check mr-1"></i> Approved</span>
+                    <?php elseif($ot['status'] === 'Rejected'): ?>
+                        <span class="px-2.5 py-1 text-xs font-bold bg-red-100 text-red-800 rounded-xl dark:bg-red-900/30 dark:text-red-400"><i class="fa-solid fa-xmark mr-1"></i> Rejected</span>
+                    <?php else: ?>
+                        <span class="px-2.5 py-1 text-xs font-bold bg-yellow-100 text-yellow-800 rounded-xl dark:bg-yellow-900/30 dark:text-yellow-400"><i class="fa-solid fa-clock mr-1"></i> Pending</span>
+                    <?php endif; ?>
+                </div>
+            </div>
+            
+            <div class="flex flex-col p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl mb-4">
+                <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-1">Date & Time</p>
+                <p class="text-sm font-semibold text-gray-800 dark:text-gray-300"><?= date('M j, Y', strtotime($ot['date'])) ?></p>
+                <p class="font-mono text-xs text-gray-600 dark:text-gray-400 mt-1"><?= date('h:i A', strtotime($ot['start_time'])) ?> - <?= date('h:i A', strtotime($ot['end_time'])) ?></p>
+            </div>
+            
+            <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                <span class="font-medium text-gray-900 dark:text-white">Duration:</span> <?= $ot['hours'] ?> Hrs
+            </div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">
+                <span class="font-medium text-gray-900 dark:text-white">Reason:</span> <?= htmlspecialchars($ot['reason']) ?>
+            </div>
+        </div>
+        <?php endforeach; ?>
+    <?php endif; ?>
 </div>
 
 <!-- Apply Modal -->
@@ -73,6 +64,8 @@
             </button>
         </div>
         <form id="ot-form" action="/payrollsystem/employee/overtime" method="POST" class="p-6 space-y-4">
+    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+
             <input type="hidden" name="action" value="apply">
             
             <div id="ot-error-msg" class="hidden p-3 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 border border-red-200 dark:border-red-800 mb-4" role="alert"></div>

@@ -32,21 +32,23 @@
                     <?php foreach($data['deductions'] as $deduction): ?>
                     <tr class="bg-white/50 border-b dark:bg-gray-800/50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                         <td class="px-6 py-4">
-                            <div class="font-bold text-gray-900 dark:text-white"><?= htmlspecialchars($deduction['first_name'] . ' ' . $deduction['last_name']) ?></div>
-                            <div class="text-xs text-gray-500 mt-1"><?= htmlspecialchars($deduction['employee_code']) ?></div>
+                            <div class="font-bold text-gray-900 dark:text-white"><?= htmlspecialchars(($deduction['first_name'] ?? '') . ' ' . ($deduction['last_name'] ?? '')) ?></div>
+                            <div class="text-xs text-gray-500 mt-1"><?= htmlspecialchars($deduction['employee_code'] ?? '') ?></div>
                         </td>
                         <td class="px-6 py-4 font-bold text-rose-600 dark:text-rose-400">
-                            <?= number_format($deduction['amount']) ?> MMK
+                            <?= number_format($deduction['amount'] ?? 0) ?> MMK
                         </td>
                         <td class="px-6 py-4">
-                            <span class="px-2.5 py-1 text-xs font-medium bg-rose-100 text-rose-800 rounded-full dark:bg-rose-900 dark:text-rose-300"><?= htmlspecialchars($deduction['type']) ?></span>
-                            <div class="text-xs text-gray-500 mt-1"><?= htmlspecialchars($deduction['reason']) ?></div>
+                            <span class="px-2.5 py-1 text-xs font-medium bg-rose-100 text-rose-800 rounded-full dark:bg-rose-900 dark:text-rose-300"><?= htmlspecialchars($deduction['type'] ?? '') ?></span>
+                            <div class="text-xs text-gray-500 mt-1"><?= htmlspecialchars($deduction['reason'] ?? '') ?></div>
                         </td>
                         <td class="px-6 py-4">
-                            <span class="px-2.5 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full dark:bg-gray-700 dark:text-gray-300"><?= htmlspecialchars($deduction['status']) ?></span>
+                            <span class="px-2.5 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full dark:bg-gray-700 dark:text-gray-300"><?= htmlspecialchars($deduction['status'] ?? '') ?></span>
                         </td>
                         <td class="px-6 py-4 text-right">
                             <form action="/payrollsystem/admin/deductions" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this deduction?');">
+    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+
                                 <input type="hidden" name="action" value="delete">
                                 <input type="hidden" name="id" value="<?= $deduction['id'] ?>">
                                 <button type="submit" class="font-medium text-red-600 dark:text-red-500 hover:underline"><i class="fa-solid fa-trash-can"></i></button>
@@ -70,6 +72,8 @@
             </button>
         </div>
         <form action="/payrollsystem/admin/deductions" method="POST" class="p-6 space-y-4">
+    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+
             <input type="hidden" name="action" value="add">
             
             <div>

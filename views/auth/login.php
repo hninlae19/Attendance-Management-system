@@ -48,6 +48,8 @@
             <?php endif; ?>
 
             <form action="/payrollsystem/auth/login" method="POST" class="space-y-6" id="loginForm">
+    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+
                 <div class="animate__animated animate__fadeInLeft" style="animation-delay: 0.2s;">
                     <label for="email" class="block text-sm font-semibold text-gray-700 mb-1.5">Email Address</label>
                     <div class="relative group">

@@ -66,9 +66,9 @@ class Payroll {
 
             if ($checkStmt->rowCount() > 0) continue; // Skip if already generated
 
-            // Daily rate based on roughly 30 days or actual working days
-            // For simplicity, let's use Basic Salary / 30
-            $dailyRate = $emp['basic_salary'] / 30;
+            // Daily rate based on actual days in the month
+            $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+            $dailyRate = $emp['basic_salary'] / $daysInMonth;
             $hourlyRate = $dailyRate / $settings['working_hours'];
 
             // Calculate Attendance Data
@@ -85,29 +85,8 @@ class Payroll {
                 $attStats[$row['status']] = $row['count'];
             }
 
-            // Calculate automated deductions for attendance (Absent, Half Day, Late)
-            $autoCheck = $this->conn->prepare("SELECT id FROM deductions WHERE employee_id = ? AND type LIKE 'Automated%' AND MONTH(date) = ? AND YEAR(date) = ?");
-            $autoCheck->execute([$emp['id'], $month, $year]);
-            if ($autoCheck->rowCount() == 0) {
-                // If not processed, process now. Date defaults to end of month.
-                $dDate = date('Y-m-t', mktime(0, 0, 0, $month, 1, $year));
-                
-                if ($attStats['Absent'] > 0) {
-                    $absentDeduction = $attStats['Absent'] * $dailyRate;
-                    $this->conn->prepare("INSERT INTO deductions (employee_id, amount, type, reason, date, created_by, status) VALUES (?, ?, 'Automated Absence', 'Unexcused absence', ?, 'System', 'Applied')")
-                         ->execute([$emp['id'], $absentDeduction, $dDate]);
-                }
-                if ($attStats['Half Day'] > 0) {
-                    $halfDayDeduction = $attStats['Half Day'] * ($dailyRate / 2);
-                    $this->conn->prepare("INSERT INTO deductions (employee_id, amount, type, reason, date, created_by, status) VALUES (?, ?, 'Automated Half-Day', 'Worked less than required hours', ?, 'System', 'Applied')")
-                         ->execute([$emp['id'], $halfDayDeduction, $dDate]);
-                }
-                if ($attStats['Late'] > 0) {
-                    $lateDeduction = $attStats['Late'] * ($hourlyRate * 0.5);
-                    $this->conn->prepare("INSERT INTO deductions (employee_id, amount, type, reason, date, created_by, status) VALUES (?, ?, 'Automated Late', 'Late check-ins', ?, 'System', 'Applied')")
-                         ->execute([$emp['id'], $lateDeduction, $dDate]);
-                }
-            }
+            // Automated deductions are now handled solely by the daily Cron job.
+            // We just aggregate from the deductions table below.
 
             // Calculate OT
             $otQuery = "SELECT type, SUM(hours) as total_hours FROM overtime_requests 
@@ -130,17 +109,19 @@ class Payroll {
             }
 
             // Calculate Deductions from deductions table breakdown
-            $dedStmt = $this->conn->prepare("SELECT type, amount FROM deductions WHERE employee_id = ? AND MONTH(date) = ? AND YEAR(date) = ? AND status != 'Cancelled'");
+            $dedStmt = $this->conn->prepare("SELECT id, type, reason, amount FROM deductions WHERE employee_id = ? AND MONTH(date) = ? AND YEAR(date) = ? AND status = 'Active'");
             $dedStmt->execute([$emp['id'], $month, $year]);
             
             $leaveDeduction = 0;
             $lateDeduction = 0;
             $otherDeduction = 0;
+            $active_deduction_ids = [];
             
             while($row = $dedStmt->fetch(PDO::FETCH_ASSOC)) {
-                if (strpos($row['type'], 'Automated Absence') !== false || strpos($row['type'], 'Automated Half-Day') !== false) {
+                $active_deduction_ids[] = $row['id'];
+                if ($row['type'] === 'Full Day Absence' || $row['type'] === 'Half Day Absence' || $row['type'] === 'Unpaid Leave') {
                     $leaveDeduction += $row['amount'];
-                } elseif (strpos($row['type'], 'Automated Late') !== false) {
+                } elseif ($row['type'] === 'Late') {
                     $lateDeduction += $row['amount'];
                 } else {
                     $otherDeduction += $row['amount'];
@@ -173,8 +154,7 @@ class Payroll {
                 employee_id = :emp_id, month = :month, year = :year, basic_salary = :basic_salary,
                 present_days = :present, half_days = :half, absent_days = :absent, late_days = :late, leave_days = :leave,
                 ot_amount = :ot, bonus_amount = :bonus, allowance_amount = :allowance, 
-                deduction_amount = :deduction, leave_deduction_amount = :leave_deduction, 
-                late_deduction_amount = :late_deduction, other_deduction_amount = :other_deduction,
+                deduction_amount = :deduction,
                 gross_salary = :gross, net_salary = :net, status = 'Pending'";
             
             $insertStmt = $this->conn->prepare($insertQuery);
@@ -191,13 +171,18 @@ class Payroll {
             $insertStmt->bindParam(':bonus', $bonusAmount);
             $insertStmt->bindParam(':allowance', $allowanceAmount);
             $insertStmt->bindParam(':deduction', $totalDeductions);
-            $insertStmt->bindParam(':leave_deduction', $leaveDeduction);
-            $insertStmt->bindParam(':late_deduction', $lateDeduction);
-            $insertStmt->bindParam(':other_deduction', $otherDeduction);
             $insertStmt->bindParam(':gross', $grossSalary);
             $insertStmt->bindParam(':net', $netSalary);
             
             if($insertStmt->execute()) {
+                $payroll_id = $this->conn->lastInsertId();
+                if (!empty($active_deduction_ids)) {
+                    $placeholders = implode(',', array_fill(0, count($active_deduction_ids), '?'));
+                    $updDed = $this->conn->prepare("UPDATE deductions SET status = 'Applied', payroll_id = ? WHERE id IN ($placeholders)");
+                    $params = array_merge([$payroll_id], $active_deduction_ids);
+                    $updDed->execute($params);
+                }
+
                 $successCount++;
                 require_once __DIR__ . '/Notification.php';
                 $notif = new Notification();

@@ -20,51 +20,54 @@
 
     <!-- History Tab -->
     <div x-show="tab === 'history'" class="pt-6">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                        <tr>
-                            <th scope="col" class="px-6 py-4">Date</th>
-                            <th scope="col" class="px-6 py-4">Check In</th>
-                            <th scope="col" class="px-6 py-4">Check Out</th>
-                            <th scope="col" class="px-6 py-4">Working Hrs</th>
-                            <th scope="col" class="px-6 py-4">Status</th>
-                            <th scope="col" class="px-6 py-4 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if(empty($data['myAttendance'])): ?>
-                            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                                <td colspan="6" class="px-6 py-4 text-center">No attendance records found.</td>
-                            </tr>
-                        <?php else: ?>
-                            <?php foreach($data['myAttendance'] as $att): ?>
-                            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
-                                <td class="px-6 py-4 font-medium text-gray-900 dark:text-white"><?= date('D, M j, Y', strtotime($att['date'])) ?></td>
-                                <td class="px-6 py-4"><?= $att['check_in'] ? date('h:i A', strtotime($att['check_in'])) : '-' ?></td>
-                                <td class="px-6 py-4"><?= $att['check_out'] ? date('h:i A', strtotime($att['check_out'])) : '-' ?></td>
-                                <td class="px-6 py-4"><?= $att['working_hours'] ? $att['working_hours'] . 'h' : '-' ?></td>
-                                <td class="px-6 py-4">
-                                    <?php if($att['status'] === 'Present'): ?>
-                                        <span class="px-2.5 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full dark:bg-green-900 dark:text-green-300">Present</span>
-                                    <?php elseif($att['status'] === 'Late'): ?>
-                                        <span class="px-2.5 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full dark:bg-yellow-900 dark:text-yellow-300">Late</span>
-                                    <?php elseif($att['status'] === 'Half Day'): ?>
-                                        <span class="px-2.5 py-1 text-xs font-medium bg-orange-100 text-orange-800 rounded-full dark:bg-orange-900 dark:text-orange-300">Half Day</span>
-                                    <?php else: ?>
-                                        <span class="px-2.5 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full dark:bg-red-900 dark:text-red-300">Absent</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td class="px-6 py-4 text-right">
-                                    <button onclick="requestCorrection(<?= $att['id'] ?>, '<?= $att['date'] ?>', '<?= $att['check_in'] ?? '' ?>', '<?= $att['check_out'] ?? '' ?>')" class="font-medium text-blue-600 dark:text-blue-500 hover:underline"><i class="fa-solid fa-pen"></i> Request Correction</button>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <?php if(empty($data['myAttendance'])): ?>
+                <div class="col-span-full p-8 text-center bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+                    <p class="text-gray-500 dark:text-gray-400">No attendance records found.</p>
+                </div>
+            <?php else: ?>
+                <?php foreach($data['myAttendance'] as $att): ?>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 hover:shadow-md transition-shadow relative overflow-hidden group">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1"><?= date('D, M j, Y', strtotime($att['date'])) ?></p>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
+                                <?php if($att['status'] === 'Present'): ?>
+                                    <span class="text-green-500"><i class="fa-solid fa-circle-check mr-2"></i> Present</span>
+                                <?php elseif($att['status'] === 'Absent'): ?>
+                                    <span class="text-red-500"><i class="fa-solid fa-circle-xmark mr-2"></i> Absent</span>
+                                <?php elseif($att['status'] === 'Late'): ?>
+                                    <span class="text-orange-500"><i class="fa-solid fa-clock mr-2"></i> Late</span>
+                                <?php elseif($att['status'] === 'Half Day'): ?>
+                                    <span class="text-yellow-500"><i class="fa-solid fa-star-half-stroke mr-2"></i> Half Day</span>
+                                <?php else: ?>
+                                    <span class="text-blue-500"><i class="fa-solid fa-info-circle mr-2"></i> <?= htmlspecialchars($att['status']) ?></span>
+                                <?php endif; ?>
+                            </h3>
+                        </div>
+                        <button onclick="requestCorrection(<?= $att['id'] ?>, '<?= $att['date'] ?>', '<?= $att['check_in'] ?? '' ?>', '<?= $att['check_out'] ?? '' ?>')" class="w-8 h-8 rounded-full bg-gray-50 text-gray-400 hover:text-primary hover:bg-blue-50 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors flex items-center justify-center">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+                        <div class="text-center w-1/2 border-r border-gray-200 dark:border-gray-700">
+                            <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-1">IN</p>
+                            <p class="font-mono text-sm font-semibold text-gray-800 dark:text-gray-300"><?= $att['check_in'] ? date('h:i A', strtotime($att['check_in'])) : '--:--' ?></p>
+                        </div>
+                        <div class="text-center w-1/2">
+                            <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-1">OUT</p>
+                            <p class="font-mono text-sm font-semibold text-gray-800 dark:text-gray-300"><?= $att['check_out'] ? date('h:i A', strtotime($att['check_out'])) : '--:--' ?></p>
+                        </div>
+                    </div>
+                    <?php if($att['working_hours']): ?>
+                        <div class="mt-3 text-right">
+                            <span class="text-xs text-gray-500 font-medium">Logged: <strong class="text-gray-900 dark:text-white"><?= $att['working_hours'] ?>h</strong></span>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -123,6 +126,8 @@
             </button>
         </div>
         <form action="/payrollsystem/employee/attendance" method="POST" class="p-6 space-y-4">
+    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+
             <input type="hidden" name="action" value="correction">
             <input type="hidden" name="attendance_id" id="correction_attendance_id">
             
