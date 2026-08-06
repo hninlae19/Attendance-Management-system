@@ -14,6 +14,7 @@ class Employee {
     public $join_date;
     public $phone;
     public $address;
+    public $status;
 
     public function __construct() {
         $database = new Database();
@@ -74,6 +75,14 @@ class Employee {
             }
             
             $this->user_id = $this->conn->lastInsertId();
+
+            // Generate Employee Code
+            if ($this->employee_code === 'AUTO' || empty($this->employee_code)) {
+                $stmtCode = $this->conn->query("SELECT MAX(CAST(employee_code AS UNSIGNED)) as max_code FROM " . $this->table);
+                $maxRow = $stmtCode->fetch(PDO::FETCH_ASSOC);
+                $nextCode = intval($maxRow['max_code'] ?? 0) + 1;
+                $this->employee_code = str_pad($nextCode, 4, '0', STR_PAD_LEFT);
+            }
 
             // 2. Create Employee
             $queryEmp = "INSERT INTO " . $this->table . " SET 
@@ -150,7 +159,22 @@ class Employee {
         $stmt->bindParam(":phone", $this->phone);
         $stmt->bindParam(":address", $this->address);
         
-        return $stmt->execute();
+        $result = $stmt->execute();
+        
+        if ($result && !empty($this->status)) {
+            $stmtUserQuery = $this->conn->prepare("SELECT user_id FROM " . $this->table . " WHERE id = :id");
+            $stmtUserQuery->bindParam(":id", $this->id);
+            $stmtUserQuery->execute();
+            $rowUser = $stmtUserQuery->fetch(PDO::FETCH_ASSOC);
+            if ($rowUser) {
+                $stmtUserUpdate = $this->conn->prepare("UPDATE users SET status = :status WHERE id = :user_id");
+                $stmtUserUpdate->bindParam(":status", $this->status);
+                $stmtUserUpdate->bindParam(":user_id", $rowUser['user_id']);
+                $stmtUserUpdate->execute();
+            }
+        }
+        
+        return $result;
     }
 
     public function delete() {

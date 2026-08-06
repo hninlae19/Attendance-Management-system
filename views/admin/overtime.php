@@ -5,6 +5,38 @@
     </div>
 </div>
 
+<!-- Filters Section -->
+<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 mb-6" data-aos="fade-up" data-aos-delay="50">
+    <form method="GET" action="/payrollsystem/admin/overtime" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div>
+            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Search Employee</label>
+            <input type="text" name="search" value="<?= htmlspecialchars($data['filters']['search']) ?>" placeholder="Name..." class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm">
+        </div>
+        <div>
+            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Department</label>
+            <select name="department_id" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm">
+                <option value="">All Departments</option>
+                <?php foreach($data['departments'] as $dept): ?>
+                    <option value="<?= $dept['id'] ?>" <?= $data['filters']['department_id'] == $dept['id'] ? 'selected' : '' ?>><?= htmlspecialchars($dept['name']) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div>
+            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
+            <input type="date" name="date" value="<?= htmlspecialchars($data['filters']['date']) ?>" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm">
+        </div>
+        <div class="flex items-end gap-2">
+            <button type="submit" class="w-full bg-primary hover:bg-indigo-600 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm shadow-sm">
+                <i class="fa-solid fa-filter mr-1"></i> Filter
+            </button>
+            <a href="/payrollsystem/admin/overtime" class="w-full text-center bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300 font-medium py-2 px-4 rounded-lg transition-colors text-sm">
+                Clear
+            </a>
+        </div>
+    </form>
+</div>
+
+
 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-gray-700 overflow-hidden" data-aos="fade-up" data-aos-delay="100">
     <div class="overflow-x-auto">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -109,4 +141,26 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Pagination -->
+    <?php if($data['total_pages'] > 1): ?>
+    <div class="px-6 py-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 flex items-center justify-between">
+        <div class="text-sm text-gray-500 dark:text-gray-400">
+            Page <?= $data['page'] ?> of <?= $data['total_pages'] ?>
+        </div>
+        <div class="flex gap-1">
+            <?php 
+                $queryString = http_build_query(array_merge($_GET, ['page' => max(1, $data['page'] - 1)]));
+                $prevUrl = "?" . $queryString;
+            ?>
+            <a href="<?= $data['page'] > 1 ? $prevUrl : '#' ?>" class="px-3 py-1 border border-gray-200 dark:border-gray-600 rounded text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 <?= $data['page'] <= 1 ? 'opacity-50 cursor-not-allowed' : '' ?>">Prev</a>
+            
+            <?php 
+                $queryString = http_build_query(array_merge($_GET, ['page' => min($data['total_pages'], $data['page'] + 1)]));
+                $nextUrl = "?" . $queryString;
+            ?>
+            <a href="<?= $data['page'] < $data['total_pages'] ? $nextUrl : '#' ?>" class="px-3 py-1 border border-gray-200 dark:border-gray-600 rounded text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 <?= $data['page'] >= $data['total_pages'] ? 'opacity-50 cursor-not-allowed' : '' ?>">Next</a>
+        </div>
+    </div>
+    <?php endif; ?>
 </div>

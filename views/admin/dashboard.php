@@ -37,14 +37,14 @@
         <div class="flex justify-between items-start relative z-10">
             <div>
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Monthly Payroll</p>
-                <h3 class="text-3xl font-bold text-gray-900 dark:text-white" id="stat-payroll">$<?= number_format($monthlyPayroll ?? 0, 2) ?></h3>
+                <h3 class="text-3xl font-bold text-gray-900 dark:text-white" id="stat-payroll">MMK <?= number_format($monthlyPayroll ?? 0, 2) ?></h3>
             </div>
             <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400 flex items-center justify-center text-xl shadow-inner">
                 <i class="fa-solid fa-money-bill-wave"></i>
             </div>
         </div>
         <div class="mt-4 flex items-center text-sm">
-            <span class="text-gray-500 dark:text-gray-400 font-medium">Bonuses: <span id="stat-bonus" class="text-emerald-500">$<?= number_format($monthlyBonus ?? 0, 2) ?></span></span>
+            <span class="text-gray-500 dark:text-gray-400 font-medium">Bonuses: <span id="stat-bonus" class="text-emerald-500">MMK <?= number_format($monthlyBonus ?? 0, 2) ?></span></span>
         </div>
     </div>
 
@@ -342,8 +342,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 updateStat('stat-leave', data.employeesOnLeave);
                 updateStat('stat-pend-leave', data.pendingLeaves);
                 updateStat('stat-pend-ot', data.pendingOvertime);
-                updateStat('stat-payroll', '$' + parseFloat(data.monthlyPayroll).toFixed(2));
-                updateStat('stat-bonus', '$' + parseFloat(data.monthlyBonus).toFixed(2));
+                updateStat('stat-payroll', 'MMK ' + parseFloat(data.monthlyPayroll).toFixed(2));
+                updateStat('stat-bonus', 'MMK ' + parseFloat(data.monthlyBonus).toFixed(2));
 
                 // Build Table HTML
                 const tbody = document.getElementById('recent-att-table');

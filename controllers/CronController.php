@@ -59,7 +59,20 @@ class CronController extends Controller {
 
         foreach ($late_half_attendances as $att) {
             if ($att['status'] === 'Late') {
-                $deductionModel->applyAutomatedDeduction($att['employee_id'], 'Late', $date, 'Automated Late Deduction', 'Attendance System');
+                $monthStart = date('Y-m-01', strtotime($date));
+                $monthEnd = date('Y-m-t', strtotime($date));
+                
+                $lateCountStmt = $conn->prepare("SELECT COUNT(*) FROM attendance WHERE employee_id = :emp_id AND status = 'Late' AND date BETWEEN :start AND :end");
+                $lateCountStmt->execute([
+                    ':emp_id' => $att['employee_id'],
+                    ':start' => $monthStart,
+                    ':end' => $monthEnd
+                ]);
+                $lateCount = $lateCountStmt->fetchColumn();
+                
+                if ($lateCount > 0 && $lateCount % 3 == 0) {
+                    $deductionModel->applyAutomatedDeduction($att['employee_id'], 'Half Day Absence', $date, 'Penalty for 3 Lates in month', 'Attendance System');
+                }
             } elseif ($att['status'] === 'Half Day') {
                 $deductionModel->applyAutomatedDeduction($att['employee_id'], 'Half Day Absence', $date, 'Automated Half Day Absence Deduction', 'Attendance System');
             }

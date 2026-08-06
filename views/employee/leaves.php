@@ -5,6 +5,38 @@
     </button>
 </div>
 
+<?php if(isset($_SESSION['leave_error'])): ?>
+    <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg dark:bg-red-900/30 dark:border-red-600">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <i class="fa-solid fa-circle-exclamation text-red-500 dark:text-red-400"></i>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm text-red-700 dark:text-red-300 font-medium">
+                    <?= htmlspecialchars($_SESSION['leave_error']) ?>
+                </p>
+            </div>
+        </div>
+    </div>
+    <?php unset($_SESSION['leave_error']); ?>
+<?php endif; ?>
+
+<?php if(isset($_SESSION['leave_success'])): ?>
+    <div class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg dark:bg-green-900/30 dark:border-green-600">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <i class="fa-solid fa-check-circle text-green-500 dark:text-green-400"></i>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm text-green-700 dark:text-green-300 font-medium">
+                    <?= htmlspecialchars($_SESSION['leave_success']) ?>
+                </p>
+            </div>
+        </div>
+    </div>
+    <?php unset($_SESSION['leave_success']); ?>
+<?php endif; ?>
+
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
     <?php if(empty($data['myLeaves'])): ?>
         <div class="col-span-full p-8 text-center bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
@@ -99,6 +131,7 @@
                 </div>
             </div>
             <div id="dateError" class="text-red-500 text-xs mt-1 hidden"><i class="fa-solid fa-circle-exclamation mr-1"></i> End Date cannot be earlier than Start Date.</div>
+            <div id="attendanceError" class="text-red-500 text-xs mt-1 hidden"><i class="fa-solid fa-circle-exclamation mr-1"></i> You have already checked in today. Your leave request must start from tomorrow.</div>
             <div id="durationDisplay" class="text-sm font-medium text-primary mt-2 hidden"><i class="fa-solid fa-clock mr-1"></i> Duration: <span id="durationDays" class="font-bold"></span> Day(s)</div>
 
             <div>
@@ -119,20 +152,39 @@ document.addEventListener('DOMContentLoaded', function() {
     const startDate = document.getElementById('start_date');
     const endDate = document.getElementById('end_date');
     const dateError = document.getElementById('dateError');
+    const attendanceError = document.getElementById('attendanceError');
     const durationDisplay = document.getElementById('durationDisplay');
     const durationDays = document.getElementById('durationDays');
     const leaveForm = document.getElementById('leaveForm');
+    
+    const hasClockedInToday = <?= json_encode($data['hasClockedInToday']) ?>;
+    
+    // Get today's date in YYYY-MM-DD local timezone
+    const now = new Date();
+    const todayStr = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
 
     function calculateDuration() {
         if (startDate.value && endDate.value) {
             const start = new Date(startDate.value);
             const end = new Date(endDate.value);
             
+            let hasError = false;
+            dateError.classList.add('hidden');
+            attendanceError.classList.add('hidden');
+            
+            if (hasClockedInToday && startDate.value === todayStr) {
+                attendanceError.classList.remove('hidden');
+                hasError = true;
+            }
+
             if (end < start) {
                 dateError.classList.remove('hidden');
+                hasError = true;
+            }
+            
+            if (hasError) {
                 durationDisplay.classList.add('hidden');
             } else {
-                dateError.classList.add('hidden');
                 // Calculate days inclusive of start and end
                 const diffTime = Math.abs(end - start);
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
@@ -142,6 +194,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } else {
             dateError.classList.add('hidden');
+            attendanceError.classList.add('hidden');
             durationDisplay.classList.add('hidden');
         }
     }
@@ -150,14 +203,26 @@ document.addEventListener('DOMContentLoaded', function() {
     endDate.addEventListener('change', calculateDuration);
 
     leaveForm.addEventListener('submit', function(e) {
+        let hasError = false;
+        
         if (startDate.value && endDate.value) {
             const start = new Date(startDate.value);
             const end = new Date(endDate.value);
-            if (end < start) {
-                e.preventDefault();
-                dateError.classList.remove('hidden');
-                return false;
+            
+            if (hasClockedInToday && startDate.value === todayStr) {
+                attendanceError.classList.remove('hidden');
+                hasError = true;
             }
+            
+            if (end < start) {
+                dateError.classList.remove('hidden');
+                hasError = true;
+            }
+        }
+        
+        if (hasError) {
+            e.preventDefault();
+            return false;
         }
         
         // Disable button to prevent double submit

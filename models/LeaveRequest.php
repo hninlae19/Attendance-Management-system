@@ -29,6 +29,68 @@ class LeaveRequest {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getTotalCount($filters = []) {
+        $query = "SELECT COUNT(*) as count FROM " . $this->table . " lr
+                  LEFT JOIN employees e ON lr.employee_id = e.id
+                  WHERE 1=1";
+        
+        $params = [];
+        if (!empty($filters['department_id'])) {
+            $query .= " AND e.department_id = :dept_id";
+            $params[':dept_id'] = $filters['department_id'];
+        }
+        if (!empty($filters['search'])) {
+            $query .= " AND (e.first_name LIKE :search OR e.last_name LIKE :search)";
+            $params[':search'] = '%' . $filters['search'] . '%';
+        }
+        if (!empty($filters['date'])) {
+            $query .= " AND (:date BETWEEN lr.start_date AND lr.end_date)";
+            $params[':date'] = $filters['date'];
+        }
+
+        $stmt = $this->conn->prepare($query);
+        foreach($params as $key => &$val) {
+            $stmt->bindParam($key, $val);
+        }
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row['count'] ?? 0;
+    }
+
+    public function getFilteredRequests($filters = [], $limit = 5, $offset = 0) {
+        $query = "SELECT lr.*, e.first_name, e.last_name, e.employee_code, lt.name as leave_type_name, lt.is_paid 
+                  FROM " . $this->table . " lr
+                  LEFT JOIN employees e ON lr.employee_id = e.id
+                  LEFT JOIN leave_types lt ON lr.leave_type_id = lt.id
+                  WHERE 1=1";
+        
+        $params = [];
+        if (!empty($filters['department_id'])) {
+            $query .= " AND e.department_id = :dept_id";
+            $params[':dept_id'] = $filters['department_id'];
+        }
+        if (!empty($filters['search'])) {
+            $query .= " AND (e.first_name LIKE :search OR e.last_name LIKE :search)";
+            $params[':search'] = '%' . $filters['search'] . '%';
+        }
+        if (!empty($filters['date'])) {
+            $query .= " AND (:date BETWEEN lr.start_date AND lr.end_date)";
+            $params[':date'] = $filters['date'];
+        }
+
+        $query .= " ORDER BY lr.created_at DESC LIMIT :limit OFFSET :offset";
+        
+        $stmt = $this->conn->prepare($query);
+        foreach($params as $key => &$val) {
+            $stmt->bindParam($key, $val);
+        }
+        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+        
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function handleRequest($id, $action, $remark = '') {
         $status = ($action === 'approve') ? 'Approved' : 'Rejected';
         
@@ -87,8 +149,8 @@ class LeaveRequest {
                 }
             }
 
-            // Get employee ID for notification
-            $q2 = "SELECT employee_id FROM " . $this->table . " WHERE id = :id";
+            // Get user_id for notification
+            $q2 = "SELECT e.user_id FROM " . $this->table . " lr JOIN employees e ON lr.employee_id = e.id WHERE lr.id = :id";
             $s2 = $this->conn->prepare($q2);
             $s2->bindParam(':id', $id);
             $s2->execute();
@@ -96,7 +158,7 @@ class LeaveRequest {
             if ($row) {
                 require_once __DIR__ . '/Notification.php';
                 $notif = new Notification();
-                $notif->create($row['employee_id'], "Your leave request has been {$status}.", 'leave', '/employee/leaves');
+                $notif->create($row['user_id'], "Your leave request has been {$status}.", 'leave', '/employee/leaves', 'Leave Approval');
             }
             return true;
         }

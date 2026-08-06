@@ -90,7 +90,7 @@
 
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label for="amount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Amount ($)</label>
+                    <label for="amount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Amount (MMK)</label>
                     <input type="number" step="0.01" min="0.01" name="amount" id="amount" required class="w-full px-4 py-2 bg-white/50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm transition-colors">
                 </div>
                 <div>

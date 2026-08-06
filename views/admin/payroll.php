@@ -106,15 +106,15 @@ $currentMonthName = $monthNames[(int)$data['selectedMonth']];
                             <td class="px-4 py-3"><?= $p['present_days'] ?></td>
                             <td class="px-4 py-3"><?= $p['leave_days'] ?></td>
                             <td class="px-4 py-3"><?= $p['late_days'] ?></td>
-                            <td class="px-4 py-3">-</td> <!-- OT hours not stored directly, just amount -->
+                            <td class="px-4 py-3"><?= number_format($p['ot_hours'] ?? 0, 1) ?></td>
                             
                             <td class="px-4 py-3 text-orange-600 dark:text-orange-400"><?= number_format($p['ot_amount']) ?></td>
                             <td class="px-4 py-3 text-teal-600 dark:text-teal-400"><?= number_format($p['bonus_amount']) ?></td>
                             <td class="px-4 py-3 text-blue-600 dark:text-blue-400"><?= number_format($p['allowance_amount']) ?></td>
                             
-                            <td class="px-4 py-3 text-rose-600 dark:text-rose-400"><?= number_format($p['leave_deduction_amount']) ?></td>
-                            <td class="px-4 py-3 text-rose-600 dark:text-rose-400"><?= number_format($p['late_deduction_amount']) ?></td>
-                            <td class="px-4 py-3 text-rose-600 dark:text-rose-400"><?= number_format($p['other_deduction_amount']) ?></td>
+                            <td class="px-4 py-3 text-rose-600 dark:text-rose-400"><?= number_format($p['leave_deduction_amount'] ?? 0) ?></td>
+                            <td class="px-4 py-3 text-rose-600 dark:text-rose-400"><?= number_format($p['late_deduction_amount'] ?? 0) ?></td>
+                            <td class="px-4 py-3 text-rose-600 dark:text-rose-400"><?= number_format($p['other_deduction_amount'] ?? 0) ?></td>
                             
                             <td class="px-4 py-3 bg-indigo-50 dark:bg-indigo-900/10 font-bold text-indigo-700 dark:text-indigo-400"><?= number_format($p['gross_salary']) ?></td>
                             <td class="px-4 py-3 bg-emerald-50 dark:bg-emerald-900/10 font-bold text-emerald-700 dark:text-emerald-400 text-lg"><?= number_format($p['net_salary']) ?></td>

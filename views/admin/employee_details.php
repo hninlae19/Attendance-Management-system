@@ -128,7 +128,7 @@
             </div>
 
             <h4 class="font-semibold text-gray-900 dark:text-white mb-4 border-b pb-2 dark:border-gray-700">Job Details</h4>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
                 <div>
                     <label for="department_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Department</label>
                     <select name="department_id" id="department_id" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
@@ -152,6 +152,13 @@
                 <div>
                     <label for="basic_salary" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Basic Salary</label>
                     <input type="number" name="basic_salary" id="basic_salary" value="<?= htmlspecialchars($data['employee']['basic_salary']) ?>" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
+                </div>
+                <div>
+                    <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Account Status</label>
+                    <select name="status" id="status" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
+                        <option value="Active" <?= $data['employee']['status'] === 'Active' ? 'selected' : '' ?>>Active</option>
+                        <option value="Inactive" <?= $data['employee']['status'] === 'Inactive' ? 'selected' : '' ?>>Inactive</option>
+                    </select>
                 </div>
             </div>
             

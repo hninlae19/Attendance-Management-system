@@ -4,6 +4,17 @@ class EmployeeController extends Controller {
     public function __construct() {
         if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'Employee') {
             $this->redirect('/payrollsystem/auth/login');
+            return;
+        }
+        
+        // Auto-checkout if missed
+        require_once __DIR__ . '/../models/Employee.php';
+        require_once __DIR__ . '/../models/Attendance.php';
+        $employeeModel = new Employee();
+        $employee = $employeeModel->getByUserId($_SESSION['user_id']);
+        if ($employee) {
+            $attendanceModel = new Attendance();
+            $attendanceModel->autoCheckoutIfMissed($employee['id']);
         }
     }
     
@@ -136,6 +147,7 @@ class EmployeeController extends Controller {
 
     public function leaves() {
         $employeeModel = $this->model('Employee');
+        $attendanceModel = $this->model('Attendance');
         $employee = $employeeModel->getByUserId($_SESSION['user_id']);
 
         $db = new Database();
@@ -143,6 +155,13 @@ class EmployeeController extends Controller {
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] === 'apply') {
             $this->validateCsrfToken($_POST['csrf_token'] ?? '');
+            
+            if ($employee['status'] !== 'Active') {
+                $_SESSION['leave_error'] = "Inactive employees cannot apply for leave.";
+                $this->redirect('/payrollsystem/employee/leaves');
+                return;
+            }
+
             $leave_type_id = $_POST['leave_type_id'];
             $start_date = $_POST['start_date'];
             $end_date = $_POST['end_date'];
@@ -150,6 +169,15 @@ class EmployeeController extends Controller {
 
             $today = date('Y-m-d');
             if ($start_date < $today || $end_date < $today) {
+                $_SESSION['leave_error'] = "Leave cannot start in the past.";
+                $this->redirect('/payrollsystem/employee/leaves');
+                return;
+            }
+            
+            // Check if employee has already clocked in today
+            $todayAtt = $attendanceModel->getToday($employee['id']);
+            if ($start_date == $today && $todayAtt) {
+                $_SESSION['leave_error'] = "You have already checked in today. Your leave request must start from tomorrow.";
                 $this->redirect('/payrollsystem/employee/leaves');
                 return;
             }
@@ -178,6 +206,21 @@ class EmployeeController extends Controller {
             $stmt->bindParam(':days', $days);
             $stmt->bindParam(':reason', $reason);
             $stmt->execute();
+            
+            // Notify Admins
+            $adminStmt = $conn->query("SELECT id FROM users WHERE role = 'Admin' AND status = 'Active'");
+            $admins = $adminStmt->fetchAll(PDO::FETCH_ASSOC);
+            $notifModel = $this->model('Notification');
+            $empName = $employee['first_name'] . ' ' . $employee['last_name'];
+            foreach ($admins as $admin) {
+                $notifModel->create(
+                    $admin['id'],
+                    "$empName submitted a Leave Request.",
+                    'leave',
+                    '/admin/leaves',
+                    $empName
+                );
+            }
 
             $this->redirect('/payrollsystem/employee/leaves');
         }
@@ -198,11 +241,15 @@ class EmployeeController extends Controller {
         $tStmt->execute();
         $leaveTypes = $tStmt->fetchAll(PDO::FETCH_ASSOC);
 
+        $todayAtt = $attendanceModel->getToday($employee['id']);
+        $hasClockedInToday = $todayAtt ? true : false;
+
         $this->view('layouts/employee', [
             'title' => 'Leave Application',
             'content' => 'employee/leaves',
             'myLeaves' => $myLeaves,
-            'leaveTypes' => $leaveTypes
+            'leaveTypes' => $leaveTypes,
+            'hasClockedInToday' => $hasClockedInToday
         ]);
     }
 
@@ -325,6 +372,21 @@ class EmployeeController extends Controller {
             $stmt->bindParam(':type', $type);
             $stmt->bindParam(':reason', $reason);
             $stmt->execute();
+            
+            // Notify Admins
+            $adminStmt = $conn->query("SELECT id FROM users WHERE role = 'Admin' AND status = 'Active'");
+            $admins = $adminStmt->fetchAll(PDO::FETCH_ASSOC);
+            $notifModel = $this->model('Notification');
+            $empName = $employee['first_name'] . ' ' . $employee['last_name'];
+            foreach ($admins as $admin) {
+                $notifModel->create(
+                    $admin['id'],
+                    "$empName submitted an Overtime Request.",
+                    'overtime',
+                    '/admin/overtime',
+                    $empName
+                );
+            }
 
             $this->redirect('/payrollsystem/employee/overtime');
         }
@@ -336,10 +398,20 @@ class EmployeeController extends Controller {
         $oStmt->execute();
         $myOvertime = $oStmt->fetchAll(PDO::FETCH_ASSOC);
 
+        // Fetch admin assigned overtimes
+        $oaQuery = "SELECT oa.* FROM overtime_assignments oa
+                    JOIN overtime_assignment_employees oae ON oa.id = oae.assignment_id
+                    WHERE oae.employee_id = :emp_id ORDER BY oa.date DESC";
+        $oaStmt = $conn->prepare($oaQuery);
+        $oaStmt->bindParam(':emp_id', $employee['id']);
+        $oaStmt->execute();
+        $myAssignments = $oaStmt->fetchAll(PDO::FETCH_ASSOC);
+
         $this->view('layouts/employee', [
             'title' => 'Overtime Application',
             'content' => 'employee/overtime',
-            'myOvertime' => $myOvertime
+            'myOvertime' => $myOvertime,
+            'myAssignments' => $myAssignments
         ]);
     }
 

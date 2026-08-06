@@ -178,7 +178,7 @@
                                         </div>
                                     </template>
                                     <template x-for="notif in notifications" :key="notif.id">
-                                        <a :href="'/payrollsystem/notification'" class="block px-4 py-3 border-b border-gray-50 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:border-gray-700/50 transition-colors relative" :class="notif.is_read == 0 ? 'bg-indigo-50/30 dark:bg-indigo-900/10' : ''">
+                                        <a :href="'/payrollsystem' + notif.link" @click="fetch('/payrollsystem/notification/api?action=read', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id: notif.id})})" class="block px-4 py-3 border-b border-gray-50 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:border-gray-700/50 transition-colors relative" :class="notif.is_read == 0 ? 'bg-indigo-50/30 dark:bg-indigo-900/10' : ''">
                                             <div class="flex gap-3">
                                                 <div class="flex-shrink-0 mt-0.5">
                                                     <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs shadow-sm"
@@ -287,9 +287,7 @@
                         <i class="fa-solid fa-chevron-down text-sm transition-transform duration-300" :class="open ? 'rotate-180 text-primary' : 'text-gray-400'"></i>
                     </button>
                     <ul x-show="open" x-collapse.duration.300ms class="py-2 space-y-1">
-                        <li><a href="/payrollsystem/admin/attendance?view=daily" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/attendance') && (isset($_GET['view']) && $_GET['view'] == 'daily' || !isset($_GET['view']) && !isset($_GET['tab'])) ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Daily Attendance</a></li>
-                        <li><a href="/payrollsystem/admin/attendance?view=weekly" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= isset($_GET['view']) && $_GET['view'] == 'weekly' ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Weekly Attendance</a></li>
-                        <li><a href="/payrollsystem/admin/attendance?view=monthly" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= isset($_GET['view']) && $_GET['view'] == 'monthly' ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Monthly Attendance</a></li>
+                        <li><a href="/payrollsystem/admin/attendance" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/attendance') && !isset($_GET['tab']) ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Attendance</a></li>
                         <li><a href="/payrollsystem/admin/attendance?tab=corrections" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= isset($_GET['tab']) && $_GET['tab'] == 'corrections' ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Corrections</a></li>
                     </ul>
                 </li>
@@ -334,20 +332,7 @@
                     </ul>
                 </li>
                 
-                <!-- REPORTS -->
-                <li x-data="{ open: <?= $isActive('/report') ? 'true' : 'false' ?> }">
-                    <button @click="open = !open" class="flex items-center w-full p-3 rounded-xl transition-all duration-300 group relative overflow-hidden <?= $isActive('/report') ? 'text-primary' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600' ?>">
-                        <i class="fa-solid fa-chart-line w-6 h-6 flex items-center justify-center transition-all duration-300 <?= $isActive('/report') ? 'text-primary scale-110 drop-shadow-[0_0_8px_rgba(79,70,229,0.5)]' : 'text-gray-400 group-hover:text-primary' ?>"></i>
-                        <span class="ms-3 font-semibold text-left whitespace-nowrap flex-1">Reports</span>
-                        <i class="fa-solid fa-chevron-down text-sm transition-transform duration-300" :class="open ? 'rotate-180 text-primary' : 'text-gray-400'"></i>
-                    </button>
-                    <ul x-show="open" x-collapse.duration.300ms class="py-2 space-y-1">
-                        <li><a href="/payrollsystem/admin/reports_attendance" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/reports_attendance') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Attendance Reports</a></li>
-                        <li><a href="/payrollsystem/admin/reports_payroll" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/reports_payroll') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Payroll Reports</a></li>
-                        <li><a href="/payrollsystem/admin/reports_leave" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/reports_leave') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Leave Reports</a></li>
-                        <li><a href="/payrollsystem/admin/reports_ot" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/reports_ot') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">OT Reports</a></li>
-                    </ul>
-                </li>
+
                 
                 <!-- NOTIFICATIONS -->
                 <li>

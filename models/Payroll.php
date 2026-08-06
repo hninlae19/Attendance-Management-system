@@ -99,31 +99,54 @@ class Payroll {
             $otStmt->execute();
             
             $otAmount = 0;
+            $totalOtHours = 0;
             while($row = $otStmt->fetch(PDO::FETCH_ASSOC)) {
                 $rate = 0;
                 if($row['type'] === 'Working Day') $rate = $settings['weekday_ot_rate'] ?? 1.5;
                 if($row['type'] === 'Weekend') $rate = $settings['weekend_ot_rate'] ?? 2.0;
                 if($row['type'] === 'Holiday') $rate = $settings['holiday_ot_rate'] ?? 3.0;
                 
+                $totalOtHours += $row['total_hours'];
                 $otAmount += ($hourlyRate * $rate * $row['total_hours']); // OT is usually hourly rate * multiplier
             }
 
-            // Calculate Deductions from deductions table breakdown
-            $dedStmt = $this->conn->prepare("SELECT id, type, reason, amount FROM deductions WHERE employee_id = ? AND MONTH(date) = ? AND YEAR(date) = ? AND status = 'Active'");
-            $dedStmt->execute([$emp['id'], $month, $year]);
-            
+            // Calculate Deductions dynamically based on attendance
             $leaveDeduction = 0;
             $lateDeduction = 0;
             $otherDeduction = 0;
+            
+            $calcMethod = $settings['deduction_calculation_method'] ?? 'Salary-Based';
+            
+            // Late Deduction
+            if ($attStats['Late'] > 0) {
+                $lateDedRate = (float)($settings['late_deduction_rate'] ?? 0);
+                $lateDedAmount = ($calcMethod === 'Salary-Based') ? (($dailyRate / ($settings['working_hours'] ?: 8)) * $lateDedRate) : $lateDedRate;
+                $lateDeduction += $attStats['Late'] * $lateDedAmount;
+            }
+            
+            // Absent Deduction
+            if ($attStats['Absent'] > 0) {
+                $absentDedRate = (float)($settings['absent_deduction_rate'] ?? 1);
+                $absentDedAmount = ($calcMethod === 'Salary-Based') ? ($dailyRate * $absentDedRate) : $absentDedRate;
+                $leaveDeduction += $attStats['Absent'] * $absentDedAmount;
+            }
+            
+            // Half Day Deduction
+            if ($attStats['Half Day'] > 0) {
+                $halfDayDedRate = (float)($settings['half_day_deduction_rate'] ?? 0.5);
+                $halfDayDedAmount = ($calcMethod === 'Salary-Based') ? ($dailyRate * $halfDayDedRate) : $halfDayDedRate;
+                $leaveDeduction += $attStats['Half Day'] * $halfDayDedAmount;
+            }
+
+            // Fetch from deductions table for Other/Manual deductions
+            $dedStmt = $this->conn->prepare("SELECT id, type, reason, amount FROM deductions WHERE employee_id = ? AND MONTH(date) = ? AND YEAR(date) = ? AND status = 'Active'");
+            $dedStmt->execute([$emp['id'], $month, $year]);
+            
             $active_deduction_ids = [];
             
             while($row = $dedStmt->fetch(PDO::FETCH_ASSOC)) {
                 $active_deduction_ids[] = $row['id'];
-                if ($row['type'] === 'Full Day Absence' || $row['type'] === 'Half Day Absence' || $row['type'] === 'Unpaid Leave') {
-                    $leaveDeduction += $row['amount'];
-                } elseif ($row['type'] === 'Late') {
-                    $lateDeduction += $row['amount'];
-                } else {
+                if ($row['type'] === 'Other' || $row['type'] === 'Custom') {
                     $otherDeduction += $row['amount'];
                 }
             }
@@ -153,7 +176,8 @@ class Payroll {
             $insertQuery = "INSERT INTO payroll SET 
                 employee_id = :emp_id, month = :month, year = :year, basic_salary = :basic_salary,
                 present_days = :present, half_days = :half, absent_days = :absent, late_days = :late, leave_days = :leave,
-                ot_amount = :ot, bonus_amount = :bonus, allowance_amount = :allowance, 
+                ot_hours = :ot_hours, ot_amount = :ot, bonus_amount = :bonus, allowance_amount = :allowance, 
+                leave_deduction_amount = :leave_deduction, late_deduction_amount = :late_deduction, other_deduction_amount = :other_deduction,
                 deduction_amount = :deduction,
                 gross_salary = :gross, net_salary = :net, status = 'Pending'";
             
@@ -167,9 +191,13 @@ class Payroll {
             $insertStmt->bindParam(':absent', $attStats['Absent']);
             $insertStmt->bindParam(':late', $attStats['Late']);
             $insertStmt->bindParam(':leave', $totalLeaveDays);
+            $insertStmt->bindParam(':ot_hours', $totalOtHours);
             $insertStmt->bindParam(':ot', $otAmount);
             $insertStmt->bindParam(':bonus', $bonusAmount);
             $insertStmt->bindParam(':allowance', $allowanceAmount);
+            $insertStmt->bindParam(':leave_deduction', $leaveDeduction);
+            $insertStmt->bindParam(':late_deduction', $lateDeduction);
+            $insertStmt->bindParam(':other_deduction', $otherDeduction);
             $insertStmt->bindParam(':deduction', $totalDeductions);
             $insertStmt->bindParam(':gross', $grossSalary);
             $insertStmt->bindParam(':net', $netSalary);
@@ -187,7 +215,7 @@ class Payroll {
                 require_once __DIR__ . '/Notification.php';
                 $notif = new Notification();
                 $monthName = date('F', mktime(0, 0, 0, $month, 10));
-                $notif->create($emp['id'], "Your payroll for {$monthName} {$year} has been generated.", 'payroll', '/employee/payroll');
+                $notif->create($emp['user_id'], "Your payroll for {$monthName} {$year} has been generated.", 'payroll', '/employee/payslips', 'Payroll Generated');
             }
         }
         return $successCount;

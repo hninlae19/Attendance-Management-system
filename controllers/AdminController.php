@@ -350,6 +350,9 @@ class AdminController extends Controller {
             $employeeModel->join_date = $_POST['join_date'];
             $employeeModel->phone = $_POST['phone'];
             $employeeModel->address = $_POST['address'];
+            if (isset($_POST['status'])) {
+                $employeeModel->status = $_POST['status'];
+            }
             
             $employeeModel->update();
             $this->redirect('/payrollsystem/admin/employee/' . $id);
@@ -446,6 +449,7 @@ class AdminController extends Controller {
 
     public function leaves() {
         $leaveRequestModel = $this->model('LeaveRequest');
+        $departmentModel = $this->model('Department');
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && isset($_POST['id'])) {
             $remark = $_POST['admin_remark'] ?? '';
@@ -453,12 +457,28 @@ class AdminController extends Controller {
             $this->redirect('/payrollsystem/admin/leaves');
         }
 
-        $leaveRequests = $leaveRequestModel->getAll();
+        $filters = [
+            'department_id' => $_GET['department_id'] ?? '',
+            'search' => $_GET['search'] ?? '',
+            'date' => $_GET['date'] ?? ''
+        ];
+        
+        $limit = 5;
+        $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+        $offset = ($page - 1) * $limit;
+
+        $total = $leaveRequestModel->getTotalCount($filters);
+        $leaveRequests = $leaveRequestModel->getFilteredRequests($filters, $limit, $offset);
+        $departments = $departmentModel->getAll();
 
         $this->view('layouts/main', [
             'title' => 'Leave Management',
             'content' => 'admin/leaves',
-            'leaveRequests' => $leaveRequests
+            'leaveRequests' => $leaveRequests,
+            'departments' => $departments,
+            'filters' => $filters,
+            'page' => $page,
+            'total_pages' => ceil($total / $limit)
         ]);
     }
 
@@ -498,18 +518,35 @@ class AdminController extends Controller {
 
     public function overtime() {
         $overtimeRequestModel = $this->model('OvertimeRequest');
+        $departmentModel = $this->model('Department');
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && isset($_POST['id'])) {
             $overtimeRequestModel->handleRequest($_POST['id'], $_POST['action']);
             $this->redirect('/payrollsystem/admin/overtime');
         }
 
-        $overtimeRequests = $overtimeRequestModel->getAll();
+        $filters = [
+            'department_id' => $_GET['department_id'] ?? '',
+            'search' => $_GET['search'] ?? '',
+            'date' => $_GET['date'] ?? ''
+        ];
+        
+        $limit = 5;
+        $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+        $offset = ($page - 1) * $limit;
+
+        $total = $overtimeRequestModel->getTotalCount($filters);
+        $overtimeRequests = $overtimeRequestModel->getFilteredRequests($filters, $limit, $offset);
+        $departments = $departmentModel->getAll();
 
         $this->view('layouts/main', [
             'title' => 'Overtime Management',
             'content' => 'admin/overtime',
-            'overtimeRequests' => $overtimeRequests
+            'overtimeRequests' => $overtimeRequests,
+            'departments' => $departments,
+            'filters' => $filters,
+            'page' => $page,
+            'total_pages' => ceil($total / $limit)
         ]);
     }
 
@@ -565,7 +602,8 @@ class AdminController extends Controller {
                         $emp['user_id'],
                         "You have been assigned overtime: $title on $date",
                         'overtime',
-                        '/employee/overtime'
+                        '/employee/overtime',
+                        'Overtime Assignment'
                     );
                 }
                 
@@ -653,7 +691,7 @@ class AdminController extends Controller {
             }
         }
 
-        $stmt = $conn->query("SELECT d.*, e.first_name, e.last_name, e.employee_code FROM deductions d JOIN employees e ON d.employee_id = e.id ORDER BY d.date DESC");
+        $stmt = $conn->query("SELECT d.*, e.first_name, e.last_name, e.employee_code FROM deductions d JOIN employees e ON d.employee_id = e.id WHERE d.type != 'Late' ORDER BY d.date DESC");
         $deductions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $this->view('layouts/main', [

@@ -375,11 +375,11 @@
                                 </li>
                                 <li class="flex justify-between items-center">
                                     <span class="text-gray-600 dark:text-gray-400">Hourly Rate</span>
-                                    <span class="font-medium text-gray-900 dark:text-white" x-text="'$' + formatCurrency(selectedRecord?.ot_rate) + '/hr'"></span>
+                                    <span class="font-medium text-gray-900 dark:text-white" x-text="'MMK ' + formatCurrency(selectedRecord?.ot_rate) + '/hr'"></span>
                                 </li>
                                 <li class="flex justify-between items-center pt-2 border-t border-indigo-100 dark:border-indigo-800">
                                     <span class="text-gray-600 dark:text-gray-400">Total OT Amount</span>
-                                    <span class="font-bold text-indigo-600 dark:text-indigo-400 text-base" x-text="'$' + formatCurrency(selectedRecord?.ot_amount)"></span>
+                                    <span class="font-bold text-indigo-600 dark:text-indigo-400 text-base" x-text="'MMK ' + formatCurrency(selectedRecord?.ot_amount)"></span>
                                 </li>
                             </ul>
                         </div>

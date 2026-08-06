@@ -174,9 +174,9 @@
                     <div>
                         <h4 class="font-bold text-gray-900 dark:text-white mb-4 text-sm uppercase tracking-wider flex items-center"><i class="fa-regular fa-user text-gray-400 mr-2"></i> Personal Details</h4>
                         <div class="grid grid-cols-2 gap-4 bg-gray-50 dark:bg-gray-800/50 p-5 rounded-xl border border-gray-100 dark:border-gray-700">
-                            <div class="col-span-2">
+                            <div class="col-span-2 hidden">
                                 <label for="employee_code" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Employee Code</label>
-                                <input type="text" name="employee_code" id="employee_code" required class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm text-sm">
+                                <input type="text" name="employee_code" id="employee_code" class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm text-sm" value="AUTO">
                             </div>
                             <div>
                                 <label for="first_name" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">First Name</label>
@@ -206,19 +206,19 @@
                                 <select name="position_id" id="position_id" required class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm text-sm appearance-none cursor-pointer">
                                     <option value="">Select Position</option>
                                     <?php foreach($data['positions'] as $pos): ?>
-                                        <option value="<?= $pos['id'] ?>"><?= htmlspecialchars($pos['name']) ?></option>
+                                        <option value="<?= $pos['id'] ?>" data-department-id="<?= $pos['department_id'] ?>"><?= htmlspecialchars($pos['name']) ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
                             <div>
                                 <label for="join_date" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Join Date</label>
-                                <input type="date" name="join_date" id="join_date" required class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm text-sm">
+                                <input type="date" name="join_date" id="join_date" required min="<?= date('Y-m-d') ?>" value="<?= date('Y-m-d') ?>" class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm text-sm">
                             </div>
                             <div>
                                 <label for="basic_salary" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Basic Salary</label>
                                 <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-500 font-medium">$</div>
-                                    <input type="number" name="basic_salary" id="basic_salary" required class="w-full pl-8 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm text-sm">
+                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-500 font-medium">MMK</div>
+                                    <input type="number" name="basic_salary" id="basic_salary" required class="w-full pl-12 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm text-sm">
                                 </div>
                             </div>
                         </div>
@@ -233,3 +233,33 @@
         </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const departmentSelect = document.getElementById('department_id');
+    const positionSelect = document.getElementById('position_id');
+    const positionOptions = Array.from(positionSelect.options);
+
+    departmentSelect.addEventListener('change', function() {
+        const selectedDeptId = this.value;
+        
+        // Reset and clear current selection
+        positionSelect.value = "";
+        
+        // Hide/Show options based on department
+        positionOptions.forEach(option => {
+            if (option.value === "") {
+                option.style.display = 'block'; // Always show "Select Position"
+                return;
+            }
+            
+            const deptId = option.getAttribute('data-department-id');
+            if (selectedDeptId === "" || deptId === selectedDeptId) {
+                option.style.display = 'block';
+            } else {
+                option.style.display = 'none';
+            }
+        });
+    });
+});
+</script>

@@ -78,9 +78,70 @@ class Attendance {
         $stmt->bindParam(":status", $status);
         
         if ($stmt->execute()) {
+            if ($status === 'Late') {
+                require_once __DIR__ . '/Deduction.php';
+                $deduction = new Deduction();
+                
+                $monthStart = date('Y-m-01', strtotime($date));
+                $monthEnd = date('Y-m-t', strtotime($date));
+                
+                $lateCountStmt = $this->conn->prepare("SELECT COUNT(*) FROM " . $this->table . " WHERE employee_id = ? AND status = 'Late' AND date BETWEEN ? AND ?");
+                $lateCountStmt->execute([$employee_id, $monthStart, $monthEnd]);
+                $lateCount = $lateCountStmt->fetchColumn();
+                
+                if ($lateCount > 0 && $lateCount % 3 == 0) {
+                    $deduction->applyAutomatedDeduction($employee_id, 'Half Day Absence', $date, 'Penalty for 3 Lates in month', 'Attendance System');
+                }
+            }
             return true;
         }
         return false;
+    }
+
+    public function autoCheckoutIfMissed($employee_id) {
+        $current_date = date('Y-m-d');
+        $current_time = date('H:i:s');
+        
+        $query = "SELECT * FROM " . $this->table . " WHERE employee_id = :emp_id AND check_out IS NULL";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':emp_id', $employee_id);
+        $stmt->execute();
+        $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        foreach($records as $rec) {
+            $should_auto_checkout = false;
+            
+            if ($rec['date'] < $current_date) {
+                $should_auto_checkout = true;
+            } elseif ($rec['date'] == $current_date && $current_time >= '17:15:00') {
+                $should_auto_checkout = true;
+            }
+            
+            if ($should_auto_checkout) {
+                $checkout_time = '17:15:00';
+                
+                $t1 = strtotime($rec['check_in']);
+                $t2 = strtotime($checkout_time);
+                $hours = round(($t2 - $t1) / 3600, 2);
+                
+                $status = 'Present';
+                if ($hours >= 8) {
+                    $status = 'Present'; 
+                } elseif ($hours >= 4 && $hours < 8) {
+                    $status = 'Half Day';
+                } else {
+                    $status = 'Absent';
+                }
+                
+                $uQuery = "UPDATE " . $this->table . " SET check_out=:time, working_hours=:hours, status=:status WHERE id=:id";
+                $uStmt = $this->conn->prepare($uQuery);
+                $uStmt->bindParam(":time", $checkout_time);
+                $uStmt->bindParam(":hours", $hours);
+                $uStmt->bindParam(":status", $status);
+                $uStmt->bindParam(":id", $rec['id']);
+                $uStmt->execute();
+            }
+        }
     }
 
     public function clockOut($id, $check_in_time) {
@@ -125,6 +186,24 @@ class Attendance {
         $stmt->bindParam(":id", $id);
         
         if ($stmt->execute()) {
+            require_once __DIR__ . '/Deduction.php';
+            $deduction = new Deduction();
+            
+            $empStmt = $this->conn->prepare("SELECT employee_id, date FROM " . $this->table . " WHERE id = ?");
+            $empStmt->execute([$id]);
+            $attRecord = $empStmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($attRecord) {
+                // If it changed status, we don't know the previous one easily, but applyAutomatedDeduction ignores if already applied
+                // However, we can cancel old 'Late' if it was late before, but usually clockOut just updates working_hours and status.
+                // We'll just apply the new deduction if it applies.
+                if ($status === 'Absent') {
+                    $deduction->applyAutomatedDeduction($attRecord['employee_id'], 'Full Day Absence', $attRecord['date'], 'Automated Full Day Absence Deduction (Early Check-Out)', 'Attendance System');
+                } elseif ($status === 'Half Day') {
+                    $deduction->applyAutomatedDeduction($attRecord['employee_id'], 'Half Day Absence', $attRecord['date'], 'Automated Half Day Absence Deduction (Early Check-Out)', 'Attendance System');
+                }
+            }
+
             return true;
         }
         return false;
@@ -228,7 +307,16 @@ class Attendance {
                 } elseif ($newStatus === 'Half Day') {
                     $deduction->applyAutomatedDeduction($correction['employee_id'], 'Half Day Absence', $att_date, 'Automated Half Day Absence Deduction', 'Attendance System');
                 } elseif ($newStatus === 'Late') {
-                    $deduction->applyAutomatedDeduction($correction['employee_id'], 'Late', $att_date, 'Automated Late Deduction', 'Attendance System');
+                    $monthStart = date('Y-m-01', strtotime($att_date));
+                    $monthEnd = date('Y-m-t', strtotime($att_date));
+                    
+                    $lateCountStmt = $this->conn->prepare("SELECT COUNT(*) FROM attendance WHERE employee_id = ? AND status = 'Late' AND date BETWEEN ? AND ?");
+                    $lateCountStmt->execute([$correction['employee_id'], $monthStart, $monthEnd]);
+                    $lateCount = $lateCountStmt->fetchColumn();
+                    
+                    if ($lateCount > 0 && $lateCount % 3 == 0) {
+                        $deduction->applyAutomatedDeduction($correction['employee_id'], 'Half Day Absence', $att_date, 'Penalty for 3 Lates in month', 'Attendance System');
+                    }
                 }
             }
 
