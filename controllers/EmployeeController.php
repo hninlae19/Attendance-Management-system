@@ -207,6 +207,26 @@ class EmployeeController extends Controller {
             $stmt->bindParam(':reason', $reason);
             $stmt->execute();
             
+            $leave_request_id = $conn->lastInsertId();
+
+            // Check if it's Unpaid Leave
+            $ltQuery = "SELECT is_paid FROM leave_types WHERE id = :id";
+            $ltStmt = $conn->prepare($ltQuery);
+            $ltStmt->execute([':id' => $leave_type_id]);
+            $is_paid = $ltStmt->fetchColumn();
+
+            if ($is_paid == 0) {
+                require_once __DIR__ . '/../models/Deduction.php';
+                $deduction = new Deduction();
+                $current_date = strtotime($start_date);
+                $end_ts = strtotime($end_date);
+                while ($current_date <= $end_ts) {
+                    $date_str = date('Y-m-d', $current_date);
+                    $deduction->applyAutomatedDeduction($employee['id'], 'Unpaid Leave', $date_str, 'Pending Unpaid Leave Deduction', 'Leave Management System', $leave_request_id, 1.0, 'Pending');
+                    $current_date = strtotime("+1 day", $current_date);
+                }
+            }
+            
             // Notify Admins
             $adminStmt = $conn->query("SELECT id FROM users WHERE role = 'Admin' AND status = 'Active'");
             $admins = $adminStmt->fetchAll(PDO::FETCH_ASSOC);
@@ -244,12 +264,35 @@ class EmployeeController extends Controller {
         $todayAtt = $attendanceModel->getToday($employee['id']);
         $hasClockedInToday = $todayAtt ? true : false;
 
+        // Get Paid Leave Limit from settings
+        $sQuery = "SELECT paid_leave_limit FROM settings LIMIT 1";
+        $sStmt = $conn->query($sQuery);
+        $settings = $sStmt->fetch(PDO::FETCH_ASSOC);
+        $paidLeaveLimit = $settings ? (int)$settings['paid_leave_limit'] : 35;
+
+        // Calculate Paid Leave Used this year
+        $year = date('Y');
+        $uQuery = "SELECT SUM(lr.days) as used 
+                   FROM leave_requests lr 
+                   JOIN leave_types lt ON lr.leave_type_id = lt.id 
+                   WHERE lr.employee_id = :emp_id 
+                   AND lr.status = 'Approved' 
+                   AND lt.is_paid = 1 
+                   AND YEAR(lr.start_date) = :yr";
+        $uStmt = $conn->prepare($uQuery);
+        $uStmt->execute([':emp_id' => $employee['id'], ':yr' => $year]);
+        $usedRow = $uStmt->fetch(PDO::FETCH_ASSOC);
+        $paidLeaveUsed = $usedRow ? (int)$usedRow['used'] : 0;
+
         $this->view('layouts/employee', [
             'title' => 'Leave Application',
             'content' => 'employee/leaves',
             'myLeaves' => $myLeaves,
             'leaveTypes' => $leaveTypes,
-            'hasClockedInToday' => $hasClockedInToday
+            'hasClockedInToday' => $hasClockedInToday,
+            'paidLeaveLimit' => $paidLeaveLimit,
+            'paidLeaveUsed' => $paidLeaveUsed,
+            'user' => $_SESSION
         ]);
     }
 

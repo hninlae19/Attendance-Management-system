@@ -24,28 +24,8 @@ class CronController extends Controller {
         $output = [];
 
         // 1. Auto Check-Out
-        if (strtotime($current_time) >= strtotime($auto_checkout_time)) {
-            $query = "SELECT a.* FROM attendance a
-                      LEFT JOIN overtime_requests ot ON a.employee_id = ot.employee_id AND a.date = ot.date AND ot.status = 'Approved'
-                      WHERE a.date = :date AND a.check_out IS NULL AND ot.id IS NULL";
-            $stmt = $conn->prepare($query);
-            $stmt->bindParam(':date', $date);
-            $stmt->execute();
-            $missed_checkouts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            foreach ($missed_checkouts as $att) {
-                $office_end = $settings['office_end_time'] ?? '17:00:00';
-                $attendanceModel->clockOut($att['id'], $att['check_in']);
-                $upd = "UPDATE attendance SET check_out = :time WHERE id = :id";
-                $updStmt = $conn->prepare($upd);
-                $updStmt->bindParam(':time', $office_end);
-                $updStmt->bindParam(':id', $att['id']);
-                $updStmt->execute();
-            }
-            $output[] = "Auto check-out processed for " . count($missed_checkouts) . " employees.";
-        } else {
-            $output[] = "Too early for auto check-out.";
-        }
+        $attendanceModel->autoCheckoutIfMissed();
+        $output[] = "Auto check-out process executed.";
 
         // 1.5 Process Late and Half Day Deductions for today's attendances
         $attQuery = "SELECT id, employee_id, status FROM attendance WHERE date = :date AND (status = 'Late' OR status = 'Half Day')";

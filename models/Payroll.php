@@ -110,35 +110,12 @@ class Payroll {
                 $otAmount += ($hourlyRate * $rate * $row['total_hours']); // OT is usually hourly rate * multiplier
             }
 
-            // Calculate Deductions dynamically based on attendance
+            // Calculate Deductions directly from the deductions table
             $leaveDeduction = 0;
             $lateDeduction = 0;
             $otherDeduction = 0;
             
-            $calcMethod = $settings['deduction_calculation_method'] ?? 'Salary-Based';
-            
-            // Late Deduction
-            if ($attStats['Late'] > 0) {
-                $lateDedRate = (float)($settings['late_deduction_rate'] ?? 0);
-                $lateDedAmount = ($calcMethod === 'Salary-Based') ? (($dailyRate / ($settings['working_hours'] ?: 8)) * $lateDedRate) : $lateDedRate;
-                $lateDeduction += $attStats['Late'] * $lateDedAmount;
-            }
-            
-            // Absent Deduction
-            if ($attStats['Absent'] > 0) {
-                $absentDedRate = (float)($settings['absent_deduction_rate'] ?? 1);
-                $absentDedAmount = ($calcMethod === 'Salary-Based') ? ($dailyRate * $absentDedRate) : $absentDedRate;
-                $leaveDeduction += $attStats['Absent'] * $absentDedAmount;
-            }
-            
-            // Half Day Deduction
-            if ($attStats['Half Day'] > 0) {
-                $halfDayDedRate = (float)($settings['half_day_deduction_rate'] ?? 0.5);
-                $halfDayDedAmount = ($calcMethod === 'Salary-Based') ? ($dailyRate * $halfDayDedRate) : $halfDayDedRate;
-                $leaveDeduction += $attStats['Half Day'] * $halfDayDedAmount;
-            }
-
-            // Fetch from deductions table for Other/Manual deductions
+            // Fetch from deductions table
             $dedStmt = $this->conn->prepare("SELECT id, type, reason, amount FROM deductions WHERE employee_id = ? AND MONTH(date) = ? AND YEAR(date) = ? AND status = 'Active'");
             $dedStmt->execute([$emp['id'], $month, $year]);
             
@@ -146,7 +123,11 @@ class Payroll {
             
             while($row = $dedStmt->fetch(PDO::FETCH_ASSOC)) {
                 $active_deduction_ids[] = $row['id'];
-                if ($row['type'] === 'Other' || $row['type'] === 'Custom') {
+                if (in_array($row['type'], ['Half Day Absence', 'Full Day Absence', 'Unpaid Leave'])) {
+                    $leaveDeduction += $row['amount'];
+                } elseif ($row['type'] === 'Late') {
+                    $lateDeduction += $row['amount'];
+                } else {
                     $otherDeduction += $row['amount'];
                 }
             }

@@ -136,21 +136,6 @@ CREATE TABLE `settings` (
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `holidays`
--- Purpose: Stores public and company holidays for attendance calculations.
---
-DROP TABLE IF EXISTS `holidays`;
-CREATE TABLE `holidays` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `date` date NOT NULL,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `date` (`date`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
 
 --
 -- Table structure for table `leave_types`
@@ -181,6 +166,7 @@ CREATE TABLE `attendance` (
   `check_out` time DEFAULT NULL,
   `working_hours` decimal(5,2) DEFAULT NULL,
   `status` enum('Present','Late','Half Day','Absent','Paid Leave','Unpaid Leave','Holiday') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Absent',
+  `is_auto_checkout` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `emp_date` (`employee_id`,`date`),
@@ -190,28 +176,6 @@ CREATE TABLE `attendance` (
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `attendance_corrections`
--- Purpose: Records employee requests to fix incorrect attendance logs.
---
-DROP TABLE IF EXISTS `attendance_corrections`;
-CREATE TABLE `attendance_corrections` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `attendance_id` int NOT NULL,
-  `employee_id` int NOT NULL,
-  `reason` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `corrected_check_in` time DEFAULT NULL,
-  `corrected_check_out` time DEFAULT NULL,
-  `status` enum('Pending','Approved','Rejected') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Pending',
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `attendance_id` (`attendance_id`),
-  KEY `employee_id` (`employee_id`),
-  CONSTRAINT `attendance_corrections_ibfk_1` FOREIGN KEY (`attendance_id`) REFERENCES `attendance` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `attendance_corrections_ibfk_2` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
 
 --
 -- Table structure for table `leave_requests`
@@ -378,6 +342,9 @@ CREATE TABLE `deductions` (
   `date` date NOT NULL,
   `type` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `source` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'System',
+  `related_id` int DEFAULT NULL,
+  `deduction_days_hours` decimal(5,2) DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `employee_id` (`employee_id`),
   KEY `payroll_id` (`payroll_id`),

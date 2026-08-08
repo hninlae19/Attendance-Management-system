@@ -68,7 +68,11 @@
                     <div class="flex justify-between items-center text-sm px-4 py-2 bg-black/20 rounded-lg">
                         <span class="text-gray-400">IN: <strong class="text-white"><?= date('h:i A', strtotime($data['todayAttendance']['check_in'])) ?></strong></span>
                         <span class="text-gray-500">|</span>
-                        <span class="text-gray-400">OUT: <strong class="text-white"><?= date('h:i A', strtotime($data['todayAttendance']['check_out'])) ?></strong></span>
+                        <span class="text-gray-400">OUT: <strong class="text-white"><?= date('h:i A', strtotime($data['todayAttendance']['check_out'])) ?></strong>
+                            <?php if(isset($data['todayAttendance']['is_auto_checkout']) && $data['todayAttendance']['is_auto_checkout'] == 1): ?>
+                                <span class="ml-1 text-[10px] bg-red-900/50 text-red-300 px-1.5 py-0.5 rounded-full border border-red-800/50" title="System Auto Check-Out">Auto</span>
+                            <?php endif; ?>
+                        </span>
                     </div>
                 </div>
             <?php endif; ?>

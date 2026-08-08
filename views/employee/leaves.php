@@ -37,6 +37,42 @@
     <?php unset($_SESSION['leave_success']); ?>
 <?php endif; ?>
 
+<?php
+$limit = $data['paidLeaveLimit'];
+$used = $data['paidLeaveUsed'];
+$pct = $limit > 0 ? min(100, round(($used / $limit) * 100)) : 100;
+$exhausted = $used >= $limit;
+?>
+<div class="mb-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex flex-col md:flex-row justify-between items-center gap-4">
+    <div>
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-1"><i class="fa-solid fa-calendar-check text-primary mr-2"></i>Paid Leave Balance</h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Total approved paid leaves taken this year.</p>
+    </div>
+    <div class="flex items-center gap-4 w-full md:w-auto">
+        <div class="text-right">
+            <span class="text-2xl font-black text-gray-900 dark:text-white"><?= $used ?></span>
+            <span class="text-sm text-gray-500 dark:text-gray-400">/ <?= $limit ?> days</span>
+        </div>
+        <div class="w-full md:w-32 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+            <div class="h-full <?= $exhausted ? 'bg-red-500' : 'bg-primary' ?>" style="width: <?= $pct ?>%"></div>
+        </div>
+    </div>
+</div>
+<?php if($exhausted): ?>
+<div class="mb-6 bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r-lg dark:bg-yellow-900/30 dark:border-yellow-600">
+    <div class="flex items-center">
+        <div class="flex-shrink-0">
+            <i class="fa-solid fa-triangle-exclamation text-yellow-500 dark:text-yellow-400"></i>
+        </div>
+        <div class="ml-3">
+            <p class="text-sm text-yellow-700 dark:text-yellow-300 font-medium">
+                Your paid leave balance has been exhausted. Only Unpaid Leave is available.
+            </p>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
     <?php if(empty($data['myLeaves'])): ?>
         <div class="col-span-full p-8 text-center bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
@@ -113,9 +149,17 @@
             <div>
                 <label for="leave_type_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Leave Type</label>
                 <select name="leave_type_id" id="leave_type_id" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
-                    <option value="">Select Leave Type</option>
+                                        <option value="">Select Leave Type</option>
                     <?php foreach($data['leaveTypes'] as $lt): ?>
-                        <option value="<?= $lt['id'] ?>"><?= htmlspecialchars($lt['name']) ?> (<?= $lt['is_paid'] ? 'Paid' : 'Unpaid' ?>)</option>
+                        <?php 
+                        $disabled = '';
+                        $suffix = $lt['is_paid'] ? 'Paid' : 'Unpaid';
+                        if ($exhausted && $lt['is_paid'] == 1) {
+                            $disabled = 'disabled';
+                            $suffix .= ' - Exhausted';
+                        }
+                        ?>
+                        <option value="<?= $lt['id'] ?>" <?= $disabled ?>><?= htmlspecialchars($lt['name']) ?> (<?= $suffix ?>)</option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -156,6 +200,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const durationDisplay = document.getElementById('durationDisplay');
     const durationDays = document.getElementById('durationDays');
     const leaveForm = document.getElementById('leaveForm');
+    const submitBtn = leaveForm.querySelector('button[type="submit"]');
+    
+    // Add conflict error element
+    const conflictError = document.createElement('div');
+    conflictError.id = 'conflictError';
+    conflictError.className = 'text-red-500 text-xs mt-1 hidden';
+    conflictError.innerHTML = '<i class="fa-solid fa-circle-exclamation mr-1"></i> <span id="conflictMessage"></span>';
+    dateError.parentNode.insertBefore(conflictError, dateError.nextSibling);
     
     const hasClockedInToday = <?= json_encode($data['hasClockedInToday']) ?>;
     
@@ -163,7 +215,38 @@ document.addEventListener('DOMContentLoaded', function() {
     const now = new Date();
     const todayStr = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
 
-    function calculateDuration() {
+    async function checkConflicts() {
+        if (!startDate.value) return false;
+        
+        try {
+            const res = await fetch('/payrollsystem/api/validate_conflict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    start_date: startDate.value,
+                    end_date: endDate.value || startDate.value
+                })
+            });
+            const data = await res.json();
+            if (data.has_conflict) {
+                document.getElementById('conflictMessage').innerText = data.messages[0];
+                conflictError.classList.remove('hidden');
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                return true;
+            } else {
+                conflictError.classList.add('hidden');
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                return false;
+            }
+        } catch (e) {
+            console.error(e);
+            return false;
+        }
+    }
+
+    async function calculateDuration() {
         if (startDate.value && endDate.value) {
             const start = new Date(startDate.value);
             const end = new Date(endDate.value);
@@ -184,6 +267,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (hasError) {
                 durationDisplay.classList.add('hidden');
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
             } else {
                 // Calculate days inclusive of start and end
                 const diffTime = Math.abs(end - start);
@@ -191,11 +276,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 durationDays.innerText = diffDays;
                 durationDisplay.classList.remove('hidden');
+                
+                // Now check conflicts
+                await checkConflicts();
             }
         } else {
             dateError.classList.add('hidden');
             attendanceError.classList.add('hidden');
+            conflictError.classList.add('hidden');
             durationDisplay.classList.add('hidden');
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
         }
     }
 
@@ -203,6 +294,11 @@ document.addEventListener('DOMContentLoaded', function() {
     endDate.addEventListener('change', calculateDuration);
 
     leaveForm.addEventListener('submit', function(e) {
+        if (submitBtn.disabled) {
+            e.preventDefault();
+            return false;
+        }
+        
         let hasError = false;
         
         if (startDate.value && endDate.value) {
@@ -226,7 +322,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Disable button to prevent double submit
-        const submitBtn = leaveForm.querySelector('button[type="submit"]');
         submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Submitting...';
         submitBtn.disabled = true;
         submitBtn.classList.add('opacity-80', 'cursor-not-allowed');

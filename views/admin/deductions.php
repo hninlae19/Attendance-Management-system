@@ -104,6 +104,7 @@
                 <select name="type" id="type" required class="w-full px-4 py-2 bg-white/50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm transition-colors">
                     <option value="Half Day Absence">Half Day Absence</option>
                     <option value="Full Day Absence">Full Day Absence</option>
+                    <option value="Unpaid Leave">Unpaid Leave</option>
                     <option value="Damage">Damage to Company Property</option>
                     <option value="Loan">Loan Repayment</option>
                     <option value="Manual Adjustment">Manual Adjustment</option>

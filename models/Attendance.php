@@ -78,6 +78,7 @@ class Attendance {
         $stmt->bindParam(":status", $status);
         
         if ($stmt->execute()) {
+            $last_id = $this->conn->lastInsertId();
             if ($status === 'Late') {
                 require_once __DIR__ . '/Deduction.php';
                 $deduction = new Deduction();
@@ -90,7 +91,7 @@ class Attendance {
                 $lateCount = $lateCountStmt->fetchColumn();
                 
                 if ($lateCount > 0 && $lateCount % 3 == 0) {
-                    $deduction->applyAutomatedDeduction($employee_id, 'Half Day Absence', $date, 'Penalty for 3 Lates in month', 'Attendance System');
+                    $deduction->applyAutomatedDeduction($employee_id, 'Half Day Absence', $date, 'Penalty for 3 Lates in month', 'Attendance System', $last_id, 0.5);
                 }
             }
             return true;
@@ -98,54 +99,61 @@ class Attendance {
         return false;
     }
 
-    public function autoCheckoutIfMissed($employee_id) {
+            public function autoCheckoutIfMissed($employee_id = null) {
         $current_date = date('Y-m-d');
         $current_time = date('H:i:s');
         
-        $query = "SELECT * FROM " . $this->table . " WHERE employee_id = :emp_id AND check_out IS NULL";
+        $settingModel = new Setting();
+        $settings = $settingModel->getSettings();
+        $auto_checkout_time = $settings['auto_checkout_time'] ?? '17:30:00';
+        
+        $query = "SELECT * FROM " . $this->table . " WHERE check_out IS NULL";
+        if ($employee_id) {
+            $query .= " AND employee_id = :emp_id";
+        }
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':emp_id', $employee_id);
+        if ($employee_id) {
+            $stmt->bindParam(':emp_id', $employee_id);
+        }
         $stmt->execute();
         $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         foreach($records as $rec) {
-            $should_auto_checkout = false;
+            $expected_checkout = $auto_checkout_time;
             
+            // Check for approved overtime requests
+            $ot_query = "SELECT end_time FROM overtime_requests WHERE employee_id = :emp AND date = :date AND status = 'Approved'";
+            $ot_stmt = $this->conn->prepare($ot_query);
+            $ot_stmt->execute([':emp' => $rec['employee_id'], ':date' => $rec['date']]);
+            $ot_req = $ot_stmt->fetch(PDO::FETCH_ASSOC);
+            
+            // Check for active overtime assignments
+            $ota_query = "SELECT a.end_time FROM overtime_assignments a JOIN overtime_assignment_employees e ON a.id = e.assignment_id WHERE e.employee_id = :emp AND a.date = :date AND e.status != 'Missed'";
+            $ota_stmt = $this->conn->prepare($ota_query);
+            $ota_stmt->execute([':emp' => $rec['employee_id'], ':date' => $rec['date']]);
+            $ota_req = $ota_stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($ot_req) {
+                $expected_checkout = date('H:i:s', strtotime($ot_req['end_time']) + 15 * 60);
+            } elseif ($ota_req) {
+                $expected_checkout = date('H:i:s', strtotime($ota_req['end_time']) + 15 * 60);
+            }
+            
+            $should_auto_checkout = false;
             if ($rec['date'] < $current_date) {
                 $should_auto_checkout = true;
-            } elseif ($rec['date'] == $current_date && $current_time >= '17:15:00') {
+            } elseif ($rec['date'] == $current_date && $current_time >= $expected_checkout) {
                 $should_auto_checkout = true;
             }
             
             if ($should_auto_checkout) {
-                $checkout_time = '17:15:00';
-                
-                $t1 = strtotime($rec['check_in']);
-                $t2 = strtotime($checkout_time);
-                $hours = round(($t2 - $t1) / 3600, 2);
-                
-                $status = 'Present';
-                if ($hours >= 8) {
-                    $status = 'Present'; 
-                } elseif ($hours >= 4 && $hours < 8) {
-                    $status = 'Half Day';
-                } else {
-                    $status = 'Absent';
-                }
-                
-                $uQuery = "UPDATE " . $this->table . " SET check_out=:time, working_hours=:hours, status=:status WHERE id=:id";
-                $uStmt = $this->conn->prepare($uQuery);
-                $uStmt->bindParam(":time", $checkout_time);
-                $uStmt->bindParam(":hours", $hours);
-                $uStmt->bindParam(":status", $status);
-                $uStmt->bindParam(":id", $rec['id']);
-                $uStmt->execute();
+                $this->clockOut($rec['id'], $rec['check_in'], $expected_checkout, 1);
             }
         }
     }
 
-    public function clockOut($id, $check_in_time) {
-        $time = date('H:i:s');
+    public function clockOut($id, $check_in_time, $checkout_time_override = null, $is_auto = 0) {
+        $time = $checkout_time_override ? $checkout_time_override : date('H:i:s');
         
         $t1 = strtotime($check_in_time);
         $t2 = strtotime($time);
@@ -178,11 +186,12 @@ class Attendance {
             $status = 'Absent';
         }
 
-        $query = "UPDATE " . $this->table . " SET check_out=:time, working_hours=:hours, status=:status WHERE id=:id";
+        $query = "UPDATE " . $this->table . " SET check_out=:time, working_hours=:hours, status=:status, is_auto_checkout=:is_auto WHERE id=:id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":time", $time);
         $stmt->bindParam(":hours", $hours);
         $stmt->bindParam(":status", $status);
+        $stmt->bindParam(":is_auto", $is_auto);
         $stmt->bindParam(":id", $id);
         
         if ($stmt->execute()) {
@@ -194,13 +203,10 @@ class Attendance {
             $attRecord = $empStmt->fetch(PDO::FETCH_ASSOC);
             
             if ($attRecord) {
-                // If it changed status, we don't know the previous one easily, but applyAutomatedDeduction ignores if already applied
-                // However, we can cancel old 'Late' if it was late before, but usually clockOut just updates working_hours and status.
-                // We'll just apply the new deduction if it applies.
                 if ($status === 'Absent') {
-                    $deduction->applyAutomatedDeduction($attRecord['employee_id'], 'Full Day Absence', $attRecord['date'], 'Automated Full Day Absence Deduction (Early Check-Out)', 'Attendance System');
+                    $deduction->applyAutomatedDeduction($attRecord['employee_id'], 'Full Day Absence', $attRecord['date'], 'Automated Full Day Absence Deduction (Early Check-Out)', 'Attendance System', $id, 1.0);
                 } elseif ($status === 'Half Day') {
-                    $deduction->applyAutomatedDeduction($attRecord['employee_id'], 'Half Day Absence', $attRecord['date'], 'Automated Half Day Absence Deduction (Early Check-Out)', 'Attendance System');
+                    $deduction->applyAutomatedDeduction($attRecord['employee_id'], 'Half Day Absence', $attRecord['date'], 'Automated Half Day Absence Deduction (Early Check-Out)', 'Attendance System', $id, 0.5);
                 }
             }
 
@@ -298,14 +304,14 @@ class Attendance {
                 $attStmt2->execute([$correction['attendance_id']]);
                 $att_date = $attStmt2->fetchColumn();
                 
-                $deduction->cancelAutomatedDeduction($correction['employee_id'], 'Full Day Absence', $att_date);
-                $deduction->cancelAutomatedDeduction($correction['employee_id'], 'Half Day Absence', $att_date);
-                $deduction->cancelAutomatedDeduction($correction['employee_id'], 'Late', $att_date);
+                $deduction->cancelAutomatedDeduction($correction['employee_id'], 'Full Day Absence', $att_date, $correction['attendance_id']);
+                $deduction->cancelAutomatedDeduction($correction['employee_id'], 'Half Day Absence', $att_date, $correction['attendance_id']);
+                $deduction->cancelAutomatedDeduction($correction['employee_id'], 'Late', $att_date, $correction['attendance_id']);
                 
                 if ($newStatus === 'Absent') {
-                    $deduction->applyAutomatedDeduction($correction['employee_id'], 'Full Day Absence', $att_date, 'Automated Full Day Absence Deduction', 'Attendance System');
+                    $deduction->applyAutomatedDeduction($correction['employee_id'], 'Full Day Absence', $att_date, 'Automated Full Day Absence Deduction', 'Attendance System', $correction['attendance_id'], 1.0);
                 } elseif ($newStatus === 'Half Day') {
-                    $deduction->applyAutomatedDeduction($correction['employee_id'], 'Half Day Absence', $att_date, 'Automated Half Day Absence Deduction', 'Attendance System');
+                    $deduction->applyAutomatedDeduction($correction['employee_id'], 'Half Day Absence', $att_date, 'Automated Half Day Absence Deduction', 'Attendance System', $correction['attendance_id'], 0.5);
                 } elseif ($newStatus === 'Late') {
                     $monthStart = date('Y-m-01', strtotime($att_date));
                     $monthEnd = date('Y-m-t', strtotime($att_date));
@@ -315,7 +321,7 @@ class Attendance {
                     $lateCount = $lateCountStmt->fetchColumn();
                     
                     if ($lateCount > 0 && $lateCount % 3 == 0) {
-                        $deduction->applyAutomatedDeduction($correction['employee_id'], 'Half Day Absence', $att_date, 'Penalty for 3 Lates in month', 'Attendance System');
+                        $deduction->applyAutomatedDeduction($correction['employee_id'], 'Half Day Absence', $att_date, 'Penalty for 3 Lates in month', 'Attendance System', $correction['attendance_id'], 0.5);
                     }
                 }
             }

@@ -19,7 +19,7 @@ class Deduction {
      * @param string $reason
      * @param string $source
      */
-    public function applyAutomatedDeduction($employee_id, $type, $date, $reason, $source) {
+    public function applyAutomatedDeduction($employee_id, $type, $date, $reason, $source, $related_id = null, $deduction_days = null, $status = 'Active') {
         $settingModel = new Setting();
         $settings = $settingModel->getSettings();
         
@@ -73,18 +73,20 @@ class Deduction {
 
         if ($existing && $existing['status'] === 'Cancelled') {
             // Reactivate
-            $updQuery = "UPDATE " . $this->table . " SET amount = :amount, status = 'Active', reason = :reason, source = :source WHERE id = :id";
+            $updQuery = "UPDATE " . $this->table . " SET amount = :amount, status = 'Active', reason = :reason, source = :source, related_id = :related_id, deduction_days_hours = :deduction_days WHERE id = :id";
             $updStmt = $this->conn->prepare($updQuery);
             $updStmt->execute([
                 ':amount' => $amount,
                 ':reason' => $reason,
                 ':source' => $source,
+                ':related_id' => $related_id,
+                ':deduction_days' => $deduction_days,
                 ':id' => $existing['id']
             ]);
         } else {
             // Insert
-            $insQuery = "INSERT INTO " . $this->table . " (employee_id, amount, reason, date, type, status, source) 
-                         VALUES (:emp_id, :amount, :reason, :date, :type, 'Active', :source)";
+            $insQuery = "INSERT INTO " . $this->table . " (employee_id, amount, reason, date, type, status, source, related_id, deduction_days_hours) 
+                         VALUES (:emp_id, :amount, :reason, :date, :type, :status, :source, :related_id, :deduction_days)";
             $insStmt = $this->conn->prepare($insQuery);
             $insStmt->execute([
                 ':emp_id' => $employee_id,
@@ -92,7 +94,10 @@ class Deduction {
                 ':reason' => $reason,
                 ':date' => $date,
                 ':type' => $type,
-                ':source' => $source
+                ':status' => $status,
+                ':source' => $source,
+                ':related_id' => $related_id,
+                ':deduction_days' => $deduction_days
             ]);
         }
         return true;
@@ -101,14 +106,21 @@ class Deduction {
     /**
      * Cancel an automated deduction (e.g. if attendance corrected)
      */
-    public function cancelAutomatedDeduction($employee_id, $type, $date) {
+    public function cancelAutomatedDeduction($employee_id, $type, $date, $related_id = null) {
         $query = "UPDATE " . $this->table . " SET status = 'Cancelled' WHERE employee_id = :emp_id AND date = :date AND type = :type AND status = 'Active'";
-        $stmt = $this->conn->prepare($query);
-        $stmt->execute([
+        $params = [
             ':emp_id' => $employee_id,
             ':date' => $date,
             ':type' => $type
-        ]);
+        ];
+        
+        if ($related_id !== null) {
+            $query .= " AND related_id = :related_id";
+            $params[':related_id'] = $related_id;
+        }
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute($params);
         return true;
     }
 }

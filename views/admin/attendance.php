@@ -165,6 +165,7 @@
                                 <div class="flex items-center text-red-600 dark:text-red-400">
                                     <i class="fa-solid fa-arrow-right-from-bracket w-4"></i>
                                     <span x-text="formatTime(record.check_out)"></span>
+                                    <span x-show="record.is_auto_checkout == 1" class="ml-1 text-[10px] bg-red-100 text-red-800 px-1.5 py-0.5 rounded-full dark:bg-red-900 dark:text-red-300" title="Auto Check-Out">Auto</span>
                                 </div>
                             </td>
                             <td class="px-6 py-3 text-center font-medium" x-text="formatNumber(record.working_hours) + 'h'"></td>
@@ -325,7 +326,10 @@
                             </li>
                             <li class="flex justify-between items-center">
                                 <span class="text-gray-500 dark:text-gray-400">Check Out</span>
-                                <span class="font-medium text-red-600" x-text="formatTime(selectedRecord?.check_out)"></span>
+                                <div class="flex items-center">
+                                    <span class="font-medium text-red-600" x-text="formatTime(selectedRecord?.check_out)"></span>
+                                    <span x-show="selectedRecord?.is_auto_checkout == 1" class="ml-2 text-[10px] bg-red-100 text-red-800 px-1.5 py-0.5 rounded-full dark:bg-red-900 dark:text-red-300" title="Auto Check-Out">Auto</span>
+                                </div>
                             </li>
                             <li class="flex justify-between items-center">
                                 <span class="text-gray-500 dark:text-gray-400">Working Hours</span>
