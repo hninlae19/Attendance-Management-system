@@ -34,7 +34,7 @@
                             <?= number_format($pr['basic_salary']) ?> MMK
                         </td>
                         <td class="px-6 py-4 text-green-600">
-                            +<?= number_format($pr['ot_amount'] + $pr['bonus_amount'] + $pr['allowance_amount']) ?>
+                            +<?= number_format($pr['ot_amount'] + $pr['bonus_amount']) ?>
                         </td>
                         <td class="px-6 py-4 text-red-600">
                             -<?= number_format($pr['deduction_amount']) ?>
@@ -108,7 +108,6 @@ function viewPayslip(data) {
                 <div class="flex justify-between py-1 text-sm"><span class="text-gray-600 dark:text-gray-300">Basic Salary:</span> <span class="font-medium text-gray-900 dark:text-white">${fmt(data.basic_salary)}</span></div>
                 <div class="flex justify-between py-1 text-sm"><span class="text-gray-600 dark:text-gray-300">Overtime Pay:</span> <span class="font-medium text-gray-900 dark:text-white">${fmt(data.ot_amount)}</span></div>
                 <div class="flex justify-between py-1 text-sm"><span class="text-gray-600 dark:text-gray-300">Bonus:</span> <span class="font-medium text-gray-900 dark:text-white">${fmt(data.bonus_amount)}</span></div>
-                <div class="flex justify-between py-1 text-sm"><span class="text-gray-600 dark:text-gray-300">Allowance:</span> <span class="font-medium text-gray-900 dark:text-white">${fmt(data.allowance_amount)}</span></div>
             </div>
             
             <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">

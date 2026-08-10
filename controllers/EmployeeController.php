@@ -218,13 +218,7 @@ class EmployeeController extends Controller {
             if ($is_paid == 0) {
                 require_once __DIR__ . '/../models/Deduction.php';
                 $deduction = new Deduction();
-                $current_date = strtotime($start_date);
-                $end_ts = strtotime($end_date);
-                while ($current_date <= $end_ts) {
-                    $date_str = date('Y-m-d', $current_date);
-                    $deduction->applyAutomatedDeduction($employee['id'], 'Unpaid Leave', $date_str, 'Pending Unpaid Leave Deduction', 'Leave Management System', $leave_request_id, 1.0, 'Pending');
-                    $current_date = strtotime("+1 day", $current_date);
-                }
+                $deduction->applyAutomatedRangeDeduction($employee['id'], 'Unpaid Leave', $start_date, $end_date, $days, 'Pending Unpaid Leave Deduction', 'Leave Management System', $leave_request_id, 'Pending');
             }
             
             // Notify Admins

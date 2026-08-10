@@ -57,14 +57,27 @@ class Payroll {
 
         foreach ($employees as $emp) {
             // Check if payroll already generated
-            $checkQuery = "SELECT id FROM payroll WHERE employee_id = :emp_id AND month = :month AND year = :year";
+            $checkQuery = "SELECT id, status FROM payroll WHERE employee_id = :emp_id AND month = :month AND year = :year";
             $checkStmt = $this->conn->prepare($checkQuery);
             $checkStmt->bindParam(':emp_id', $emp['id']);
             $checkStmt->bindParam(':month', $month);
             $checkStmt->bindParam(':year', $year);
             $checkStmt->execute();
-
-            if ($checkStmt->rowCount() > 0) continue; // Skip if already generated
+            
+            $existing = $checkStmt->fetch(PDO::FETCH_ASSOC);
+            if ($existing) {
+                if ($existing['status'] === 'Paid') {
+                    continue; // Skip if already paid
+                } else {
+                    // Delete pending payroll to regenerate
+                    $delStmt = $this->conn->prepare("DELETE FROM payroll WHERE id = :id");
+                    $delStmt->execute([':id' => $existing['id']]);
+                    
+                    // Reset applied deductions back to active so they can be picked up again
+                    $resetDed = $this->conn->prepare("UPDATE deductions SET status = 'Active', payroll_id = NULL WHERE payroll_id = :id");
+                    $resetDed->execute([':id' => $existing['id']]);
+                }
+            }
 
             // Daily rate based on actual days in the month
             $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);

@@ -131,12 +131,10 @@ class LeaveRequest {
                         }
 
                         if ($excess_days > 0) {
-                            $current_date = strtotime($leave['end_date']);
-                            for ($i = 0; $i < $excess_days; $i++) {
-                                $date_str = date('Y-m-d', $current_date);
-                                $deduction->applyAutomatedDeduction($leave['employee_id'], 'Unpaid Leave', $date_str, 'Exceeded Paid Leave Limit (Unpaid Leave)', 'Leave Management System', $id, 1.0, 'Active');
-                                $current_date = strtotime("-1 day", $current_date);
-                            }
+                            $end_date_str = $leave['end_date'];
+                            $start_date_ts = strtotime("-" . ($excess_days - 1) . " days", strtotime($end_date_str));
+                            $start_date_str = date('Y-m-d', $start_date_ts);
+                            $deduction->applyAutomatedRangeDeduction($leave['employee_id'], 'Unpaid Leave', $start_date_str, $end_date_str, $excess_days, 'Exceeded Paid Leave Limit (Unpaid Leave)', 'Leave Management System', $id, 'Active');
                         }
                     }
                 } elseif ($leave && $leave['is_paid'] == 0) {

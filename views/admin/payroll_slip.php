@@ -91,10 +91,6 @@ $currentMonthName = $monthNames[(int)$payroll['month']];
                     <td>Bonus</td>
                     <td class="amount-col font-medium text-gray-900"><?= number_format($payroll['bonus_amount']) ?> MMK</td>
                 </tr>
-                <tr>
-                    <td>Allowance</td>
-                    <td class="amount-col font-medium text-gray-900"><?= number_format($payroll['allowance_amount']) ?> MMK</td>
-                </tr>
             </table>
             
             <div class="flex justify-between items-center bg-indigo-50 p-4 rounded-lg border border-indigo-100">

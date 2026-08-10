@@ -95,9 +95,8 @@ class CronController extends Controller {
         $unpaid_leaves = $unpaidStmt->fetchAll(PDO::FETCH_ASSOC);
 
         foreach ($unpaid_leaves as $ul) {
-            require_once __DIR__ . '/../models/Deduction.php';
-            $deduction = new Deduction();
-            $deduction->applyAutomatedDeduction($ul['employee_id'], 'Unpaid Leave', $date, 'Unpaid Leave on ' . $date, 'Leave Management System');
+            // The deduction for the entire unpaid leave period is already generated when the leave is requested/approved.
+            // Therefore, we do not need to create daily deduction records here.
 
             // Also log as 'Unpaid Leave' in attendance
             $ins = "INSERT INTO attendance (employee_id, date, status) VALUES (:emp_id, :date, 'Unpaid Leave') ON DUPLICATE KEY UPDATE status='Unpaid Leave'";

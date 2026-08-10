@@ -691,14 +691,36 @@ class AdminController extends Controller {
             }
         }
 
-        $stmt = $conn->query("SELECT d.*, e.first_name, e.last_name, e.employee_code FROM deductions d JOIN employees e ON d.employee_id = e.id WHERE d.type != 'Late' ORDER BY d.date DESC");
-        $deductions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $deductionModel = $this->model('Deduction');
+        
+        $filters = [
+            'search' => $_GET['search'] ?? '',
+            'type' => $_GET['type'] ?? '',
+            'date_start' => $_GET['date_start'] ?? '',
+            'date_end' => $_GET['date_end'] ?? '',
+            'min_absent_days' => $_GET['min_absent_days'] ?? '',
+            'max_absent_days' => $_GET['max_absent_days'] ?? ''
+        ];
+        
+        $sort = $_GET['sort'] ?? 'date';
+        $dir = $_GET['dir'] ?? 'DESC';
+        $limit = 10;
+        $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+        $offset = ($page - 1) * $limit;
+
+        $total = $deductionModel->getTotalCount($filters);
+        $deductions = $deductionModel->getFilteredDeductions($filters, $sort, $dir, $limit, $offset);
 
         $this->view('layouts/main', [
             'title' => 'Deduction Management',
             'content' => 'admin/deductions',
             'deductions' => $deductions,
-            'employees' => $employeeModel->getAll()
+            'employees' => $employeeModel->getAll(),
+            'filters' => $filters,
+            'sort' => $sort,
+            'dir' => $dir,
+            'page' => $page,
+            'total_pages' => ceil($total / $limit)
         ]);
     }
 

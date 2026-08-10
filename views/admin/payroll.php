@@ -67,7 +67,6 @@ $currentMonthName = $monthNames[(int)$data['selectedMonth']];
                         <th class="px-4 py-3">OT Hrs</th>
                         <th class="px-4 py-3 text-orange-600 dark:text-orange-400 font-semibold">OT Pay (MMK)</th>
                         <th class="px-4 py-3 text-teal-600 dark:text-teal-400 font-semibold">Bonus (MMK)</th>
-                        <th class="px-4 py-3 text-blue-600 dark:text-blue-400 font-semibold">Allowance (MMK)</th>
                         <th class="px-4 py-3 text-rose-600 dark:text-rose-400 font-semibold">Leave Ded (MMK)</th>
                         <th class="px-4 py-3 text-rose-600 dark:text-rose-400 font-semibold">Late Ded (MMK)</th>
                         <th class="px-4 py-3 text-rose-600 dark:text-rose-400 font-semibold">Other Ded (MMK)</th>
@@ -110,7 +109,6 @@ $currentMonthName = $monthNames[(int)$data['selectedMonth']];
                             
                             <td class="px-4 py-3 text-orange-600 dark:text-orange-400"><?= number_format($p['ot_amount']) ?></td>
                             <td class="px-4 py-3 text-teal-600 dark:text-teal-400"><?= number_format($p['bonus_amount']) ?></td>
-                            <td class="px-4 py-3 text-blue-600 dark:text-blue-400"><?= number_format($p['allowance_amount']) ?></td>
                             
                             <td class="px-4 py-3 text-rose-600 dark:text-rose-400"><?= number_format($p['leave_deduction_amount'] ?? 0) ?></td>
                             <td class="px-4 py-3 text-rose-600 dark:text-rose-400"><?= number_format($p['late_deduction_amount'] ?? 0) ?></td>
