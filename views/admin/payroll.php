@@ -63,6 +63,8 @@ $currentMonthName = $monthNames[(int)$data['selectedMonth']];
                         <th class="px-4 py-3 bg-gray-100 dark:bg-gray-800/50">Basic Salary (MMK)</th>
                         <th class="px-4 py-3">Present</th>
                         <th class="px-4 py-3">Leave</th>
+                        <th class="px-4 py-3 text-rose-500 font-semibold">FD Absent</th>
+                        <th class="px-4 py-3 text-orange-500 font-semibold">HD Absent</th>
                         <th class="px-4 py-3">Late</th>
                         <th class="px-4 py-3">OT Hrs</th>
                         <th class="px-4 py-3 text-orange-600 dark:text-orange-400 font-semibold">OT Pay (MMK)</th>
@@ -104,6 +106,8 @@ $currentMonthName = $monthNames[(int)$data['selectedMonth']];
                             
                             <td class="px-4 py-3"><?= $p['present_days'] ?></td>
                             <td class="px-4 py-3"><?= $p['leave_days'] ?></td>
+                            <td class="px-4 py-3 text-rose-600 font-bold"><?= $p['absent_days'] ?></td>
+                            <td class="px-4 py-3 text-orange-600 font-bold"><?= $p['half_days'] ?></td>
                             <td class="px-4 py-3"><?= $p['late_days'] ?></td>
                             <td class="px-4 py-3"><?= number_format($p['ot_hours'] ?? 0, 1) ?></td>
                             

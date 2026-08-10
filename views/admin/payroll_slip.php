@@ -84,7 +84,7 @@ $currentMonthName = $monthNames[(int)$payroll['month']];
                     <td class="amount-col font-medium text-gray-900"><?= number_format($payroll['basic_salary']) ?> MMK</td>
                 </tr>
                 <tr>
-                    <td>Overtime Pay</td>
+                    <td>Overtime Pay (<?= number_format($payroll['ot_hours'] ?? 0, 1) ?> hrs)</td>
                     <td class="amount-col font-medium text-gray-900"><?= number_format($payroll['ot_amount']) ?> MMK</td>
                 </tr>
                 <tr>
@@ -104,11 +104,11 @@ $currentMonthName = $monthNames[(int)$payroll['month']];
             <h3 class="text-lg font-bold text-gray-900 border-b-2 border-rose-100 pb-2 mb-4 uppercase tracking-wider text-sm">Deductions</h3>
             <table class="table-border text-sm mb-4">
                 <tr>
-                    <td>Leave Deduction</td>
+                    <td>Leave / Absent Deduction (<?= $payroll['absent_days'] ?> FD, <?= $payroll['half_days'] ?> HD)</td>
                     <td class="amount-col font-medium text-rose-600"><?= number_format($payroll['leave_deduction_amount']) ?> MMK</td>
                 </tr>
                 <tr>
-                    <td>Late Deduction</td>
+                    <td>Late Deduction (<?= $payroll['late_days'] ?> Days)</td>
                     <td class="amount-col font-medium text-rose-600"><?= number_format($payroll['late_deduction_amount']) ?> MMK</td>
                 </tr>
                 <tr>

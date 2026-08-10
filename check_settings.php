@@ -1,9 +1,5 @@
 <?php
-require_once __DIR__ . '/config/Database.php';
+require 'config/database.php';
 $db = new Database();
 $conn = $db->getConnection();
-$stmt = $conn->query("SELECT * FROM settings");
-while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-    print_r($row);
-}
-echo "Done.";
+print_r($conn->query('SELECT * FROM settings')->fetch(PDO::FETCH_ASSOC));

@@ -106,14 +106,14 @@ function viewPayslip(data) {
             <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
                 <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Earnings</h4>
                 <div class="flex justify-between py-1 text-sm"><span class="text-gray-600 dark:text-gray-300">Basic Salary:</span> <span class="font-medium text-gray-900 dark:text-white">${fmt(data.basic_salary)}</span></div>
-                <div class="flex justify-between py-1 text-sm"><span class="text-gray-600 dark:text-gray-300">Overtime Pay:</span> <span class="font-medium text-gray-900 dark:text-white">${fmt(data.ot_amount)}</span></div>
+                <div class="flex justify-between py-1 text-sm"><span class="text-gray-600 dark:text-gray-300">Overtime Pay (${data.ot_hours || 0} hrs):</span> <span class="font-medium text-gray-900 dark:text-white">${fmt(data.ot_amount)}</span></div>
                 <div class="flex justify-between py-1 text-sm"><span class="text-gray-600 dark:text-gray-300">Bonus:</span> <span class="font-medium text-gray-900 dark:text-white">${fmt(data.bonus_amount)}</span></div>
             </div>
             
             <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
                 <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Deductions</h4>
-                <div class="flex justify-between py-1 text-sm"><span class="text-gray-600 dark:text-gray-300">Leave Deduction:</span> <span class="font-medium text-gray-900 dark:text-white">${fmt(data.leave_deduction_amount)}</span></div>
-                <div class="flex justify-between py-1 text-sm"><span class="text-gray-600 dark:text-gray-300">Late Deduction:</span> <span class="font-medium text-gray-900 dark:text-white">${fmt(data.late_deduction_amount)}</span></div>
+                <div class="flex justify-between py-1 text-sm"><span class="text-gray-600 dark:text-gray-300">Leave/Absent (${data.absent_days || 0} FD, ${data.half_days || 0} HD):</span> <span class="font-medium text-gray-900 dark:text-white">${fmt(data.leave_deduction_amount)}</span></div>
+                <div class="flex justify-between py-1 text-sm"><span class="text-gray-600 dark:text-gray-300">Late Deduction (${data.late_days || 0} Days):</span> <span class="font-medium text-gray-900 dark:text-white">${fmt(data.late_deduction_amount)}</span></div>
                 <div class="flex justify-between py-1 text-sm"><span class="text-gray-600 dark:text-gray-300">Other Deductions:</span> <span class="font-medium text-gray-900 dark:text-white">${fmt(data.other_deduction_amount)}</span></div>
             </div>
         </div>

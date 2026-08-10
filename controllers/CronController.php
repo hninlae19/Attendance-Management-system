@@ -63,7 +63,11 @@ class CronController extends Controller {
         $holidayModel = $this->model('Holiday');
         if (!$holidayModel->isHoliday($date) && date('N', strtotime($date)) < 6) {
             // Find employees with no attendance and no approved leave
-            $empQuery = "SELECT id, basic_salary FROM employees WHERE status = 'Active' AND id NOT IN (SELECT employee_id FROM attendance WHERE date = :date) AND id NOT IN (SELECT employee_id FROM leave_requests WHERE :date BETWEEN start_date AND end_date AND status = 'Approved')";
+            $empQuery = "SELECT e.id, e.basic_salary FROM employees e 
+                         JOIN users u ON e.user_id = u.id
+                         WHERE u.status = 'Active' 
+                         AND e.id NOT IN (SELECT employee_id FROM attendance WHERE date = :date) 
+                         AND e.id NOT IN (SELECT employee_id FROM leave_requests WHERE :date BETWEEN start_date AND end_date AND status = 'Approved')";
             $empStmt = $conn->prepare($empQuery);
             $empStmt->bindParam(':date', $date);
             $empStmt->execute();

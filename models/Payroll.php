@@ -69,13 +69,13 @@ class Payroll {
                 if ($existing['status'] === 'Paid') {
                     continue; // Skip if already paid
                 } else {
-                    // Delete pending payroll to regenerate
-                    $delStmt = $this->conn->prepare("DELETE FROM payroll WHERE id = :id");
-                    $delStmt->execute([':id' => $existing['id']]);
-                    
                     // Reset applied deductions back to active so they can be picked up again
                     $resetDed = $this->conn->prepare("UPDATE deductions SET status = 'Active', payroll_id = NULL WHERE payroll_id = :id");
                     $resetDed->execute([':id' => $existing['id']]);
+                    
+                    // Delete pending payroll to regenerate
+                    $delStmt = $this->conn->prepare("DELETE FROM payroll WHERE id = :id");
+                    $delStmt->execute([':id' => $existing['id']]);
                 }
             }
 
@@ -121,6 +121,38 @@ class Payroll {
                 
                 $totalOtHours += $row['total_hours'];
                 $otAmount += ($hourlyRate * $rate * $row['total_hours']); // OT is usually hourly rate * multiplier
+            }
+            
+            // Calculate OT from Assignments
+            $otaQuery = "SELECT a.date, a.start_time, a.end_time 
+                         FROM overtime_assignments a 
+                         JOIN overtime_assignment_employees oae ON a.id = oae.assignment_id 
+                         WHERE oae.employee_id = :emp_id AND oae.status IN ('Assigned', 'Completed') 
+                         AND a.status = 'Active' 
+                         AND MONTH(a.date) = :month AND YEAR(a.date) = :year";
+            $otaStmt = $this->conn->prepare($otaQuery);
+            $otaStmt->execute([':emp_id' => $emp['id'], ':month' => $month, ':year' => $year]);
+            
+            require_once __DIR__ . '/Holiday.php';
+            $holidayModel = new Holiday();
+            
+            while($otaRow = $otaStmt->fetch(PDO::FETCH_ASSOC)) {
+                $start = strtotime($otaRow['start_time']);
+                $end = strtotime($otaRow['end_time']);
+                if ($end < $start) {
+                    $end += 86400; // Add 24 hours if shift spans midnight
+                }
+                $hours = round(($end - $start) / 3600, 2);
+                
+                $rate = $settings['weekday_ot_rate'] ?? 1.5;
+                if ($holidayModel->isHoliday($otaRow['date'])) {
+                    $rate = $settings['holiday_ot_rate'] ?? 3.0;
+                } elseif (date('N', strtotime($otaRow['date'])) >= 6) {
+                    $rate = $settings['weekend_ot_rate'] ?? 2.0;
+                }
+                
+                $totalOtHours += $hours;
+                $otAmount += ($hourlyRate * $rate * $hours);
             }
 
             // Calculate Deductions directly from the deductions table
