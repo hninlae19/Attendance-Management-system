@@ -12,6 +12,7 @@
                 <th scope="col" class="px-6 py-4">ID</th>
                 <th scope="col" class="px-6 py-4">Position Name</th>
                 <th scope="col" class="px-6 py-4">Department</th>
+                <th scope="col" class="px-6 py-4">Basic Salary</th>
                 <th scope="col" class="px-6 py-4 text-right">Actions</th>
             </tr>
         </thead>
@@ -26,8 +27,9 @@
                     <td class="px-6 py-4"><?= $pos['id'] ?></td>
                     <td class="px-6 py-4 font-medium text-gray-900 dark:text-white"><?= htmlspecialchars($pos['name']) ?></td>
                     <td class="px-6 py-4"><?= htmlspecialchars($pos['department_name']) ?></td>
+                    <td class="px-6 py-4"><?= number_format($pos['basic_salary'] ?? 0, 2) ?> MMK</td>
                     <td class="px-6 py-4 text-right space-x-2">
-                        <button onclick="editPosition(<?= $pos['id'] ?>, '<?= htmlspecialchars(addslashes($pos['name'])) ?>', <?= $pos['department_id'] ?>)" class="font-medium text-blue-600 dark:text-blue-500 hover:underline"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+                        <button onclick="editPosition(<?= $pos['id'] ?>, '<?= htmlspecialchars(addslashes($pos['name'])) ?>', <?= $pos['department_id'] ?>, <?= $pos['basic_salary'] ?? 0 ?>)" class="font-medium text-blue-600 dark:text-blue-500 hover:underline"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
                         <form action="/payrollsystem/admin/positions" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this position?');">
     <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
 
@@ -69,6 +71,10 @@
                     <?php endforeach; ?>
                 </select>
             </div>
+            <div>
+                <label for="basic_salary" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Basic Salary (MMK)</label>
+                <input type="number" step="0.01" min="0" name="basic_salary" id="basic_salary" value="0.00" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
+            </div>
             <div class="flex justify-end gap-3 mt-6">
                 <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">Cancel</button>
                 <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-indigo-700">Save</button>
@@ -103,6 +109,10 @@
                     <?php endforeach; ?>
                 </select>
             </div>
+            <div>
+                <label for="edit_basic_salary" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Basic Salary (MMK)</label>
+                <input type="number" step="0.01" min="0" name="basic_salary" id="edit_basic_salary" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
+            </div>
             <div class="flex justify-end gap-3 mt-6">
                 <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">Cancel</button>
                 <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-indigo-700">Update</button>
@@ -112,10 +122,11 @@
 </div>
 
 <script>
-    function editPosition(id, name, department_id) {
+    function editPosition(id, name, department_id, basic_salary) {
         document.getElementById('edit_id').value = id;
         document.getElementById('edit_name').value = name;
         document.getElementById('edit_department_id').value = department_id;
+        document.getElementById('edit_basic_salary').value = basic_salary;
         document.getElementById('editModal').classList.remove('hidden');
     }
 </script>

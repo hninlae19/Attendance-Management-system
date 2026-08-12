@@ -107,7 +107,7 @@ class Attendance {
         $settings = $settingModel->getSettings();
         $auto_checkout_time = $settings['auto_checkout_time'] ?? '17:30:00';
         
-        $query = "SELECT * FROM " . $this->table . " WHERE check_out IS NULL";
+        $query = "SELECT * FROM " . $this->table . " WHERE check_out IS NULL AND check_in IS NOT NULL";
         if ($employee_id) {
             $query .= " AND employee_id = :emp_id";
         }

@@ -15,10 +15,6 @@ class Setting {
     public $weekend_ot_rate;
     public $holiday_ot_rate;
     public $max_ot_hours;
-    public $annual_leave_limit;
-    public $casual_leave_limit;
-    public $medical_leave_limit;
-    public $paid_leave_limit;
     public $unpaid_leave_rules;
     public $half_day_leave_rules;
     public $absent_deduction_rate;
@@ -54,10 +50,6 @@ class Setting {
                     weekend_ot_rate=:weekend_ot_rate,
                     holiday_ot_rate=:holiday_ot_rate,
                     max_ot_hours=:max_ot_hours,
-                    annual_leave_limit=:annual_leave_limit,
-                    casual_leave_limit=:casual_leave_limit,
-                    medical_leave_limit=:medical_leave_limit,
-                    paid_leave_limit=:paid_leave_limit,
                     unpaid_leave_rules=:unpaid_leave_rules,
                     half_day_leave_rules=:half_day_leave_rules,
                     absent_deduction_rate=:absent_deduction_rate,
@@ -82,10 +74,6 @@ class Setting {
         $stmt->bindParam(":weekend_ot_rate", $this->weekend_ot_rate);
         $stmt->bindParam(":holiday_ot_rate", $this->holiday_ot_rate);
         $stmt->bindParam(":max_ot_hours", $this->max_ot_hours);
-        $stmt->bindParam(":annual_leave_limit", $this->annual_leave_limit);
-        $stmt->bindParam(":casual_leave_limit", $this->casual_leave_limit);
-        $stmt->bindParam(":medical_leave_limit", $this->medical_leave_limit);
-        $stmt->bindParam(":paid_leave_limit", $this->paid_leave_limit);
         $stmt->bindParam(":unpaid_leave_rules", $this->unpaid_leave_rules);
         $stmt->bindParam(":half_day_leave_rules", $this->half_day_leave_rules);
         $stmt->bindParam(":absent_deduction_rate", $this->absent_deduction_rate);

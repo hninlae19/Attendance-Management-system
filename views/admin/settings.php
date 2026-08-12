@@ -88,23 +88,16 @@
     <!-- Leave Settings Tab -->
     <div x-show="tab === 'leave'" class="p-6 space-y-6" x-cloak x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
         <div>
-            <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4"><i class="fa-solid fa-umbrella-beach mr-2 text-primary"></i> Leave Limits (Per Year)</h2>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div>
-                    <label for="annual_leave_limit" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Annual Leave Limit</label>
-                    <input type="number" name="annual_leave_limit" id="annual_leave_limit" value="<?= htmlspecialchars($data['settings']['annual_leave_limit'] ?? 14) ?>" required class="w-full px-4 py-2 bg-white/50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm transition-colors">
-                </div>
-                <div>
-                    <label for="casual_leave_limit" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Casual Leave Limit</label>
-                    <input type="number" name="casual_leave_limit" id="casual_leave_limit" value="<?= htmlspecialchars($data['settings']['casual_leave_limit'] ?? 7) ?>" required class="w-full px-4 py-2 bg-white/50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm transition-colors">
-                </div>
-                <div>
-                    <label for="medical_leave_limit" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Medical Leave Limit</label>
-                    <input type="number" name="medical_leave_limit" id="medical_leave_limit" value="<?= htmlspecialchars($data['settings']['medical_leave_limit'] ?? 14) ?>" required class="w-full px-4 py-2 bg-white/50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm transition-colors">
-                </div>
-                <div>
-                    <label for="paid_leave_limit" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Total Paid Leave Limit</label>
-                    <input type="number" name="paid_leave_limit" id="paid_leave_limit" value="<?= htmlspecialchars($data['settings']['paid_leave_limit'] ?? 35) ?>" required class="w-full px-4 py-2 bg-white/50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm transition-colors">
+            <div class="mb-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg dark:bg-blue-900/30 dark:border-blue-600">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 mt-0.5">
+                        <i class="fa-solid fa-circle-info text-blue-500 dark:text-blue-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-blue-700 dark:text-blue-300 font-medium">
+                            Leave policies (Quotas, Service Periods, Gender Restrictions) are now configured dynamically. Please use the <a href="/payrollsystem/admin/leave_types" class="underline font-bold">Leave Policies</a> tab under Employees to manage them.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>

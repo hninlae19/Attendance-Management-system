@@ -113,18 +113,18 @@ class LeaveRequest {
                 if ($leave && $leave['is_paid'] == 1) {
                     $year = date('Y', strtotime($leave['start_date']));
                     
-                    // Get limit from settings table
-                    $settingStmt = $this->conn->query("SELECT paid_leave_limit FROM settings LIMIT 1");
-                    $settings = $settingStmt->fetch(PDO::FETCH_ASSOC);
-                    $limit = $settings ? (int)$settings['paid_leave_limit'] : 35;
+                    // Fetch limit from the leave_type itself
+                    $ltStmt = $this->conn->prepare("SELECT days_allowed FROM leave_types WHERE id = ?");
+                    $ltStmt->execute([$leave['leave_type_id']]);
+                    $limit = (int)$ltStmt->fetchColumn();
 
-                    // Get total approved paid leaves for this year (all paid types)
-                    $sumStmt = $this->conn->prepare("SELECT SUM(lr.days) as total FROM " . $this->table . " lr JOIN leave_types lt ON lr.leave_type_id = lt.id WHERE lr.employee_id = ? AND lr.status = 'Approved' AND lt.is_paid = 1 AND YEAR(lr.start_date) = ? AND lr.id != ?");
-                    $sumStmt->execute([$leave['employee_id'], $year, $id]);
+                    // Get total approved paid leaves for this specific leave type this year
+                    $sumStmt = $this->conn->prepare("SELECT SUM(days) as total FROM " . $this->table . " WHERE employee_id = ? AND status = 'Approved' AND leave_type_id = ? AND YEAR(start_date) = ? AND id != ?");
+                    $sumStmt->execute([$leave['employee_id'], $leave['leave_type_id'], $year, $id]);
                     $past_total = $sumStmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
 
                     $new_total = $past_total + $leave['days'];
-                    if ($new_total > $limit) {
+                    if ($limit < 999 && $new_total > $limit) {
                         $excess_days = $new_total - $limit;
                         if ($excess_days > $leave['days']) {
                             $excess_days = $leave['days'];

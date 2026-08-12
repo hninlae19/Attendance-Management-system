@@ -186,6 +186,14 @@
                                 <label for="last_name" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Last Name</label>
                                 <input type="text" name="last_name" id="last_name" required class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm text-sm">
                             </div>
+                            <div class="col-span-2">
+                                <label for="gender" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Gender</label>
+                                <select name="gender" id="gender" required class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm text-sm appearance-none cursor-pointer">
+                                    <option value="Other">Other</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 
@@ -206,7 +214,7 @@
                                 <select name="position_id" id="position_id" required class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm text-sm appearance-none cursor-pointer">
                                     <option value="">Select Position</option>
                                     <?php foreach($data['positions'] as $pos): ?>
-                                        <option value="<?= $pos['id'] ?>" data-department-id="<?= $pos['department_id'] ?>"><?= htmlspecialchars($pos['name']) ?></option>
+                                        <option value="<?= $pos['id'] ?>" data-department-id="<?= $pos['department_id'] ?>" data-basic-salary="<?= $pos['basic_salary'] ?? 0 ?>"><?= htmlspecialchars($pos['name']) ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
@@ -245,6 +253,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Reset and clear current selection
         positionSelect.value = "";
+        document.getElementById('basic_salary').value = "";
         
         // Hide/Show options based on department
         positionOptions.forEach(option => {
@@ -260,6 +269,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 option.style.display = 'none';
             }
         });
+    });
+
+    positionSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const basicSalary = selectedOption.getAttribute('data-basic-salary');
+        const basicSalaryInput = document.getElementById('basic_salary');
+        if (basicSalary && basicSalary > 0) {
+            basicSalaryInput.value = basicSalary;
+        } else {
+            basicSalaryInput.value = "";
+        }
     });
 });
 </script>

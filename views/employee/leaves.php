@@ -37,41 +37,51 @@
     <?php unset($_SESSION['leave_success']); ?>
 <?php endif; ?>
 
-<?php
-$limit = $data['paidLeaveLimit'];
-$used = $data['paidLeaveUsed'];
-$pct = $limit > 0 ? min(100, round(($used / $limit) * 100)) : 100;
-$exhausted = $used >= $limit;
-?>
-<div class="mb-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex flex-col md:flex-row justify-between items-center gap-4">
-    <div>
-        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-1"><i class="fa-solid fa-calendar-check text-primary mr-2"></i>Paid Leave Balance</h3>
-        <p class="text-sm text-gray-500 dark:text-gray-400">Total approved paid leaves taken this year.</p>
-    </div>
-    <div class="flex items-center gap-4 w-full md:w-auto">
-        <div class="text-right">
-            <span class="text-2xl font-black text-gray-900 dark:text-white"><?= $used ?></span>
-            <span class="text-sm text-gray-500 dark:text-gray-400">/ <?= $limit ?> days</span>
+<div class="mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    <?php foreach($data['leaveBalances'] as $lb): ?>
+        <?php 
+        $isUnlimited = $lb['days_allowed'] >= 999;
+        $used = $lb['used'];
+        $limit = $lb['days_allowed'];
+        $pct = $isUnlimited ? 0 : ($limit > 0 ? min(100, round(($used / $limit) * 100)) : 100);
+        $exhausted = !$isUnlimited && $used >= $limit;
+        
+        $cardClass = $lb['is_eligible'] ? 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700' : 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800 opacity-60';
+        ?>
+        <div class="<?= $cardClass ?> rounded-2xl shadow-sm border p-5 flex flex-col justify-between">
+            <div>
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="text-md font-bold text-gray-900 dark:text-white flex items-center">
+                        <i class="fa-solid fa-calendar-check text-primary mr-2"></i> <?= htmlspecialchars($lb['name']) ?>
+                    </h3>
+                    <?php if($lb['is_paid']): ?>
+                        <span class="px-2 py-0.5 text-[10px] uppercase font-bold bg-green-100 text-green-800 rounded-full dark:bg-green-900/50 dark:text-green-300">Paid</span>
+                    <?php else: ?>
+                        <span class="px-2 py-0.5 text-[10px] uppercase font-bold bg-gray-100 text-gray-800 rounded-full dark:bg-gray-700 dark:text-gray-300">Unpaid</span>
+                    <?php endif; ?>
+                </div>
+                
+                <?php if(!$lb['is_eligible']): ?>
+                    <p class="text-xs text-red-500 font-medium mb-4"><i class="fa-solid fa-lock text-xs mr-1"></i> <?= htmlspecialchars($lb['ineligible_reason']) ?></p>
+                <?php else: ?>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Total used this year.</p>
+                <?php endif; ?>
+            </div>
+            
+            <?php if($lb['is_eligible']): ?>
+            <div>
+                <div class="flex justify-between items-end mb-1">
+                    <span class="text-2xl font-black text-gray-900 dark:text-white"><?= $used ?></span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">/ <?= $isUnlimited ? '∞' : $limit ?> days</span>
+                </div>
+                <div class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                    <div class="h-full <?= $exhausted ? 'bg-red-500' : 'bg-primary' ?>" style="width: <?= $pct ?>%"></div>
+                </div>
+            </div>
+            <?php endif; ?>
         </div>
-        <div class="w-full md:w-32 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-            <div class="h-full <?= $exhausted ? 'bg-red-500' : 'bg-primary' ?>" style="width: <?= $pct ?>%"></div>
-        </div>
-    </div>
+    <?php endforeach; ?>
 </div>
-<?php if($exhausted): ?>
-<div class="mb-6 bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r-lg dark:bg-yellow-900/30 dark:border-yellow-600">
-    <div class="flex items-center">
-        <div class="flex-shrink-0">
-            <i class="fa-solid fa-triangle-exclamation text-yellow-500 dark:text-yellow-400"></i>
-        </div>
-        <div class="ml-3">
-            <p class="text-sm text-yellow-700 dark:text-yellow-300 font-medium">
-                Your paid leave balance has been exhausted. Only Unpaid Leave is available.
-            </p>
-        </div>
-    </div>
-</div>
-<?php endif; ?>
 
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
     <?php if(empty($data['myLeaves'])): ?>
@@ -150,16 +160,19 @@ $exhausted = $used >= $limit;
                 <label for="leave_type_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Leave Type</label>
                 <select name="leave_type_id" id="leave_type_id" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
                                         <option value="">Select Leave Type</option>
-                    <?php foreach($data['leaveTypes'] as $lt): ?>
+                    <?php foreach($data['leaveBalances'] as $lb): ?>
                         <?php 
                         $disabled = '';
-                        $suffix = $lt['is_paid'] ? 'Paid' : 'Unpaid';
-                        if ($exhausted && $lt['is_paid'] == 1) {
+                        $suffix = $lb['is_paid'] ? 'Paid' : 'Unpaid';
+                        if (!$lb['is_eligible']) {
+                            $disabled = 'disabled';
+                            $suffix .= ' - Ineligible';
+                        } elseif ($lb['days_allowed'] < 999 && $lb['used'] >= $lb['days_allowed']) {
                             $disabled = 'disabled';
                             $suffix .= ' - Exhausted';
                         }
                         ?>
-                        <option value="<?= $lt['id'] ?>" <?= $disabled ?>><?= htmlspecialchars($lt['name']) ?> (<?= $suffix ?>)</option>
+                        <option value="<?= $lb['id'] ?>" <?= $disabled ?>><?= htmlspecialchars($lb['name']) ?> (<?= $suffix ?>)</option>
                     <?php endforeach; ?>
                 </select>
             </div>

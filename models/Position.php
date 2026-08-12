@@ -6,6 +6,7 @@ class Position {
     public $id;
     public $name;
     public $department_id;
+    public $basic_salary;
 
     public function __construct() {
         $database = new Database();
@@ -22,12 +23,14 @@ class Position {
     }
 
     public function create() {
-        $query = "INSERT INTO " . $this->table . " SET name=:name, department_id=:department_id";
+        $query = "INSERT INTO " . $this->table . " SET name=:name, department_id=:department_id, basic_salary=:basic_salary";
         $stmt = $this->conn->prepare($query);
         $this->name = htmlspecialchars(strip_tags($this->name));
         $this->department_id = htmlspecialchars(strip_tags($this->department_id));
+        $this->basic_salary = htmlspecialchars(strip_tags($this->basic_salary ?? '0'));
         $stmt->bindParam(":name", $this->name);
         $stmt->bindParam(":department_id", $this->department_id);
+        $stmt->bindParam(":basic_salary", $this->basic_salary);
         if($stmt->execute()) {
             return true;
         }
@@ -35,13 +38,15 @@ class Position {
     }
 
     public function update() {
-        $query = "UPDATE " . $this->table . " SET name=:name, department_id=:department_id WHERE id=:id";
+        $query = "UPDATE " . $this->table . " SET name=:name, department_id=:department_id, basic_salary=:basic_salary WHERE id=:id";
         $stmt = $this->conn->prepare($query);
         $this->name = htmlspecialchars(strip_tags($this->name));
         $this->department_id = htmlspecialchars(strip_tags($this->department_id));
+        $this->basic_salary = htmlspecialchars(strip_tags($this->basic_salary ?? '0'));
         $this->id = htmlspecialchars(strip_tags($this->id));
         $stmt->bindParam(":name", $this->name);
         $stmt->bindParam(":department_id", $this->department_id);
+        $stmt->bindParam(":basic_salary", $this->basic_salary);
         $stmt->bindParam(":id", $this->id);
         if($stmt->execute()) {
             return true;

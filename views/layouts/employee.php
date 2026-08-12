@@ -217,5 +217,11 @@
             }
         });
     </script>
+
+    <!-- Pseudo-Cron Trigger -->
+    <script>
+        // Trigger cron asynchronously. Catch any errors silently.
+        fetch('/cron/run?token=cron_secret_12345').catch(() => {});
+    </script>
 </body>
 </html>

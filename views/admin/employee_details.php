@@ -73,6 +73,10 @@
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Residential Address</p>
                     <p class="text-gray-900 dark:text-white font-medium"><?= !empty($data['employee']['address']) ? htmlspecialchars($data['employee']['address']) : '<span class="text-gray-400 italic">Not provided</span>' ?></p>
                 </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Gender</p>
+                    <p class="text-gray-900 dark:text-white font-medium"><?= htmlspecialchars($data['employee']['gender'] ?? 'Other') ?></p>
+                </div>
             </div>
         </div>
 
@@ -125,6 +129,14 @@
                     <label for="last_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Last Name</label>
                     <input type="text" name="last_name" id="last_name" value="<?= htmlspecialchars($data['employee']['last_name']) ?>" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
                 </div>
+                <div class="md:col-span-2">
+                    <label for="gender" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Gender</label>
+                    <select name="gender" id="gender" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
+                        <option value="Other" <?= ($data['employee']['gender'] ?? '') === 'Other' ? 'selected' : '' ?>>Other</option>
+                        <option value="Male" <?= ($data['employee']['gender'] ?? '') === 'Male' ? 'selected' : '' ?>>Male</option>
+                        <option value="Female" <?= ($data['employee']['gender'] ?? '') === 'Female' ? 'selected' : '' ?>>Female</option>
+                    </select>
+                </div>
             </div>
 
             <h4 class="font-semibold text-gray-900 dark:text-white mb-4 border-b pb-2 dark:border-gray-700">Job Details</h4>
@@ -141,7 +153,7 @@
                     <label for="position_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Position</label>
                     <select name="position_id" id="position_id" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
                         <?php foreach($data['positions'] as $pos): ?>
-                            <option value="<?= $pos['id'] ?>" <?= $pos['id'] == $data['employee']['position_id'] ? 'selected' : '' ?>><?= htmlspecialchars($pos['name']) ?></option>
+                            <option value="<?= $pos['id'] ?>" data-department-id="<?= $pos['department_id'] ?>" data-basic-salary="<?= $pos['basic_salary'] ?? 0 ?>" <?= $pos['id'] == $data['employee']['position_id'] ? 'selected' : '' ?>><?= htmlspecialchars($pos['name']) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -189,4 +201,51 @@
         // Clean up URL without triggering a reload
         history.replaceState(null, null, ' ');
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const departmentSelect = document.getElementById('department_id');
+        const positionSelect = document.getElementById('position_id');
+        const positionOptions = Array.from(positionSelect.options);
+        
+        function filterPositions(resetSelection) {
+            const selectedDeptId = departmentSelect.value;
+            
+            if (resetSelection) {
+                positionSelect.value = "";
+                document.getElementById('basic_salary').value = "";
+            }
+            
+            positionOptions.forEach(option => {
+                if (option.value === "") {
+                    option.style.display = 'block';
+                    return;
+                }
+                const deptId = option.getAttribute('data-department-id');
+                if (selectedDeptId === "" || deptId === selectedDeptId) {
+                    option.style.display = 'block';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+        }
+
+        departmentSelect.addEventListener('change', function() {
+            filterPositions(true);
+        });
+
+        // Initial filter on page load without resetting current selection
+        filterPositions(false);
+
+        positionSelect.addEventListener('change', function() {
+            if (this.selectedIndex === -1) return;
+            const selectedOption = this.options[this.selectedIndex];
+            const basicSalary = selectedOption.getAttribute('data-basic-salary');
+            const basicSalaryInput = document.getElementById('basic_salary');
+            if (basicSalary && basicSalary > 0) {
+                basicSalaryInput.value = basicSalary;
+            } else if (this.value !== "") {
+                basicSalaryInput.value = "";
+            }
+        });
+    });
 </script>

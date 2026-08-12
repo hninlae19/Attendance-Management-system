@@ -263,11 +263,13 @@ class AdminController extends Controller {
                 if ($_POST['action'] === 'add') {
                     $positionModel->name = $_POST['name'];
                     $positionModel->department_id = $_POST['department_id'];
+                    $positionModel->basic_salary = $_POST['basic_salary'] ?? 0;
                     $positionModel->create();
                 } elseif ($_POST['action'] === 'edit') {
                     $positionModel->id = $_POST['id'];
                     $positionModel->name = $_POST['name'];
                     $positionModel->department_id = $_POST['department_id'];
+                    $positionModel->basic_salary = $_POST['basic_salary'] ?? 0;
                     $positionModel->update();
                 } elseif ($_POST['action'] === 'delete') {
                     $positionModel->id = $_POST['id'];
@@ -300,6 +302,7 @@ class AdminController extends Controller {
                     $employeeModel->employee_code = $_POST['employee_code'];
                     $employeeModel->first_name = $_POST['first_name'];
                     $employeeModel->last_name = $_POST['last_name'];
+                    $employeeModel->gender = $_POST['gender'] ?? 'Other';
                     $employeeModel->department_id = $_POST['department_id'];
                     $employeeModel->position_id = $_POST['position_id'];
                     $employeeModel->basic_salary = $_POST['basic_salary'];
@@ -344,6 +347,7 @@ class AdminController extends Controller {
             $employeeModel->id = $id;
             $employeeModel->first_name = $_POST['first_name'];
             $employeeModel->last_name = $_POST['last_name'];
+            $employeeModel->gender = $_POST['gender'] ?? 'Other';
             $employeeModel->department_id = $_POST['department_id'];
             $employeeModel->position_id = $_POST['position_id'];
             $employeeModel->basic_salary = $_POST['basic_salary'];
@@ -492,12 +496,24 @@ class AdminController extends Controller {
                     $leaveTypeModel->name = $_POST['name'];
                     $leaveTypeModel->days_allowed = $_POST['days_allowed'];
                     $leaveTypeModel->is_paid = isset($_POST['is_paid']) ? 1 : 0;
+                    $leaveTypeModel->service_period_months = $_POST['service_period_months'] ?? 0;
+                    $leaveTypeModel->gender_restriction = $_POST['gender_restriction'] ?? 'All';
+                    $leaveTypeModel->carry_forward = isset($_POST['carry_forward']) ? 1 : 0;
+                    $leaveTypeModel->attachment_required = isset($_POST['attachment_required']) ? 1 : 0;
+                    $leaveTypeModel->approval_workflow = $_POST['approval_workflow'] ?? 'Admin';
+                    $leaveTypeModel->is_active = isset($_POST['is_active']) ? 1 : 0;
                     $leaveTypeModel->create();
                 } elseif ($_POST['action'] === 'edit') {
                     $leaveTypeModel->id = $_POST['id'];
                     $leaveTypeModel->name = $_POST['name'];
                     $leaveTypeModel->days_allowed = $_POST['days_allowed'];
                     $leaveTypeModel->is_paid = isset($_POST['is_paid']) ? 1 : 0;
+                    $leaveTypeModel->service_period_months = $_POST['service_period_months'] ?? 0;
+                    $leaveTypeModel->gender_restriction = $_POST['gender_restriction'] ?? 'All';
+                    $leaveTypeModel->carry_forward = isset($_POST['carry_forward']) ? 1 : 0;
+                    $leaveTypeModel->attachment_required = isset($_POST['attachment_required']) ? 1 : 0;
+                    $leaveTypeModel->approval_workflow = $_POST['approval_workflow'] ?? 'Admin';
+                    $leaveTypeModel->is_active = isset($_POST['is_active']) ? 1 : 0;
                     $leaveTypeModel->update();
                 } elseif ($_POST['action'] === 'delete') {
                     $leaveTypeModel->id = $_POST['id'];
@@ -853,11 +869,6 @@ class AdminController extends Controller {
             $settingModel->weekend_ot_rate = $_POST['weekend_ot_rate'];
             $settingModel->holiday_ot_rate = $_POST['holiday_ot_rate'];
             $settingModel->max_ot_hours = $_POST['max_ot_hours'];
-            
-            $settingModel->annual_leave_limit = $_POST['annual_leave_limit'] ?? 14;
-            $settingModel->casual_leave_limit = $_POST['casual_leave_limit'] ?? 7;
-            $settingModel->medical_leave_limit = $_POST['medical_leave_limit'] ?? 14;
-            $settingModel->paid_leave_limit = $_POST['paid_leave_limit'] ?? 35;
             $settingModel->unpaid_leave_rules = $_POST['unpaid_leave_rules'] ?? '';
             $settingModel->half_day_leave_rules = $_POST['half_day_leave_rules'] ?? '';
             $settingModel->absent_deduction_rate = $_POST['absent_deduction_rate'] ?? 0;

@@ -8,6 +8,7 @@ class Employee {
     public $employee_code;
     public $first_name;
     public $last_name;
+    public $gender;
     public $department_id;
     public $position_id;
     public $basic_salary;
@@ -90,6 +91,7 @@ class Employee {
                         employee_code=:employee_code,
                         first_name=:first_name,
                         last_name=:last_name,
+                        gender=:gender,
                         department_id=:department_id,
                         position_id=:position_id,
                         basic_salary=:basic_salary,
@@ -110,6 +112,7 @@ class Employee {
             $stmtEmp->bindParam(":employee_code", $this->employee_code);
             $stmtEmp->bindParam(":first_name", $this->first_name);
             $stmtEmp->bindParam(":last_name", $this->last_name);
+            $stmtEmp->bindParam(":gender", $this->gender);
             $stmtEmp->bindParam(":department_id", $this->department_id);
             $stmtEmp->bindParam(":position_id", $this->position_id);
             $stmtEmp->bindParam(":basic_salary", $this->basic_salary);
@@ -134,6 +137,7 @@ class Employee {
         $query = "UPDATE " . $this->table . " SET 
                     first_name=:first_name,
                     last_name=:last_name,
+                    gender=:gender,
                     department_id=:department_id,
                     position_id=:position_id,
                     basic_salary=:basic_salary,
@@ -152,6 +156,7 @@ class Employee {
         $stmt->bindParam(":id", $this->id);
         $stmt->bindParam(":first_name", $this->first_name);
         $stmt->bindParam(":last_name", $this->last_name);
+        $stmt->bindParam(":gender", $this->gender);
         $stmt->bindParam(":department_id", $this->department_id);
         $stmt->bindParam(":position_id", $this->position_id);
         $stmt->bindParam(":basic_salary", $this->basic_salary);
