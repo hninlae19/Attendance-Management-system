@@ -93,7 +93,7 @@ class CronController extends Controller {
             // 2. Mark Absent for working days
             if (!$holidayModel->isHoliday($date) && date('N', strtotime($date)) < 6) {
                 // Find employees with no attendance and no approved/pending leave
-                $empQuery = "SELECT e.id, e.basic_salary FROM employees e 
+                $empQuery = "SELECT e.id, e.basic_salary, e.join_date FROM employees e 
                              JOIN users u ON e.user_id = u.id
                              WHERE u.status = 'Active' 
                              AND e.id NOT IN (SELECT employee_id FROM attendance WHERE date = :date) 
@@ -104,14 +104,23 @@ class CronController extends Controller {
                 $absent_employees = $empStmt->fetchAll(PDO::FETCH_ASSOC);
 
                 foreach ($absent_employees as $emp) {
-                    // Mark Absent
-                    $ins = "INSERT INTO attendance (employee_id, date, status) VALUES (:emp_id, :date, 'Absent') ON DUPLICATE KEY UPDATE status='Absent'";
-                    $insStmt = $conn->prepare($ins);
-                    $insStmt->bindParam(':emp_id', $emp['id']);
-                    $insStmt->bindParam(':date', $date);
-                    $insStmt->execute();
+                    if (!empty($emp['join_date']) && $date < $emp['join_date']) {
+                        // Mark N/A for days before join date
+                        $ins = "INSERT INTO attendance (employee_id, date, status) VALUES (:emp_id, :date, 'N/A') ON DUPLICATE KEY UPDATE status='N/A'";
+                        $insStmt = $conn->prepare($ins);
+                        $insStmt->bindParam(':emp_id', $emp['id']);
+                        $insStmt->bindParam(':date', $date);
+                        $insStmt->execute();
+                    } else {
+                        // Mark Absent
+                        $ins = "INSERT INTO attendance (employee_id, date, status) VALUES (:emp_id, :date, 'Absent') ON DUPLICATE KEY UPDATE status='Absent'";
+                        $insStmt = $conn->prepare($ins);
+                        $insStmt->bindParam(':emp_id', $emp['id']);
+                        $insStmt->bindParam(':date', $date);
+                        $insStmt->execute();
 
-                    $deductionModel->applyAutomatedDeduction($emp['id'], 'Full Day Absence', $date, 'Unauthorized Absence on ' . $date, 'Attendance System');
+                        $deductionModel->applyAutomatedDeduction($emp['id'], 'Full Day Absence', $date, 'Unauthorized Absence on ' . $date, 'Attendance System');
+                    }
                 }
                 $output[] = "Marked absent and created deductions for " . count($absent_employees) . " employees.";
             }

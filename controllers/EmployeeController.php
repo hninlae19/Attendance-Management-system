@@ -174,6 +174,12 @@ class EmployeeController extends Controller {
                 return;
             }
             
+            if (!empty($employee['join_date']) && $start_date < $employee['join_date']) {
+                $_SESSION['leave_error'] = "Leave cannot be requested before your join date.";
+                $this->redirect('/payrollsystem/employee/leaves');
+                return;
+            }
+            
             // Check if employee has already clocked in today
             $todayAtt = $attendanceModel->getToday($employee['id']);
             if ($start_date == $today && $todayAtt) {
@@ -379,6 +385,12 @@ class EmployeeController extends Controller {
             $today = date('Y-m-d');
             if ($date < $today) {
                 $_SESSION['ot_error'] = "Overtime request is only allowed for today or future dates.";
+                $this->redirect('/payrollsystem/employee/overtime');
+                return;
+            }
+            
+            if (!empty($employee['join_date']) && $date < $employee['join_date']) {
+                $_SESSION['ot_error'] = "Overtime cannot be requested before your join date.";
                 $this->redirect('/payrollsystem/employee/overtime');
                 return;
             }

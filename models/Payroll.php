@@ -83,6 +83,46 @@ class Payroll {
             $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
             $dailyRate = $emp['basic_salary'] / $daysInMonth;
             $hourlyRate = $dailyRate / $settings['working_hours'];
+            
+            require_once __DIR__ . '/Holiday.php';
+            $holidayModel = new Holiday();
+            
+            $basicSalaryForMonth = $emp['basic_salary'];
+            
+            if (!empty($emp['join_date'])) {
+                $joinTime = strtotime($emp['join_date']);
+                $joinYear = date('Y', $joinTime);
+                $joinMonth = date('n', $joinTime);
+                $joinDay = date('j', $joinTime);
+                
+                // If joined after this month, skip generating payroll
+                if ($joinTime > strtotime(sprintf('%04d-%02d-%02d', $year, $month, $daysInMonth))) {
+                    continue;
+                }
+                
+                // If joined in the current payroll month, apply pro-rated salary
+                if ($joinYear == $year && $joinMonth == $month) {
+                    $totalWorkingDaysInMonth = 0;
+                    $actualEligibleWorkingDays = 0;
+                    
+                    for ($d = 1; $d <= $daysInMonth; $d++) {
+                        $currentDate = sprintf('%04d-%02d-%02d', $year, $month, $d);
+                        $isWeekend = date('N', strtotime($currentDate)) >= 6;
+                        $isHoliday = $holidayModel->isHoliday($currentDate);
+                        
+                        if (!$isWeekend && !$isHoliday) {
+                            $totalWorkingDaysInMonth++;
+                            if ($d >= $joinDay) {
+                                $actualEligibleWorkingDays++;
+                            }
+                        }
+                    }
+                    
+                    if ($totalWorkingDaysInMonth > 0) {
+                        $basicSalaryForMonth = ($emp['basic_salary'] / $totalWorkingDaysInMonth) * $actualEligibleWorkingDays;
+                    }
+                }
+            }
 
             // Calculate Attendance Data
             $attQuery = "SELECT status, COUNT(id) as count FROM attendance 
@@ -133,9 +173,6 @@ class Payroll {
             $otaStmt = $this->conn->prepare($otaQuery);
             $otaStmt->execute([':emp_id' => $emp['id'], ':month' => $month, ':year' => $year]);
             
-            require_once __DIR__ . '/Holiday.php';
-            $holidayModel = new Holiday();
-            
             while($otaRow = $otaStmt->fetch(PDO::FETCH_ASSOC)) {
                 $start = strtotime($otaRow['start_time']);
                 $end = strtotime($otaRow['end_time']);
@@ -159,6 +196,10 @@ class Payroll {
             $leaveDeduction = 0;
             $lateDeduction = 0;
             $otherDeduction = 0;
+            
+            require_once __DIR__ . '/Deduction.php';
+            $deductionModel = new Deduction();
+            $deductionModel->recalculateActiveDeductions($emp['id'], $emp['basic_salary']);
             
             // Fetch from deductions table
             $dedStmt = $this->conn->prepare("SELECT id, type, reason, amount FROM deductions WHERE employee_id = ? AND MONTH(date) = ? AND YEAR(date) = ? AND status = 'Active'");
@@ -185,7 +226,7 @@ class Payroll {
 
             $allowanceAmount = 0; // Fixed allowances if any
 
-            $grossSalary = $emp['basic_salary'] + $otAmount + $bonusAmount + $allowanceAmount;
+            $grossSalary = $basicSalaryForMonth + $otAmount + $bonusAmount + $allowanceAmount;
             $netSalary = $grossSalary - $leaveDeduction - $lateDeduction - $otherDeduction;
             if ($netSalary < 0) $netSalary = 0;
 
@@ -211,7 +252,7 @@ class Payroll {
             $insertStmt->bindParam(':emp_id', $emp['id']);
             $insertStmt->bindParam(':month', $month);
             $insertStmt->bindParam(':year', $year);
-            $insertStmt->bindParam(':basic_salary', $emp['basic_salary']);
+            $insertStmt->bindParam(':basic_salary', $basicSalaryForMonth);
             $insertStmt->bindParam(':present', $attStats['Present']);
             $insertStmt->bindParam(':half', $attStats['Half Day']);
             $insertStmt->bindParam(':absent', $attStats['Absent']);

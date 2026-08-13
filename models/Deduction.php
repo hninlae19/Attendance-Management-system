@@ -299,4 +299,62 @@ class Deduction {
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    
+    public function recalculateActiveDeductions($employee_id, $new_basic_salary) {
+        $settingModel = new Setting();
+        $settings = $settingModel->getSettings();
+        
+        $method = $settings['deduction_calculation_method'] ?? 'Salary-Based';
+        if ($method !== 'Salary-Based') {
+            return true; // Fixed amounts don't change when salary changes
+        }
+
+        $daily_rate = $new_basic_salary / 30;
+
+        // Fetch all active/pending deductions for this employee (only system generated ones)
+        $query = "SELECT id, type, total_absent_days, deduction_days_hours FROM " . $this->table . " 
+                  WHERE employee_id = :emp_id AND status IN ('Active', 'Pending') 
+                  AND source IN ('System', 'Leave Management System', 'Attendance System')";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([':emp_id' => $employee_id]);
+        $deductions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (!$deductions) {
+            return true;
+        }
+
+        $updQuery = "UPDATE " . $this->table . " SET amount = :amount WHERE id = :id";
+        $updStmt = $this->conn->prepare($updQuery);
+
+        foreach ($deductions as $ded) {
+            $rate_multiplier = 0;
+            if ($ded['type'] === 'Half Day Absence') {
+                $rate_multiplier = $settings['half_day_deduction_rate'] ?? 0.5;
+            } elseif ($ded['type'] === 'Full Day Absence') {
+                $rate_multiplier = $settings['absent_deduction_rate'] ?? 1.0;
+            } elseif ($ded['type'] === 'Unpaid Leave') {
+                $rate_multiplier = $settings['unpaid_leave_deduction_rate'] ?? 1.0;
+            } elseif ($ded['type'] === 'Late') {
+                $rate_multiplier = $settings['late_deduction_rate'] ?? 0;
+            }
+
+            $amount = 0;
+            if (!empty($ded['total_absent_days'])) {
+                // Range deduction
+                $amount = $daily_rate * $rate_multiplier * $ded['total_absent_days'];
+            } else {
+                // Single day deduction (doesn't multiply by deduction_days_hours in original calculation)
+                $amount = $daily_rate * $rate_multiplier;
+            }
+
+            if ($amount > 0) {
+                $updStmt->execute([
+                    ':amount' => $amount,
+                    ':id' => $ded['id']
+                ]);
+            }
+        }
+
+        return true;
+    }
 }

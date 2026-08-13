@@ -166,6 +166,12 @@ class Employee {
         
         $result = $stmt->execute();
         
+        if ($result) {
+            require_once __DIR__ . '/Deduction.php';
+            $deductionModel = new Deduction();
+            $deductionModel->recalculateActiveDeductions($this->id, $this->basic_salary);
+        }
+        
         if ($result && !empty($this->status)) {
             $stmtUserQuery = $this->conn->prepare("SELECT user_id FROM " . $this->table . " WHERE id = :id");
             $stmtUserQuery->bindParam(":id", $this->id);

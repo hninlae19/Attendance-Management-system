@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $data['title'] ?? 'HRMS Admin Dashboard' ?></title>
+    <title><?= $data['title'] ?? 'HRMS Admin Dashboard' ?> — PayrollPro</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -11,11 +15,38 @@
             darkMode: 'class',
             theme: {
                 extend: {
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
                     colors: {
-                        primary: '#4f46e5', // Indigo-600
-                        secondary: '#10b981', // Emerald-500
-                        dark: '#1e293b', // Slate-800
-                        darker: '#0f172a', // Slate-900
+                        primary:   '#7c3aed', // violet-700
+                        'primary-light': '#8b5cf6', // violet-500
+                        'primary-dark':  '#5b21b6', // violet-800
+                        secondary: '#06b6d4', // cyan-500
+                        dark:      '#0f0a1e',
+                        darker:    '#070512',
+                        surface:   '#1a1030',
+                    },
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                    },
+                    keyframes: {
+                        float:    { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
+                        shimmer:  { '0%': { backgroundPosition: '-200% 0' }, '100%': { backgroundPosition: '200% 0' } },
+                        pulse2:   { '0%,100%': { opacity: 1 },                 '50%':  { opacity: 0.6 } },
+                        slideIn:  { '0%': { transform: 'translateX(-100%)', opacity: 0 }, '100%': { transform: 'translateX(0)', opacity: 1 } },
+                        fadeUp:   { '0%': { transform: 'translateY(20px)',  opacity: 0 }, '100%': { transform: 'translateY(0)',  opacity: 1 } },
+                        spinSlow: { '0%': { transform: 'rotate(0deg)' }, '100%': { transform: 'rotate(360deg)' } },
+                        bounceSoft: { '0%,100%': { transform: 'scale(1)' }, '50%': { transform: 'scale(1.05)' } },
+                        shrink:   { 'from': { width: '100%' }, 'to': { width: '0%' } },
+                    },
+                    animation: {
+                        'float':      'float 3s ease-in-out infinite',
+                        'float-slow': 'float 5s ease-in-out infinite',
+                        'shimmer':    'shimmer 3s linear infinite',
+                        'slide-in':   'slideIn 0.4s ease-out',
+                        'fade-up':    'fadeUp 0.5s ease-out',
+                        'spin-slow':  'spinSlow 8s linear infinite',
+                        'bounce-soft':'bounceSoft 2s ease-in-out infinite',
+                        'shrink-bar': 'shrink 5s linear forwards',
                     }
                 }
             }
@@ -25,357 +56,521 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- AOS Animation -->
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
-    <!-- Animate.css -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <!-- Custom CSS -->
+
     <style>
         [x-cloak] { display: none !important; }
-        
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #070512;
+        }
+
+        /* === SCROLLBAR === */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .dark ::-webkit-scrollbar-thumb { background: #475569; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
-        /* Glassmorphism */
-        .glass-header {
-            background: rgba(255, 255, 255, 0.85);
+        ::-webkit-scrollbar-thumb { background: #5b21b6; border-radius: 99px; }
+        ::-webkit-scrollbar-thumb:hover { background: #7c3aed; }
+
+        /* === TOPBAR GLASS === */
+        .topbar-glass {
+            background: rgba(7, 5, 18, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+        }
+
+        /* === SIDEBAR === */
+        .sidebar-glass {
+            background: rgba(15, 10, 30, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(124, 58, 237, 0.15);
+        }
+
+        /* === GLOW === */
+        .glow-violet { box-shadow: 0 0 20px rgba(124, 58, 237, 0.35); }
+        .glow-violet-sm { box-shadow: 0 0 10px rgba(124, 58, 237, 0.25); }
+        .text-glow { text-shadow: 0 0 12px rgba(167, 139, 250, 0.6); }
+
+        /* === CARD GLASS === */
+        .card-glass {
+            background: rgba(26, 16, 48, 0.75);
+            border: 1px solid rgba(124, 58, 237, 0.2);
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
         }
-        .dark .glass-header {
-            background: rgba(30, 41, 59, 0.85);
+        .card-glass:hover {
+            border-color: rgba(124, 58, 237, 0.5);
+            box-shadow: 0 0 24px rgba(124, 58, 237, 0.15);
         }
-        @keyframes shrink {
-            from { width: 100%; }
-            to { width: 0%; }
+
+        /* === NAV ITEM === */
+        .nav-item {
+            position: relative;
+            transition: all 0.25s ease;
         }
-        .animate-\\[shrink_5s_linear_forwards\\] {
-            animation: shrink 5s linear forwards;
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: #7c3aed;
+            border-radius: 0 3px 3px 0;
+            opacity: 0;
+            transition: all 0.25s ease;
         }
+        .nav-item.active::before { opacity: 1; }
+        .nav-item.active { background: rgba(124, 58, 237, 0.12); }
+
+        /* === GRADIENT TEXT === */
+        .gradient-text {
+            background: linear-gradient(135deg, #a78bfa, #c4b5fd, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* === ORBS === */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .orb-1 { width: 400px; height: 400px; background: rgba(124,58,237,0.12); top: -100px; right: -100px; }
+        .orb-2 { width: 300px; height: 300px; background: rgba(6,182,212,0.07); bottom: 0; left: 0; }
+
+        /* === SHIMMER GRADIENT === */
+        .shimmer-bg {
+            background: linear-gradient(90deg, rgba(124,58,237,0) 0%, rgba(167,139,250,0.15) 50%, rgba(124,58,237,0) 100%);
+            background-size: 200% 100%;
+        }
+
+        /* === STAT CARD === */
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
+            padding: 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .stat-card:hover { transform: translateY(-4px); }
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 3s linear infinite;
+        }
+
+        /* === PROGRESS BAR === */
+        .progress-fill { transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        /* === BADGE === */
+        .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+
+        /* === NOTIFICATION DOT PULSE === */
+        .notif-pulse { animation: pulse2 1.5s ease-in-out infinite; }
+
+        /* === LOGO SPIN RING === */
+        .logo-ring {
+            position: absolute;
+            inset: -3px;
+            border-radius: 12px;
+            background: conic-gradient(from 0deg, #7c3aed, #06b6d4, #a78bfa, #7c3aed);
+            animation: spinSlow 4s linear infinite;
+            z-index: -1;
+        }
+
+        /* === SHRINK BAR (toast) === */
+        @keyframes shrinkBar { from { width: 100%; } to { width: 0; } }
+        .animate-shrink-bar { animation: shrinkBar 5s linear forwards; }
+
+        /* === MOBILE OVERLAY === */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 39;
+        }
+        .sidebar-overlay.show { display: block; }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 dark:bg-darker dark:text-gray-200 transition-colors duration-200 font-sans" x-data="{ sidebarOpen: false, darkMode: localStorage.getItem('darkMode') === 'true' }" x-init="$watch('darkMode', val => localStorage.setItem('darkMode', val)); darkMode ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark')">
+<body
+    x-data="{
+        sidebarOpen: false,
+        darkMode: true
+    }"
+    x-init="
+        darkMode = true;
+        document.documentElement.classList.add('dark');
+    "
+    class="bg-darker text-gray-100 min-h-screen"
+>
 
-    <!-- Global Loader -->
-    <div id="global-loader" class="fixed inset-0 z-[100] bg-white dark:bg-darker flex items-center justify-center transition-opacity duration-500">
-        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-primary"></div>
+<!-- Background Orbs -->
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<!-- Global Loader -->
+<div id="global-loader" class="fixed inset-0 z-[100] bg-darker flex flex-col items-center justify-center transition-opacity duration-700">
+    <div class="relative">
+        <div class="w-16 h-16 rounded-full border-2 border-violet-900 flex items-center justify-center">
+            <div class="absolute inset-0 rounded-full border-t-2 border-violet-400 animate-spin"></div>
+            <i class="fa-solid fa-building-user text-violet-400 text-xl relative z-10"></i>
+        </div>
     </div>
+    <p class="mt-4 text-violet-300 text-sm font-semibold tracking-widest uppercase animate-pulse">Loading PayrollPro...</p>
+</div>
 
-    <!-- Topbar -->
-    <nav class="fixed top-0 z-50 w-full glass-header border-b border-gray-200 dark:border-gray-700 h-16 transition-colors duration-200">
-        <div class="px-3 py-3 lg:px-5 lg:pl-3">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center justify-start rtl:justify-end">
-                    <button @click="sidebarOpen = !sidebarOpen" type="button" class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
-                        <span class="sr-only">Open sidebar</span>
-                        <i class="fa-solid fa-bars text-xl"></i>
-                    </button>
-                    <a href="/payrollsystem/admin" class="flex ms-2 md:me-24 items-center">
-                        <span class="self-center text-xl font-bold sm:text-2xl whitespace-nowrap dark:text-white text-primary flex items-center">
-                            <div class="w-8 h-8 bg-gradient-to-br from-primary to-blue-500 rounded-lg flex items-center justify-center mr-2 shadow-lg shadow-primary/30">
-                                <i class="fa-solid fa-building-user text-white text-sm"></i>
-                            </div>
-                            HRMS Admin
-                        </span>
-                    </a>
+<!-- ============ TOPBAR ============ -->
+<nav class="fixed top-0 z-50 w-full topbar-glass h-16">
+    <div class="h-full px-4 lg:px-6 flex items-center justify-between">
+
+        <!-- Left: Logo + Hamburger -->
+        <div class="flex items-center gap-3">
+            <button @click="sidebarOpen = !sidebarOpen"
+                    class="sm:hidden text-gray-400 hover:text-violet-400 w-9 h-9 flex items-center justify-center rounded-lg hover:bg-violet-500/10 transition-all">
+                <i class="fa-solid fa-bars text-lg"></i>
+            </button>
+            <a href="/payrollsystem/admin" class="flex items-center gap-3 group">
+                <div class="relative w-9 h-9">
+                    <div class="logo-ring rounded-xl opacity-70 group-hover:opacity-100 transition-opacity"></div>
+                    <div class="w-9 h-9 bg-gradient-to-br from-violet-600 to-purple-900 rounded-xl flex items-center justify-center relative z-10">
+                        <i class="fa-solid fa-building-user text-white text-sm"></i>
+                    </div>
                 </div>
-                <div class="flex items-center gap-4">
-                    <!-- Dark Mode Toggle -->
-                    <button @click="darkMode = !darkMode; darkMode ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark')" class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full p-2 w-10 h-10 flex items-center justify-center transition-colors">
-                        <i class="fa-solid text-lg" :class="darkMode ? 'fa-sun text-yellow-400' : 'fa-moon'"></i>
-                    </button>
-                    
-                    <!-- Notifications -->
-                    <div class="relative" x-data="{ 
-                            notifOpen: false, 
-                            unreadCount: 0, 
-                            notifications: [],
-                            toastNotif: null,
-                            toastTimeout: null,
-                            playChime() {
-                                try {
-                                    const AudioContext = window.AudioContext || window.webkitAudioContext;
-                                    const ctx = new AudioContext();
-                                    const osc = ctx.createOscillator();
-                                    const gain = ctx.createGain();
-                                    osc.connect(gain);
-                                    gain.connect(ctx.destination);
-                                    osc.type = 'sine';
-                                    osc.frequency.setValueAtTime(880, ctx.currentTime);
-                                    osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.1);
-                                    gain.gain.setValueAtTime(0.5, ctx.currentTime);
-                                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-                                    osc.start(ctx.currentTime);
-                                    osc.stop(ctx.currentTime + 0.3);
-                                } catch(e) {}
-                            },
-                            showToast(notif) {
-                                this.toastNotif = notif;
-                                if(this.toastTimeout) clearTimeout(this.toastTimeout);
-                                this.toastTimeout = setTimeout(() => { this.toastNotif = null; }, 5000);
-                            }
-                         }" 
-                         x-init="
-                            const fetchNotifs = () => fetch('/payrollsystem/notification/api?action=get').then(res => res.json()).then(data => {
-                                if(data.unread_count !== undefined) {
-                                    if(data.unread_count > unreadCount && data.notifications.length > 0) {
-                                        playChime();
-                                        // Find the newest notification to show as a toast
-                                        const newNotif = data.notifications[0];
-                                        showToast(newNotif);
-                                    }
-                                    unreadCount = data.unread_count;
-                                    notifications = data.notifications;
-                                }
-                            });
-                            fetchNotifs();
-                            setInterval(fetchNotifs, 10000); // Polling every 10s for better responsiveness
-                            window.addEventListener('notifications-read', fetchNotifs);
-                         ">
-                        <button @click="notifOpen = !notifOpen" class="relative text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full p-2 w-10 h-10 flex items-center justify-center transition-colors group">
-                            <i class="fa-solid fa-bell text-lg group-hover:animate-swing"></i>
-                            <span class="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/4 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full ring-2 ring-white dark:ring-gray-800" x-show="unreadCount > 0" x-text="unreadCount"></span>
-                        </button>
-                        
-                        <!-- Toast Popup (Bottom Right) -->
-                        <template x-teleport="body">
-                            <div x-show="toastNotif" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-10" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-10" class="fixed bottom-5 right-5 z-[100] w-80 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden cursor-pointer hover:shadow-primary/20 transition-all" @click="window.location.href='/payrollsystem/notification'; toastNotif=null" x-cloak>
-                                <div class="p-4 flex gap-3 relative">
-                                    <button @click.stop="toastNotif = null" class="absolute top-2 right-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"><i class="fa-solid fa-xmark"></i></button>
-                                    <div class="flex-shrink-0 mt-1">
-                                        <div class="w-10 h-10 rounded-full flex items-center justify-center text-white text-lg bg-primary shadow-lg shadow-primary/30">
-                                            <i class="fa-solid fa-bell animate-swing"></i>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <h4 class="text-sm font-bold text-gray-900 dark:text-white pr-4" x-text="toastNotif?.title || 'New Notification'"></h4>
-                                        <p class="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 mt-1 leading-snug" x-text="toastNotif?.message"></p>
-                                    </div>
-                                </div>
-                                <div class="h-1 bg-gray-100 dark:bg-gray-700 w-full">
-                                    <div class="h-full bg-primary animate-[shrink_5s_linear_forwards]"></div>
-                                </div>
+                <div class="hidden sm:block">
+                    <span class="font-extrabold text-lg gradient-text">PayrollPro</span>
+                    <div class="text-[10px] text-violet-400/70 font-medium tracking-widest uppercase -mt-1">Admin Panel</div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Right: Notifications + User -->
+        <div class="flex items-center gap-2">
+
+            <!-- Notifications -->
+            <div class="relative" x-data="{
+                notifOpen: false,
+                unreadCount: 0,
+                notifications: [],
+                toastNotif: null,
+                toastTimeout: null,
+                playChime() {
+                    try {
+                        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.connect(gain); gain.connect(ctx.destination);
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(880, ctx.currentTime);
+                        osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.1);
+                        gain.gain.setValueAtTime(0.5, ctx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                        osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.3);
+                    } catch(e) {}
+                },
+                showToast(notif) {
+                    this.toastNotif = notif;
+                    if(this.toastTimeout) clearTimeout(this.toastTimeout);
+                    this.toastTimeout = setTimeout(() => { this.toastNotif = null; }, 5000);
+                }
+            }"
+            x-init="
+                const fetchNotifs = () => fetch('/payrollsystem/notification/api?action=get').then(r=>r.json()).then(data=>{
+                    if(data.unread_count !== undefined) {
+                        if(data.unread_count > unreadCount && data.notifications.length > 0) { playChime(); showToast(data.notifications[0]); }
+                        unreadCount = data.unread_count;
+                        notifications = data.notifications;
+                    }
+                });
+                fetchNotifs();
+                setInterval(fetchNotifs, 10000);
+                window.addEventListener('notifications-read', fetchNotifs);
+            ">
+                <button @click="notifOpen = !notifOpen"
+                        class="relative w-9 h-9 flex items-center justify-center rounded-xl text-gray-400 hover:text-violet-400 hover:bg-violet-500/10 transition-all">
+                    <i class="fa-solid fa-bell text-base"></i>
+                    <span x-show="unreadCount > 0" x-text="unreadCount"
+                          class="absolute -top-0.5 -right-0.5 bg-violet-500 text-white text-[9px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full px-1 notif-pulse"></span>
+                </button>
+
+                <!-- Toast -->
+                <template x-teleport="body">
+                    <div x-show="toastNotif"
+                         x-transition:enter="transition ease-out duration-300"
+                         x-transition:enter-start="opacity-0 translate-y-10"
+                         x-transition:enter-end="opacity-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-300"
+                         x-transition:leave-start="opacity-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 translate-y-10"
+                         class="fixed bottom-5 right-5 z-[100] w-80 card-glass rounded-2xl overflow-hidden cursor-pointer hover:border-violet-400/50 transition-all"
+                         @click="window.location.href='/payrollsystem/notification'; toastNotif=null"
+                         x-cloak>
+                        <div class="p-4 flex gap-3 relative">
+                            <button @click.stop="toastNotif=null" class="absolute top-3 right-3 text-gray-500 hover:text-gray-300 transition-colors"><i class="fa-solid fa-xmark text-xs"></i></button>
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-purple-800 flex items-center justify-center flex-shrink-0 glow-violet-sm">
+                                <i class="fa-solid fa-bell text-white text-sm animate-bounce-soft"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-white pr-4" x-text="toastNotif?.title || 'New Notification'"></p>
+                                <p class="text-xs text-gray-400 line-clamp-2 mt-0.5" x-text="toastNotif?.message"></p>
+                            </div>
+                        </div>
+                        <div class="h-0.5 bg-violet-900 w-full"><div class="h-full bg-gradient-to-r from-violet-500 to-cyan-500 animate-shrink-bar"></div></div>
+                    </div>
+                </template>
+
+                <!-- Dropdown -->
+                <div x-show="notifOpen" @click.away="notifOpen=false"
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0 scale-95 -translate-y-2"
+                     x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                     class="absolute right-0 top-12 w-80 card-glass rounded-2xl overflow-hidden shadow-2xl z-50"
+                     x-cloak>
+                    <div class="px-4 py-3 border-b border-violet-900/50 flex items-center justify-between">
+                        <span class="font-bold text-white text-sm">Notifications</span>
+                        <button x-show="unreadCount > 0"
+                                @click="fetch('/payrollsystem/notification/api?action=read_all',{method:'POST'}).then(()=>{ unreadCount=0; notifications.forEach(n=>n.is_read=1); })"
+                                class="text-[11px] text-violet-400 hover:text-violet-300 font-semibold transition-colors">Mark all read</button>
+                    </div>
+                    <div class="max-h-72 overflow-y-auto">
+                        <template x-if="notifications.length === 0">
+                            <div class="py-10 text-center">
+                                <i class="fa-regular fa-bell-slash text-3xl text-violet-900 mb-2"></i>
+                                <p class="text-xs text-gray-500">No notifications yet</p>
                             </div>
                         </template>
-
-                        <!-- Dropdown -->
-                        <div x-show="notifOpen" @click.away="notifOpen = false" class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl overflow-hidden z-20 dark:bg-gray-800 border dark:border-gray-700 transform origin-top-right transition-all" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" x-cloak>
-                            <div class="py-2">
-                                <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50">
-                                    <span class="font-bold text-gray-900 dark:text-white">Notifications</span>
-                                    <button x-show="unreadCount > 0" @click="fetch('/payrollsystem/notification/api?action=read_all', {method: 'POST'}).then(() => { unreadCount = 0; notifications.forEach(n => n.is_read = 1); })" class="text-xs text-primary hover:text-blue-600 font-medium transition-colors">Mark all read</button>
+                        <template x-for="notif in notifications" :key="notif.id">
+                            <a :href="'/payrollsystem' + notif.link"
+                               @click="fetch('/payrollsystem/notification/api?action=read',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:notif.id})})"
+                               class="flex items-start gap-3 px-4 py-3 hover:bg-violet-500/8 border-b border-violet-900/30 transition-colors relative"
+                               :class="notif.is_read == 0 ? 'bg-violet-500/5' : ''">
+                                <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center text-white text-xs mt-0.5"
+                                     :class="{
+                                         'bg-blue-500/80':    notif.type === 'attendance',
+                                         'bg-emerald-500/80': notif.type === 'leave',
+                                         'bg-orange-500/80':  notif.type === 'overtime',
+                                         'bg-violet-500/80':  notif.type === 'payroll',
+                                         'bg-red-500/80':     notif.type === 'error',
+                                         'bg-gray-500/80':    !['attendance','leave','overtime','payroll','error'].includes(notif.type)
+                                     }">
+                                    <i class="fa-solid" :class="{
+                                        'fa-clock-rotate-left': notif.type==='attendance',
+                                        'fa-plane':             notif.type==='leave',
+                                        'fa-bolt':              notif.type==='overtime',
+                                        'fa-money-check-dollar':notif.type==='payroll',
+                                        'fa-triangle-exclamation': notif.type==='error',
+                                        'fa-bell':              !['attendance','leave','overtime','payroll','error'].includes(notif.type)
+                                    }"></i>
                                 </div>
-                                <div class="max-h-72 overflow-y-auto">
-                                    <template x-if="notifications.length === 0">
-                                        <div class="px-4 py-8 text-center text-gray-500 dark:text-gray-400 flex flex-col items-center">
-                                            <i class="fa-regular fa-bell-slash text-3xl mb-2 opacity-50"></i>
-                                            <span class="text-sm">No recent notifications</span>
-                                        </div>
-                                    </template>
-                                    <template x-for="notif in notifications" :key="notif.id">
-                                        <a :href="'/payrollsystem' + notif.link" @click="fetch('/payrollsystem/notification/api?action=read', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id: notif.id})})" class="block px-4 py-3 border-b border-gray-50 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:border-gray-700/50 transition-colors relative" :class="notif.is_read == 0 ? 'bg-indigo-50/30 dark:bg-indigo-900/10' : ''">
-                                            <div class="flex gap-3">
-                                                <div class="flex-shrink-0 mt-0.5">
-                                                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs shadow-sm"
-                                                        :class="{
-                                                            'bg-blue-500': notif.type === 'attendance',
-                                                            'bg-emerald-500': notif.type === 'leave',
-                                                            'bg-orange-500': notif.type === 'overtime',
-                                                            'bg-cyan-500': notif.type === 'payroll',
-                                                            'bg-red-500': notif.type === 'error',
-                                                            'bg-gray-500': !['attendance','leave','overtime','payroll','error'].includes(notif.type)
-                                                        }">
-                                                        <i class="fa-solid" :class="{
-                                                            'fa-clock-rotate-left': notif.type === 'attendance',
-                                                            'fa-plane': notif.type === 'leave',
-                                                            'fa-bolt': notif.type === 'overtime',
-                                                            'fa-money-check-dollar': notif.type === 'payroll',
-                                                            'fa-triangle-exclamation': notif.type === 'error',
-                                                            'fa-bell': !['attendance','leave','overtime','payroll','error'].includes(notif.type)
-                                                        }"></i>
-                                                    </div>
-                                                </div>
-                                                <div class="flex-1 min-w-0">
-                                                    <p class="text-sm font-bold truncate pr-4 text-gray-900 dark:text-white" x-text="notif.title || 'System Notification'"></p>
-                                                    <p class="text-xs text-gray-600 dark:text-gray-400 line-clamp-1 mt-0.5" x-text="notif.message"></p>
-                                                    <p class="text-[10px] text-primary font-medium mt-1" x-text="new Date(notif.created_at).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})"></p>
-                                                </div>
-                                                <div class="absolute right-4 top-4" x-show="notif.is_read == 0">
-                                                    <div class="w-2 h-2 bg-primary rounded-full shadow-[0_0_8px_rgba(79,70,229,0.5)]"></div>
-                                                </div>
-                                            </div>
-                                        </a>
-                                    </template>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs font-bold text-white truncate" x-text="notif.title || 'System Notification'"></p>
+                                    <p class="text-[11px] text-gray-400 line-clamp-1 mt-0.5" x-text="notif.message"></p>
+                                    <p class="text-[10px] text-violet-400 mt-1" x-text="new Date(notif.created_at).toLocaleString([],{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})"></p>
                                 </div>
-                                <a href="/payrollsystem/notification" class="block text-center px-4 py-3 text-sm text-primary font-bold hover:bg-gray-50 dark:hover:bg-gray-700/50 bg-gray-50/50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-700 transition-colors">
-                                    View All History <i class="fa-solid fa-arrow-right ml-1"></i>
-                                </a>
-                            </div>
-                        </div>
+                                <div x-show="notif.is_read == 0" class="absolute right-4 top-4 w-2 h-2 bg-violet-400 rounded-full notif-pulse"></div>
+                            </a>
+                        </template>
                     </div>
+                    <a href="/payrollsystem/notification"
+                       class="block text-center py-3 text-xs text-violet-400 font-bold hover:text-violet-300 border-t border-violet-900/50 hover:bg-violet-500/5 transition-colors">
+                        View All <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
+            </div>
 
-                    <!-- User Menu -->
-                    <div class="relative" x-data="{ userOpen: false }">
-                        <button @click="userOpen = !userOpen" class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600">
-                            <span class="sr-only">Open user menu</span>
-                            <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold"><?= htmlspecialchars(strtoupper(substr($_SESSION['email'] ?? 'A', 0, 1))) ?></div>
-                        </button>
-                        <!-- Dropdown -->
-                        <div x-show="userOpen" @click.away="userOpen = false" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20 dark:bg-gray-800 border dark:border-gray-700" x-cloak>
-                            <div class="px-4 py-3">
-                                <p class="text-sm text-gray-900 dark:text-white">System Admin</p>
-                                <p class="text-sm font-medium text-gray-500 truncate dark:text-gray-400"><?= htmlspecialchars($_SESSION['email'] ?? '') ?></p>
-                            </div>
-                            <ul class="py-1">
-                                <li>
-                                    <a href="/payrollsystem/admin/settings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white">Settings</a>
-                                </li>
-                                <li>
-                                    <a href="/payrollsystem/auth/logout" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-red-400">Sign out</a>
-                                </li>
-                            </ul>
-                        </div>
+            <!-- User Avatar -->
+            <div class="relative" x-data="{ userOpen: false }">
+                <button @click="userOpen = !userOpen"
+                        class="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-xl hover:bg-violet-500/10 transition-all group">
+                    <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-purple-700 flex items-center justify-center font-bold text-white text-sm glow-violet-sm">
+                        <?= htmlspecialchars(strtoupper(substr($_SESSION['email'] ?? 'A', 0, 1))) ?>
+                    </div>
+                    <div class="hidden sm:block text-left">
+                        <div class="text-xs font-bold text-white leading-none">Admin</div>
+                        <div class="text-[10px] text-gray-500 leading-none mt-0.5 truncate max-w-[100px]"><?= htmlspecialchars($_SESSION['email'] ?? '') ?></div>
+                    </div>
+                    <i class="fa-solid fa-chevron-down text-[10px] text-gray-500 group-hover:text-violet-400 transition-colors"></i>
+                </button>
+                <div x-show="userOpen" @click.away="userOpen=false"
+                     x-transition:enter="transition ease-out duration-150"
+                     x-transition:enter-start="opacity-0 scale-95"
+                     x-transition:enter-end="opacity-100 scale-100"
+                     class="absolute right-0 top-12 w-52 card-glass rounded-2xl overflow-hidden shadow-2xl z-50"
+                     x-cloak>
+                    <div class="px-4 py-3 border-b border-violet-900/50">
+                        <p class="text-xs text-gray-400">Signed in as</p>
+                        <p class="text-sm font-bold text-white truncate"><?= htmlspecialchars($_SESSION['email'] ?? '') ?></p>
+                    </div>
+                    <div class="p-2">
+                        <a href="/payrollsystem/admin/settings" class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-violet-500/10 hover:text-violet-300 transition-colors">
+                            <i class="fa-solid fa-gear w-4 text-center text-violet-500"></i> Settings
+                        </a>
+                        <a href="/payrollsystem/auth/logout" class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-red-400 hover:bg-red-500/10 transition-colors">
+                            <i class="fa-solid fa-right-from-bracket w-4 text-center"></i> Sign Out
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <!-- Sidebar -->
-    <?php
-    $currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-    $isActive = function($path) use ($currentPath) {
-        return strpos($currentPath, $path) !== false;
-    };
-    ?>
-    <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform duration-300 bg-white border-r border-gray-200 sm:translate-x-0 dark:bg-darker dark:border-gray-800" aria-label="Sidebar">
-        <div class="h-full px-4 pb-4 overflow-y-auto">
-            <ul class="space-y-2 font-medium text-sm">
-                
-                <!-- DASHBOARD -->
-                <li>
-                    <a href="/payrollsystem/admin" class="flex items-center p-3 rounded-xl transition-all duration-300 group relative overflow-hidden <?= $currentPath == '/payrollsystem/admin' ? 'bg-primary/10 text-primary border-l-4 border-primary' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600' ?>">
-                        <i class="fa-solid fa-chart-pie w-6 h-6 flex items-center justify-center transition-all duration-300 <?= $currentPath == '/payrollsystem/admin' ? 'text-primary scale-110 drop-shadow-[0_0_8px_rgba(79,70,229,0.5)]' : 'text-gray-400 group-hover:text-primary' ?>"></i>
-                        <span class="ms-3 font-semibold relative z-10">Dashboard</span>
-                    </a>
-                </li>
+<!-- ============ SIDEBAR ============ -->
+<?php
+$currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$isActive = function($path) use ($currentPath) {
+    return strpos($currentPath, $path) !== false;
+};
+?>
 
-                <!-- EMPLOYEE MANAGEMENT -->
-                <li x-data="{ open: <?= $isActive('/employees') || $isActive('/departments') || $isActive('/positions') ? 'true' : 'false' ?> }">
-                    <button @click="open = !open" class="flex items-center w-full p-3 rounded-xl transition-all duration-300 group relative overflow-hidden <?= $isActive('/employees') || $isActive('/departments') || $isActive('/positions') ? 'text-primary' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600' ?>">
-                        <i class="fa-solid fa-users w-6 h-6 flex items-center justify-center transition-all duration-300 <?= $isActive('/employees') || $isActive('/departments') || $isActive('/positions') ? 'text-primary scale-110 drop-shadow-[0_0_8px_rgba(79,70,229,0.5)]' : 'text-gray-400 group-hover:text-primary' ?>"></i>
-                        <span class="ms-3 font-semibold text-left whitespace-nowrap flex-1">Employee Mgmt</span>
-                        <i class="fa-solid fa-chevron-down text-sm transition-transform duration-300" :class="open ? 'rotate-180 text-primary' : 'text-gray-400'"></i>
-                    </button>
-                    <ul x-show="open" x-collapse.duration.300ms class="py-2 space-y-1">
-                        <li><a href="/payrollsystem/admin/employees" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/employees') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Employees</a></li>
-                        <li><a href="/payrollsystem/admin/departments" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/departments') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Departments</a></li>
-                        <li><a href="/payrollsystem/admin/positions" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/positions') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Positions</a></li>
-                    </ul>
-                </li>
+<!-- Mobile overlay -->
+<div class="sidebar-overlay" :class="sidebarOpen ? 'show' : ''" @click="sidebarOpen=false"></div>
 
-                <!-- ATTENDANCE MANAGEMENT -->
-                <li x-data="{ open: <?= $isActive('/attendance') ? 'true' : 'false' ?> }">
-                    <button @click="open = !open" class="flex items-center w-full p-3 rounded-xl transition-all duration-300 group relative overflow-hidden <?= $isActive('/attendance') ? 'text-primary' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600' ?>">
-                        <i class="fa-solid fa-clock-rotate-left w-6 h-6 flex items-center justify-center transition-all duration-300 <?= $isActive('/attendance') ? 'text-primary scale-110 drop-shadow-[0_0_8px_rgba(79,70,229,0.5)]' : 'text-gray-400 group-hover:text-primary' ?>"></i>
-                        <span class="ms-3 font-semibold text-left whitespace-nowrap flex-1">Attendance Mgmt</span>
-                        <i class="fa-solid fa-chevron-down text-sm transition-transform duration-300" :class="open ? 'rotate-180 text-primary' : 'text-gray-400'"></i>
-                    </button>
-                    <ul x-show="open" x-collapse.duration.300ms class="py-2 space-y-1">
-                        <li><a href="/payrollsystem/admin/attendance" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/attendance') && !isset($_GET['tab']) ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Attendance</a></li>
-                        <li><a href="/payrollsystem/admin/attendance?tab=corrections" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= isset($_GET['tab']) && $_GET['tab'] == 'corrections' ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Corrections</a></li>
-                    </ul>
-                </li>
+<aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+       class="fixed top-0 left-0 z-40 w-64 h-screen pt-16 transition-transform duration-300 sm:translate-x-0 sidebar-glass"
+       aria-label="Sidebar">
+    <div class="h-full py-4 px-3 overflow-y-auto flex flex-col">
 
-                <!-- LEAVE MANAGEMENT -->
-                <li x-data="{ open: <?= $isActive('/leave') ? 'true' : 'false' ?> }">
-                    <button @click="open = !open" class="flex items-center w-full p-3 rounded-xl transition-all duration-300 group relative overflow-hidden <?= $isActive('/leave') ? 'text-primary' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600' ?>">
-                        <i class="fa-solid fa-calendar-minus w-6 h-6 flex items-center justify-center transition-all duration-300 <?= $isActive('/leave') ? 'text-primary scale-110 drop-shadow-[0_0_8px_rgba(79,70,229,0.5)]' : 'text-gray-400 group-hover:text-primary' ?>"></i>
-                        <span class="ms-3 font-semibold text-left whitespace-nowrap flex-1">Leave Mgmt</span>
-                        <i class="fa-solid fa-chevron-down text-sm transition-transform duration-300" :class="open ? 'rotate-180 text-primary' : 'text-gray-400'"></i>
-                    </button>
-                    <ul x-show="open" x-collapse.duration.300ms class="py-2 space-y-1">
-                        <li><a href="/payrollsystem/admin/leaves" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/leaves') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Leave Requests</a></li>
-                        <li><a href="/payrollsystem/admin/leave_types" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/leave_types') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Leave Types</a></li>
-                    </ul>
-                </li>
-
-                <!-- OVERTIME MANAGEMENT -->
-                <li x-data="{ open: <?= $isActive('/overtime') ? 'true' : 'false' ?> }">
-                    <button @click="open = !open" class="flex items-center w-full p-3 rounded-xl transition-all duration-300 group relative overflow-hidden <?= $isActive('/overtime') ? 'text-primary' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600' ?>">
-                        <i class="fa-solid fa-business-time w-6 h-6 flex items-center justify-center transition-all duration-300 <?= $isActive('/overtime') ? 'text-primary scale-110 drop-shadow-[0_0_8px_rgba(79,70,229,0.5)]' : 'text-gray-400 group-hover:text-primary' ?>"></i>
-                        <span class="ms-3 font-semibold text-left whitespace-nowrap flex-1">Overtime Mgmt</span>
-                        <i class="fa-solid fa-chevron-down text-sm transition-transform duration-300" :class="open ? 'rotate-180 text-primary' : 'text-gray-400'"></i>
-                    </button>
-                    <ul x-show="open" x-collapse.duration.300ms class="py-2 space-y-1">
-                        <li><a href="/payrollsystem/admin/overtime" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/overtime') && !$isActive('/overtime_assignments') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">OT Requests</a></li>
-                        <li><a href="/payrollsystem/admin/overtime_assignments" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/overtime_assignments') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">OT Assignments</a></li>
-                    </ul>
-                </li>
-
-                <!-- PAYROLL MANAGEMENT -->
-                <li x-data="{ open: <?= $isActive('/payroll') || $isActive('/bonus') || $isActive('/deduction') ? 'true' : 'false' ?> }">
-                    <button @click="open = !open" class="flex items-center w-full p-3 rounded-xl transition-all duration-300 group relative overflow-hidden <?= $isActive('/payroll') || $isActive('/bonus') || $isActive('/deduction') ? 'text-primary' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600' ?>">
-                        <i class="fa-solid fa-file-invoice-dollar w-6 h-6 flex items-center justify-center transition-all duration-300 <?= $isActive('/payroll') || $isActive('/bonus') || $isActive('/deduction') ? 'text-primary scale-110 drop-shadow-[0_0_8px_rgba(79,70,229,0.5)]' : 'text-gray-400 group-hover:text-primary' ?>"></i>
-                        <span class="ms-3 font-semibold text-left whitespace-nowrap flex-1">Payroll Mgmt</span>
-                        <i class="fa-solid fa-chevron-down text-sm transition-transform duration-300" :class="open ? 'rotate-180 text-primary' : 'text-gray-400'"></i>
-                    </button>
-                    <ul x-show="open" x-collapse.duration.300ms class="py-2 space-y-1">
-                        <li><a href="/payrollsystem/admin/payroll" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/payroll') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Payroll List</a></li>
-                        <li><a href="/payrollsystem/admin/bonuses" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/bonuses') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Bonuses</a></li>
-                        <li><a href="/payrollsystem/admin/deductions" class="flex items-center p-2 pl-12 text-sm rounded-lg transition-colors <?= $isActive('/deductions') ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800' ?>">Deductions</a></li>
-                    </ul>
-                </li>
-                
-
-                
-                <!-- NOTIFICATIONS -->
-                <li>
-                    <a href="/payrollsystem/admin/notifications" class="flex items-center p-3 rounded-xl transition-all duration-300 group relative overflow-hidden <?= $isActive('/notifications') ? 'bg-primary/10 text-primary border-l-4 border-primary' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600' ?>">
-                        <i class="fa-solid fa-bell w-6 h-6 flex items-center justify-center transition-all duration-300 <?= $isActive('/notifications') ? 'text-primary scale-110 drop-shadow-[0_0_8px_rgba(79,70,229,0.5)]' : 'text-gray-400 group-hover:text-primary' ?>"></i>
-                        <span class="ms-3 font-semibold relative z-10">Notifications</span>
-                    </a>
-                </li>
-                
-                <!-- SETTINGS -->
-                <li>
-                    <a href="/payrollsystem/admin/settings" class="flex items-center p-3 rounded-xl transition-all duration-300 group relative overflow-hidden <?= $isActive('/settings') ? 'bg-primary/10 text-primary border-l-4 border-primary' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600' ?>">
-                        <i class="fa-solid fa-gear w-6 h-6 flex items-center justify-center transition-all duration-300 <?= $isActive('/settings') ? 'text-primary scale-110 drop-shadow-[0_0_8px_rgba(79,70,229,0.5)]' : 'text-gray-400 group-hover:text-primary' ?>"></i>
-                        <span class="ms-3 font-semibold relative z-10">Settings</span>
-                    </a>
-                </li>
-            </ul>
+        <!-- Admin Profile Card -->
+        <div class="mx-1 mb-5 p-3 rounded-2xl bg-gradient-to-br from-violet-900/40 to-purple-900/20 border border-violet-700/20 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-700 flex items-center justify-center font-extrabold text-white text-base flex-shrink-0">
+                <?= htmlspecialchars(strtoupper(substr($_SESSION['email'] ?? 'A', 0, 1))) ?>
+            </div>
+            <div class="min-w-0">
+                <div class="text-sm font-bold text-white">System Admin</div>
+                <div class="text-[10px] text-violet-400/80 truncate"><?= htmlspecialchars($_SESSION['email'] ?? '') ?></div>
+            </div>
         </div>
-    </aside>
 
-    <!-- Main Content -->
-    <div class="p-4 sm:ml-64 mt-14">
+        <nav class="flex-1 space-y-0.5">
+
+            <?php
+            $navSections = [
+                [
+                    'label' => 'Main',
+                    'items' => [
+                        ['href' => '/payrollsystem/admin', 'icon' => 'fa-chart-pie', 'label' => 'Dashboard', 'exact' => true],
+                    ]
+                ],
+                [
+                    'label' => 'Management',
+                    'items' => [
+                        ['href' => '/payrollsystem/admin/employees', 'icon' => 'fa-users', 'label' => 'Employees',    'match' => '/employees'],
+                        ['href' => '/payrollsystem/admin/departments','icon' => 'fa-sitemap', 'label' => 'Departments', 'match' => '/departments'],
+                        ['href' => '/payrollsystem/admin/positions',  'icon' => 'fa-id-badge','label' => 'Positions',   'match' => '/positions'],
+                    ]
+                ],
+                [
+                    'label' => 'Attendance',
+                    'items' => [
+                        ['href' => '/payrollsystem/admin/attendance', 'icon' => 'fa-clock-rotate-left', 'label' => 'Attendance', 'match' => '/attendance'],
+                        ['href' => '/payrollsystem/admin/attendance?tab=corrections', 'icon' => 'fa-file-pen', 'label' => 'Corrections', 'match' => 'corrections'],
+                    ]
+                ],
+                [
+                    'label' => 'Leave & OT',
+                    'items' => [
+                        ['href' => '/payrollsystem/admin/leaves',      'icon' => 'fa-calendar-minus',  'label' => 'Leave Requests', 'match' => '/leaves'],
+                        ['href' => '/payrollsystem/admin/leave_types', 'icon' => 'fa-list-check',       'label' => 'Leave Types',    'match' => '/leave_types'],
+                        ['href' => '/payrollsystem/admin/overtime',    'icon' => 'fa-bolt',              'label' => 'OT Requests',    'match' => '/overtime'],
+                        ['href' => '/payrollsystem/admin/overtime_assignments','icon' => 'fa-clipboard-list','label' => 'OT Assignments','match' => '/overtime_assignments'],
+                    ]
+                ],
+                [
+                    'label' => 'Payroll',
+                    'items' => [
+                        ['href' => '/payrollsystem/admin/payroll',     'icon' => 'fa-file-invoice-dollar','label' => 'Payroll List',   'match' => '/payroll'],
+                        ['href' => '/payrollsystem/admin/bonuses',     'icon' => 'fa-gift',               'label' => 'Bonuses',        'match' => '/bonuses'],
+                        ['href' => '/payrollsystem/admin/deductions',  'icon' => 'fa-scissors',           'label' => 'Deductions',     'match' => '/deductions'],
+                        ['href' => '/payrollsystem/admin/holidays',    'icon' => 'fa-umbrella-beach',     'label' => 'Holidays',       'match' => '/holidays'],
+                    ]
+                ],
+                [
+                    'label' => 'System',
+                    'items' => [
+                        ['href' => '/payrollsystem/notification',      'icon' => 'fa-bell',        'label' => 'Notifications',  'match' => '/notification'],
+                        ['href' => '/payrollsystem/admin/settings',    'icon' => 'fa-gear',        'label' => 'Settings',       'match' => '/settings'],
+                    ]
+                ]
+            ];
+            foreach ($navSections as $section):
+            ?>
+                <div class="pt-3 pb-1">
+                    <p class="px-3 text-[9px] font-bold uppercase tracking-[0.12em] text-violet-600/60 mb-1"><?= $section['label'] ?></p>
+                    <?php foreach ($section['items'] as $item):
+                        $active = !empty($item['exact'])
+                            ? ($currentPath === $item['href'])
+                            : (!empty($item['match']) && strpos($currentPath . ($_SERVER['QUERY_STRING'] ?? ''), ltrim($item['match'], '/')) !== false);
+                    ?>
+                    <a href="<?= $item['href'] ?>"
+                       class="nav-item <?= $active ? 'active' : '' ?> flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group
+                              <?= $active ? 'text-violet-300' : 'text-gray-400 hover:text-violet-300 hover:bg-violet-500/8' ?>">
+                        <div class="w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-200
+                                    <?= $active ? 'bg-violet-500/25 text-violet-300' : 'text-gray-500 group-hover:text-violet-400' ?>">
+                            <i class="fa-solid <?= $item['icon'] ?> text-xs"></i>
+                        </div>
+                        <span><?= $item['label'] ?></span>
+                        <?php if ($active): ?>
+                        <div class="ml-auto w-1.5 h-1.5 rounded-full bg-violet-400"></div>
+                        <?php endif; ?>
+                    </a>
+                    <?php endforeach; ?>
+                </div>
+            <?php endforeach; ?>
+        </nav>
+
+        <!-- Bottom Sign Out -->
+        <div class="mt-4 pt-4 border-t border-violet-900/40">
+            <a href="/payrollsystem/auth/logout"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-red-400/80 hover:text-red-400 hover:bg-red-500/8 transition-all">
+                <div class="w-7 h-7 rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-right-from-bracket text-xs"></i>
+                </div>
+                Sign Out
+            </a>
+        </div>
+    </div>
+</aside>
+
+<!-- ============ MAIN CONTENT ============ -->
+<main class="sm:ml-64 pt-16 min-h-screen relative z-10">
+    <div class="p-5 md:p-7">
         <?php if(isset($data['content'])) {
             require_once __DIR__ . '/../' . $data['content'] . '.php';
         } ?>
     </div>
+</main>
 
-    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
-    <script>
-        AOS.init({ once: true, duration: 800 });
-        window.addEventListener('load', () => {
-            const loader = document.getElementById('global-loader');
-            if (loader) {
-                loader.style.opacity = '0';
-                setTimeout(() => loader.style.display = 'none', 500);
-            }
-        });
-    </script>
+<!-- AOS + Scripts -->
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script>
+    AOS.init({ once: true, duration: 700, offset: 60 });
 
-    <!-- Pseudo-Cron Trigger -->
-    <script>
-        // Trigger cron asynchronously. Catch any errors silently.
-        fetch('/cron/run?token=cron_secret_12345').catch(() => {});
-    </script>
+    window.addEventListener('load', () => {
+        const loader = document.getElementById('global-loader');
+        if (loader) {
+            loader.style.opacity = '0';
+            setTimeout(() => loader.remove(), 700);
+        }
+    });
+</script>
+
+<!-- Pseudo-Cron -->
+<script>
+    fetch('/payrollsystem/cron/run?token=cron_secret_12345').catch(() => {});
+</script>
+
 </body>
 </html>
