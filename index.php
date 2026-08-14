@@ -8,3 +8,9 @@ require_once __DIR__ . '/core/Router.php';
 
 // Initialize the core Router
 $router = new Router();
+
+// Run background auto-checkout task
+require_once __DIR__ . '/models/Attendance.php';
+$attendanceModel = new Attendance();
+$attendanceModel->processAutoCheckouts();
+$attendanceModel->processFullDayAbsences();

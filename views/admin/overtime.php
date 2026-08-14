@@ -17,13 +17,13 @@
             <select name="department_id" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm">
                 <option value="">All Departments</option>
                 <?php foreach($data['departments'] as $dept): ?>
-                    <option value="<?= $dept['id'] ?>" <?= $data['filters']['department_id'] == $dept['id'] ? 'selected' : '' ?>><?= htmlspecialchars($dept['name']) ?></option>
+                    <option value="<?= $dept['DeptID'] ?>" <?= $data['filters']['DeptID'] == $dept['DeptID'] ? 'selected' : '' ?>><?= htmlspecialchars($dept['DeptName']) ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
         <div>
             <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
-            <input type="date" name="date" value="<?= htmlspecialchars($data['filters']['date']) ?>" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm">
+            <input type="date" name="date" value="<?= htmlspecialchars($data['filters']['AttendanceDate']) ?>" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm">
         </div>
         <div class="flex items-end gap-2">
             <button type="submit" class="w-full bg-primary hover:bg-indigo-600 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm shadow-sm">
@@ -67,16 +67,16 @@
                         <td class="px-6 py-3">
                             <div class="flex items-center gap-3">
                                 <div class="w-9 h-9 rounded-full bg-gradient-to-br from-primary/20 to-blue-500/20 text-primary dark:text-blue-400 flex items-center justify-center font-bold text-xs ring-2 ring-white dark:ring-gray-800 group-hover:ring-primary/20 transition-all shadow-sm">
-                                    <?= strtoupper(substr($ot['first_name'],0,1) . substr($ot['last_name'],0,1)) ?>
+                                    <?= strtoupper(substr($ot['FirstName'],0,1) . substr($ot['LastName'],0,1)) ?>
                                 </div>
                                 <div>
-                                    <div class="font-bold text-gray-900 dark:text-white"><?= htmlspecialchars($ot['first_name'] . ' ' . $ot['last_name']) ?></div>
+                                    <div class="font-bold text-gray-900 dark:text-white"><?= htmlspecialchars($ot['FirstName'] . ' ' . $ot['LastName']) ?></div>
                                     <div class="text-xs text-primary font-medium">EMP-<?= htmlspecialchars($ot['employee_code']) ?></div>
                                 </div>
                             </div>
                         </td>
                         <td class="px-6 py-4">
-                            <div class="font-medium text-gray-900 dark:text-gray-300"><?= date('M j, Y', strtotime($ot['date'])) ?></div>
+                            <div class="font-medium text-gray-900 dark:text-gray-300"><?= date('M j, Y', strtotime($ot['AttendanceDate'])) ?></div>
                             <div class="text-xs text-gray-500 mt-0.5"><?= date('h:i A', strtotime($ot['start_time'])) ?> - <?= date('h:i A', strtotime($ot['end_time'])) ?></div>
                         </td>
                         <td class="px-6 py-4">
@@ -93,15 +93,15 @@
                                 <span class="inline-block px-2 py-0.5 text-[10px] font-bold bg-orange-50 text-orange-700 rounded-md border border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800/30">Holiday</span>
                             <?php endif; ?>
                         </td>
-                        <td class="px-6 py-4 max-w-[200px] truncate text-gray-600 dark:text-gray-400" title="<?= htmlspecialchars($ot['reason']) ?>">
-                            <?= htmlspecialchars($ot['reason']) ?>
+                        <td class="px-6 py-4 max-w-[200px] truncate text-gray-600 dark:text-gray-400" title="<?= htmlspecialchars($ot['Reason']) ?>">
+                            <?= htmlspecialchars($ot['Reason']) ?>
                         </td>
                         <td class="px-6 py-4">
-                            <?php if($ot['status'] === 'Approved'): ?>
+                            <?php if($ot['Status'] === 'Approved'): ?>
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold shadow-sm border bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800/30">
                                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span> Approved
                                 </span>
-                            <?php elseif($ot['status'] === 'Rejected'): ?>
+                            <?php elseif($ot['Status'] === 'Rejected'): ?>
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold shadow-sm border bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800/30">
                                     <span class="w-1.5 h-1.5 rounded-full bg-rose-500 mr-1.5"></span> Rejected
                                 </span>
@@ -112,7 +112,7 @@
                             <?php endif; ?>
                         </td>
                         <td class="px-6 py-4 text-right">
-                            <?php if($ot['status'] === 'Pending'): ?>
+                            <?php if($ot['Status'] === 'Pending'): ?>
                                 <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <form action="/payrollsystem/admin/overtime" method="POST" class="inline m-0 p-0">
     <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">

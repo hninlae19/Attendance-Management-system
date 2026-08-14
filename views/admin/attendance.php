@@ -45,7 +45,7 @@
                 <select x-model="filters.department_id" @change="fetchData()" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm">
                     <option value="">All Departments</option>
                     <?php foreach($data['departments'] as $dept): ?>
-                        <option value="<?= $dept['id'] ?>"><?= htmlspecialchars($dept['name']) ?></option>
+                        <option value="<?= $dept['DeptID'] ?>"><?= htmlspecialchars($dept['DeptName']) ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -56,7 +56,7 @@
                 <select x-model="filters.employee_id" @change="fetchData()" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm">
                     <option value="">All Employees</option>
                     <?php foreach($data['employees'] as $emp): ?>
-                        <option value="<?= $emp['id'] ?>"><?= htmlspecialchars($emp['first_name'] . ' ' . $emp['last_name']) ?></option>
+                        <option value="<?= $emp['EmpID'] ?>"><?= htmlspecialchars($emp['FirstName'] . ' ' . $emp['LastName']) ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -237,26 +237,26 @@
                     <?php else: foreach($data['corrections'] as $corr): ?>
                         <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                             <td class="px-6 py-4">
-                                <div class="font-bold text-gray-900 dark:text-white"><?= htmlspecialchars($corr['first_name'] . ' ' . $corr['last_name']) ?></div>
+                                <div class="font-bold text-gray-900 dark:text-white"><?= htmlspecialchars($corr['FirstName'] . ' ' . $corr['LastName']) ?></div>
                                 <div class="text-xs text-gray-500"><?= htmlspecialchars($corr['employee_code']) ?></div>
                             </td>
-                            <td class="px-6 py-4 text-gray-900 dark:text-white"><?= date('M j, Y', strtotime($corr['date'])) ?></td>
-                            <td class="px-6 py-4 max-w-xs truncate text-gray-700 dark:text-gray-300" title="<?= htmlspecialchars($corr['reason']) ?>"><?= htmlspecialchars($corr['reason']) ?></td>
+                            <td class="px-6 py-4 text-gray-900 dark:text-white"><?= date('M j, Y', strtotime($corr['AttendanceDate'])) ?></td>
+                            <td class="px-6 py-4 max-w-xs truncate text-gray-700 dark:text-gray-300" title="<?= htmlspecialchars($corr['Reason']) ?>"><?= htmlspecialchars($corr['Reason']) ?></td>
                             <td class="px-6 py-4 text-xs whitespace-nowrap">
                                 <span class="text-gray-400">In:</span> <span class="line-through text-red-400"><?= $corr['old_in'] ? date('h:i A', strtotime($corr['old_in'])) : 'None' ?></span> <i class="fa-solid fa-arrow-right mx-1 text-gray-400"></i> <span class="text-green-600 font-medium"><?= $corr['corrected_check_in'] ? date('h:i A', strtotime($corr['corrected_check_in'])) : 'None' ?></span><br>
                                 <span class="text-gray-400">Out:</span> <span class="line-through text-red-400"><?= $corr['old_out'] ? date('h:i A', strtotime($corr['old_out'])) : 'None' ?></span> <i class="fa-solid fa-arrow-right mx-1 text-gray-400"></i> <span class="text-green-600 font-medium"><?= $corr['corrected_check_out'] ? date('h:i A', strtotime($corr['corrected_check_out'])) : 'None' ?></span>
                             </td>
                             <td class="px-6 py-4">
-                                <?php if($corr['status'] === 'Approved'): ?>
+                                <?php if($corr['Status'] === 'Approved'): ?>
                                     <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full dark:bg-green-900 dark:text-green-300">Approved</span>
-                                <?php elseif($corr['status'] === 'Rejected'): ?>
+                                <?php elseif($corr['Status'] === 'Rejected'): ?>
                                     <span class="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full dark:bg-red-900 dark:text-red-300">Rejected</span>
                                 <?php else: ?>
                                     <span class="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full dark:bg-yellow-900 dark:text-yellow-300">Pending</span>
                                 <?php endif; ?>
                             </td>
                             <td class="px-6 py-4 text-right space-x-2">
-                                <?php if($corr['status'] === 'Pending'): ?>
+                                <?php if($corr['Status'] === 'Pending'): ?>
                                 <form action="/payrollsystem/admin/attendance" method="POST" class="inline">
     <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
 
@@ -301,7 +301,7 @@
                         <p class="text-gray-500 dark:text-gray-400 text-sm mt-0.5">
                             <i class="fa-solid fa-hashtag mr-1"></i><span x-text="selectedRecord?.employee_code"></span> 
                             <span class="mx-2">•</span> 
-                            <i class="fa-solid fa-briefcase mr-1"></i><span x-text="selectedRecord?.position_name"></span> 
+                            <i class="fa-solid fa-briefcase mr-1"></i><span x-text="selectedRecord?.PositionName"></span> 
                             <span class="mx-2">•</span> 
                             <i class="fa-solid fa-building mr-1"></i><span x-text="selectedRecord?.department_name"></span>
                         </p>

@@ -395,11 +395,11 @@
                 <button @click="userOpen = !userOpen"
                         class="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-xl hover:bg-violet-500/10 transition-all group">
                     <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-purple-700 flex items-center justify-center font-bold text-white text-sm glow-violet-sm">
-                        <?= htmlspecialchars(strtoupper(substr($_SESSION['email'] ?? 'A', 0, 1))) ?>
+                        <?= htmlspecialchars(strtoupper(substr($_SESSION['Email'] ?? 'A', 0, 1))) ?>
                     </div>
                     <div class="hidden sm:block text-left">
-                        <div class="text-xs font-bold text-white leading-none">Admin</div>
-                        <div class="text-[10px] text-gray-500 leading-none mt-0.5 truncate max-w-[100px]"><?= htmlspecialchars($_SESSION['email'] ?? '') ?></div>
+                        <div class="text-xs font-bold text-white leading-none"><?= htmlspecialchars($_SESSION['role'] ?? 'User') ?></div>
+                        <div class="text-[10px] text-gray-500 leading-none mt-0.5 truncate max-w-[100px]"><?= htmlspecialchars($_SESSION['Email'] ?? '') ?></div>
                     </div>
                     <i class="fa-solid fa-chevron-down text-[10px] text-gray-500 group-hover:text-violet-400 transition-colors"></i>
                 </button>
@@ -411,7 +411,7 @@
                      x-cloak>
                     <div class="px-4 py-3 border-b border-violet-900/50">
                         <p class="text-xs text-gray-400">Signed in as</p>
-                        <p class="text-sm font-bold text-white truncate"><?= htmlspecialchars($_SESSION['email'] ?? '') ?></p>
+                        <p class="text-sm font-bold text-white truncate"><?= htmlspecialchars($_SESSION['Email'] ?? '') ?></p>
                     </div>
                     <div class="p-2">
                         <a href="/payrollsystem/admin/settings" class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-violet-500/10 hover:text-violet-300 transition-colors">
@@ -446,65 +446,76 @@ $isActive = function($path) use ($currentPath) {
         <!-- Admin Profile Card -->
         <div class="mx-1 mb-5 p-3 rounded-2xl bg-gradient-to-br from-violet-900/40 to-purple-900/20 border border-violet-700/20 flex items-center gap-3">
             <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-700 flex items-center justify-center font-extrabold text-white text-base flex-shrink-0">
-                <?= htmlspecialchars(strtoupper(substr($_SESSION['email'] ?? 'A', 0, 1))) ?>
+                <?= htmlspecialchars(strtoupper(substr($_SESSION['Email'] ?? 'A', 0, 1))) ?>
             </div>
             <div class="min-w-0">
-                <div class="text-sm font-bold text-white">System Admin</div>
-                <div class="text-[10px] text-violet-400/80 truncate"><?= htmlspecialchars($_SESSION['email'] ?? '') ?></div>
+                <div class="text-sm font-bold text-white"><?= htmlspecialchars($_SESSION['role'] ?? 'User') ?></div>
+                <div class="text-[10px] text-violet-400/80 truncate"><?= htmlspecialchars($_SESSION['Email'] ?? '') ?></div>
             </div>
         </div>
 
         <nav class="flex-1 space-y-0.5">
-
             <?php
-            $navSections = [
-                [
-                    'label' => 'Main',
-                    'items' => [
-                        ['href' => '/payrollsystem/admin', 'icon' => 'fa-chart-pie', 'label' => 'Dashboard', 'exact' => true],
+            if (($_SESSION['role'] ?? '') === 'Employee') {
+                $navSections = [
+                    [
+                        'label' => 'Main',
+                        'items' => [
+                            ['href' => '/payrollsystem/employee', 'icon' => 'fa-chart-pie', 'label' => 'Dashboard', 'exact' => true],
+                            ['href' => '/payrollsystem/employee/attendance', 'icon' => 'fa-clock-rotate-left', 'label' => 'My Attendance', 'match' => '/attendance'],
+                        ]
+                    ],
+                    [
+                        'label' => 'Requests',
+                        'items' => [
+                            ['href' => '/payrollsystem/employee/leaves', 'icon' => 'fa-calendar-minus', 'label' => 'My Leaves', 'match' => '/leaves'],
+                            ['href' => '/payrollsystem/employee/overtime', 'icon' => 'fa-bolt', 'label' => 'My Overtime', 'match' => '/overtime'],
+                        ]
                     ]
-                ],
-                [
-                    'label' => 'Management',
-                    'items' => [
-                        ['href' => '/payrollsystem/admin/employees', 'icon' => 'fa-users', 'label' => 'Employees',    'match' => '/employees'],
-                        ['href' => '/payrollsystem/admin/departments','icon' => 'fa-sitemap', 'label' => 'Departments', 'match' => '/departments'],
-                        ['href' => '/payrollsystem/admin/positions',  'icon' => 'fa-id-badge','label' => 'Positions',   'match' => '/positions'],
+                ];
+            } else {
+                $navSections = [
+                    [
+                        'label' => 'Main',
+                        'items' => [
+                            ['href' => '/payrollsystem/admin', 'icon' => 'fa-chart-pie', 'label' => 'Dashboard', 'exact' => true],
+                        ]
+                    ],
+                    [
+                        'label' => 'Management',
+                        'items' => [
+                            ['href' => '/payrollsystem/admin/employees', 'icon' => 'fa-users', 'label' => 'Employees',    'match' => '/employees'],
+                            ['href' => '/payrollsystem/admin/departments','icon' => 'fa-sitemap', 'label' => 'Departments', 'match' => '/departments'],
+                            ['href' => '/payrollsystem/admin/positions',  'icon' => 'fa-id-badge','label' => 'Positions',   'match' => '/positions'],
+                        ]
+                    ],
+                    [
+                        'label' => 'Attendance',
+                        'items' => [
+                            ['href' => '/payrollsystem/admin/attendance', 'icon' => 'fa-clock-rotate-left', 'label' => 'Attendance', 'match' => '/attendance'],
+                            ['href' => '/payrollsystem/admin/attendance?tab=corrections', 'icon' => 'fa-file-pen', 'label' => 'Corrections', 'match' => 'corrections'],
+                        ]
+                    ],
+                    [
+                        'label' => 'Leave & OT',
+                        'items' => [
+                            ['href' => '/payrollsystem/admin/leaves',      'icon' => 'fa-calendar-minus',  'label' => 'Leave Requests', 'match' => '/leaves'],
+                            ['href' => '/payrollsystem/admin/leave_types', 'icon' => 'fa-list-check',       'label' => 'Leave Types',    'match' => '/leave_types'],
+                            ['href' => '/payrollsystem/admin/overtime',    'icon' => 'fa-bolt',              'label' => 'OT Requests',    'match' => '/overtime'],
+                            ['href' => '/payrollsystem/admin/overtime_assignments','icon' => 'fa-clipboard-list','label' => 'OT Assignments','match' => '/overtime_assignments'],
+                        ]
+                    ],
+                    [
+                        'label' => 'Payroll',
+                        'items' => [
+                            ['href' => '/payrollsystem/admin/payroll',     'icon' => 'fa-file-invoice-dollar','label' => 'Payroll List',   'match' => '/payroll'],
+                            ['href' => '/payrollsystem/admin/bonuses',     'icon' => 'fa-gift',               'label' => 'Bonuses',        'match' => '/bonuses'],
+                            ['href' => '/payrollsystem/admin/deductions',  'icon' => 'fa-scissors',           'label' => 'Deductions',     'match' => '/deductions'],
+                            ['href' => '/payrollsystem/admin/holidays',    'icon' => 'fa-umbrella-beach',     'label' => 'Holidays',       'match' => '/holidays'],
+                        ]
                     ]
-                ],
-                [
-                    'label' => 'Attendance',
-                    'items' => [
-                        ['href' => '/payrollsystem/admin/attendance', 'icon' => 'fa-clock-rotate-left', 'label' => 'Attendance', 'match' => '/attendance'],
-                        ['href' => '/payrollsystem/admin/attendance?tab=corrections', 'icon' => 'fa-file-pen', 'label' => 'Corrections', 'match' => 'corrections'],
-                    ]
-                ],
-                [
-                    'label' => 'Leave & OT',
-                    'items' => [
-                        ['href' => '/payrollsystem/admin/leaves',      'icon' => 'fa-calendar-minus',  'label' => 'Leave Requests', 'match' => '/leaves'],
-                        ['href' => '/payrollsystem/admin/leave_types', 'icon' => 'fa-list-check',       'label' => 'Leave Types',    'match' => '/leave_types'],
-                        ['href' => '/payrollsystem/admin/overtime',    'icon' => 'fa-bolt',              'label' => 'OT Requests',    'match' => '/overtime'],
-                        ['href' => '/payrollsystem/admin/overtime_assignments','icon' => 'fa-clipboard-list','label' => 'OT Assignments','match' => '/overtime_assignments'],
-                    ]
-                ],
-                [
-                    'label' => 'Payroll',
-                    'items' => [
-                        ['href' => '/payrollsystem/admin/payroll',     'icon' => 'fa-file-invoice-dollar','label' => 'Payroll List',   'match' => '/payroll'],
-                        ['href' => '/payrollsystem/admin/bonuses',     'icon' => 'fa-gift',               'label' => 'Bonuses',        'match' => '/bonuses'],
-                        ['href' => '/payrollsystem/admin/deductions',  'icon' => 'fa-scissors',           'label' => 'Deductions',     'match' => '/deductions'],
-                        ['href' => '/payrollsystem/admin/holidays',    'icon' => 'fa-umbrella-beach',     'label' => 'Holidays',       'match' => '/holidays'],
-                    ]
-                ],
-                [
-                    'label' => 'System',
-                    'items' => [
-                        ['href' => '/payrollsystem/notification',      'icon' => 'fa-bell',        'label' => 'Notifications',  'match' => '/notification'],
-                        ['href' => '/payrollsystem/admin/settings',    'icon' => 'fa-gear',        'label' => 'Settings',       'match' => '/settings'],
-                    ]
-                ]
-            ];
+                ];
+            }
             foreach ($navSections as $section):
             ?>
                 <div class="pt-3 pb-1">
@@ -545,7 +556,7 @@ $isActive = function($path) use ($currentPath) {
 </aside>
 
 <!-- ============ MAIN CONTENT ============ -->
-<main class="sm:ml-64 pt-16 min-h-screen relative z-10">
+<main class="sm:ml-64 pt-16 min-h-screen relative">
     <div class="p-5 md:p-7">
         <?php if(isset($data['content'])) {
             require_once __DIR__ . '/../' . $data['content'] . '.php';

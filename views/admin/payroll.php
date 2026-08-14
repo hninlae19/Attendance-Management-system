@@ -7,6 +7,7 @@ $currentMonthName = $monthNames[(int)$data['selectedMonth']];
     selectedPayrollId: null, 
     empName: '',
     netSalary: 0,
+    searchQuery: '',
     openPaymentModal(id, name, amount) {
         this.selectedPayrollId = id;
         this.empName = name;
@@ -50,6 +51,14 @@ $currentMonthName = $monthNames[(int)$data['selectedMonth']];
             </form>
         </div>
     </div>
+    
+    <!-- Search Bar -->
+    <div class="relative w-full max-w-sm mb-4">
+        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <i class="fa-solid fa-search text-gray-400"></i>
+        </div>
+        <input type="text" x-model="searchQuery" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-primary focus:border-primary block w-full pl-10 p-2.5 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary dark:focus:border-primary shadow-sm" placeholder="Filter by employee name...">
+    </div>
 
     <!-- Data Table -->
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-gray-700 overflow-hidden" data-aos="fade-up" data-aos-delay="100">
@@ -71,7 +80,6 @@ $currentMonthName = $monthNames[(int)$data['selectedMonth']];
                         <th class="px-4 py-3 text-teal-600 dark:text-teal-400 font-semibold">Bonus (MMK)</th>
                         <th class="px-4 py-3 text-rose-600 dark:text-rose-400 font-semibold">Leave Ded (MMK)</th>
                         <th class="px-4 py-3 text-rose-600 dark:text-rose-400 font-semibold">Late Ded (MMK)</th>
-                        <th class="px-4 py-3 text-rose-600 dark:text-rose-400 font-semibold">Other Ded (MMK)</th>
                         <th class="px-4 py-3 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 font-bold">Gross (MMK)</th>
                         <th class="px-4 py-3 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 font-bold">Net (MMK)</th>
                         <th class="px-4 py-3">Status</th>
@@ -81,28 +89,28 @@ $currentMonthName = $monthNames[(int)$data['selectedMonth']];
                 <tbody>
                     <?php if(empty($data['payrolls'])): ?>
                     <tr>
-                        <td colspan="19" class="px-4 py-8 text-center text-gray-500">
+                        <td colspan="18" class="px-4 py-8 text-center text-gray-500">
                             <i class="fa-solid fa-folder-open text-4xl mb-3 text-gray-300 dark:text-gray-600"></i>
                             <p>No payroll generated for this month yet.</p>
                         </td>
                     </tr>
                     <?php else: ?>
                         <?php foreach($data['payrolls'] as $p): ?>
-                        <tr class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors group">
+                        <tr x-show="searchQuery === '' || '<?= strtolower(addslashes($p['FirstName'] . ' ' . $p['LastName'])) ?>'.includes(searchQuery.toLowerCase())" class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors group">
                             <td class="px-4 py-3">
                                 <div class="flex items-center gap-3">
                                     <div class="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-blue-500/20 text-primary dark:text-blue-400 flex items-center justify-center font-bold text-xs ring-2 ring-white dark:ring-gray-800 group-hover:ring-primary/20 transition-all shadow-sm">
-                                        <?= strtoupper(substr($p['first_name'],0,1) . substr($p['last_name'],0,1)) ?>
+                                        <?= strtoupper(substr($p['FirstName'],0,1) . substr($p['LastName'],0,1)) ?>
                                     </div>
                                     <div>
-                                        <div class="font-bold text-gray-900 dark:text-white"><?= htmlspecialchars($p['first_name'] . ' ' . $p['last_name']) ?></div>
+                                        <div class="font-bold text-gray-900 dark:text-white"><?= htmlspecialchars($p['FirstName'] . ' ' . $p['LastName']) ?></div>
                                         <div class="text-xs text-primary font-medium">EMP-<?= htmlspecialchars($p['employee_code']) ?></div>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-4 py-3"><?= htmlspecialchars($p['department_name']) ?></td>
+                            <td class="px-4 py-3"><?= htmlspecialchars($p['DeptName']) ?></td>
                             <td class="px-4 py-3">N/A</td> <!-- Join pos query later if needed -->
-                            <td class="px-4 py-3 bg-gray-50 dark:bg-gray-800/30"><?= number_format($p['basic_salary']) ?></td>
+                            <td class="px-4 py-3 bg-gray-50 dark:bg-gray-800/30"><?= number_format($p['BasicSalary']) ?></td>
                             
                             <td class="px-4 py-3"><?= $p['present_days'] ?></td>
                             <td class="px-4 py-3"><?= $p['leave_days'] ?></td>
@@ -111,18 +119,18 @@ $currentMonthName = $monthNames[(int)$data['selectedMonth']];
                             <td class="px-4 py-3"><?= $p['late_days'] ?></td>
                             <td class="px-4 py-3"><?= number_format($p['ot_hours'] ?? 0, 1) ?></td>
                             
-                            <td class="px-4 py-3 text-orange-600 dark:text-orange-400"><?= number_format($p['ot_amount']) ?></td>
-                            <td class="px-4 py-3 text-teal-600 dark:text-teal-400"><?= number_format($p['bonus_amount']) ?></td>
+                            <td class="px-4 py-3 text-orange-600 dark:text-orange-400"><?= number_format($p['OvertimeAmount']) ?></td>
+                            <td class="px-4 py-3 text-teal-600 dark:text-teal-400"><?= number_format($p['BonousAmount']) ?></td>
                             
-                            <td class="px-4 py-3 text-rose-600 dark:text-rose-400"><?= number_format($p['leave_deduction_amount'] ?? 0) ?></td>
+                            <td class="px-4 py-3 text-rose-600 dark:text-rose-400"><?= number_format($p['LeaveDeductionAmount'] ?? 0) ?></td>
                             <td class="px-4 py-3 text-rose-600 dark:text-rose-400"><?= number_format($p['late_deduction_amount'] ?? 0) ?></td>
-                            <td class="px-4 py-3 text-rose-600 dark:text-rose-400"><?= number_format($p['other_deduction_amount'] ?? 0) ?></td>
                             
-                            <td class="px-4 py-3 bg-indigo-50 dark:bg-indigo-900/10 font-bold text-indigo-700 dark:text-indigo-400"><?= number_format($p['gross_salary']) ?></td>
-                            <td class="px-4 py-3 bg-emerald-50 dark:bg-emerald-900/10 font-bold text-emerald-700 dark:text-emerald-400 text-lg"><?= number_format($p['net_salary']) ?></td>
+                            <?php $grossSalary = $p['BasicSalary'] + $p['OvertimeAmount'] + $p['BonousAmount']; ?>
+                            <td class="px-4 py-3 bg-indigo-50 dark:bg-indigo-900/10 font-bold text-indigo-700 dark:text-indigo-400"><?= number_format($grossSalary) ?></td>
+                            <td class="px-4 py-3 bg-emerald-50 dark:bg-emerald-900/10 font-bold text-emerald-700 dark:text-emerald-400 text-lg"><?= number_format($p['NetSalary']) ?></td>
                             
                             <td class="px-4 py-3">
-                                <?php if($p['status'] === 'Paid'): ?>
+                                <?php if($p['Status'] === 'Paid'): ?>
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800/30 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span> Paid</span>
                                 <?php else: ?>
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800/30 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5"></span> Pending</span>
@@ -131,11 +139,11 @@ $currentMonthName = $monthNames[(int)$data['selectedMonth']];
                             
                             <td class="px-4 py-3 text-right">
                                 <div class="flex justify-end gap-2">
-                                    <a href="/payrollsystem/admin/payroll_slip/<?= $p['id'] ?>" target="_blank" class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors" title="Print Slip">
+                                    <a href="/payrollsystem/admin/payroll_slip/<?= $p['PayrollID'] ?>" target="_blank" class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors" title="Print Slip">
                                         <i class="fa-solid fa-print"></i>
                                     </a>
-                                    <?php if($p['status'] !== 'Paid'): ?>
-                                    <button @click="openPaymentModal(<?= $p['id'] ?>, '<?= addslashes(htmlspecialchars($p['first_name'] . ' ' . $p['last_name'])) ?>', <?= $p['net_salary'] ?>)" class="text-emerald-600 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-300 font-medium ml-2 transition-colors">
+                                    <?php if($p['Status'] !== 'Paid'): ?>
+                                    <button @click="openPaymentModal(<?= $p['PayrollID'] ?>, '<?= addslashes(htmlspecialchars($p['FirstName'] . ' ' . $p['LastName'])) ?>', <?= $p['NetSalary'] ?>)" class="text-emerald-600 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-300 font-medium ml-2 transition-colors">
                                         Pay
                                     </button>
                                     <?php endif; ?>

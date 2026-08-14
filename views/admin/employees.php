@@ -20,7 +20,7 @@
         <select class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-primary focus:border-primary block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
             <option value="">All Departments</option>
             <?php foreach($data['departments'] as $dept): ?>
-                <option value="<?= $dept['id'] ?>"><?= htmlspecialchars($dept['name']) ?></option>
+                <option value="<?= $dept['DeptID'] ?>"><?= htmlspecialchars($dept['DeptName']) ?></option>
             <?php endforeach; ?>
         </select>
     </div>
@@ -64,26 +64,26 @@
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-blue-500/20 text-primary dark:text-blue-400 flex items-center justify-center font-bold text-sm ring-2 ring-white dark:ring-gray-800 group-hover:ring-primary/20 transition-all shadow-sm">
-                                    <?= strtoupper(substr($emp['first_name'],0,1) . substr($emp['last_name'],0,1)) ?>
+                                    <?= strtoupper(substr($emp['FirstName'],0,1) . substr($emp['LastName'],0,1)) ?>
                                 </div>
                                 <div>
-                                    <div class="font-bold text-gray-900 dark:text-white"><?= htmlspecialchars($emp['first_name'] . ' ' . $emp['last_name']) ?></div>
-                                    <div class="text-xs text-primary font-medium">EMP-<?= htmlspecialchars($emp['employee_code']) ?></div>
+                                    <div class="font-bold text-gray-900 dark:text-white"><?= htmlspecialchars($emp['FirstName'] . ' ' . $emp['LastName']) ?></div>
+                                    <div class="text-xs text-primary font-medium">EMP-<?= htmlspecialchars(str_pad($emp['EmpID'], 4, '0', STR_PAD_LEFT)) ?></div>
                                 </div>
                             </div>
                         </td>
                         <td class="px-6 py-4">
-                            <div class="font-medium text-gray-900 dark:text-gray-300"><?= htmlspecialchars($emp['department_name']) ?></div>
-                            <div class="text-xs text-gray-500"><?= htmlspecialchars($emp['position_name']) ?></div>
+                            <div class="font-medium text-gray-900 dark:text-gray-300"><?= htmlspecialchars($emp['DeptName'] ?? 'No Department') ?></div>
+                            <div class="text-xs text-gray-500"><?= htmlspecialchars($emp['PositionName'] ?? 'No Position') ?></div>
                         </td>
                         <td class="px-6 py-4">
-                            <div class="text-sm text-gray-900 dark:text-gray-300 flex items-center"><i class="fa-regular fa-envelope mr-1.5 text-gray-400"></i> <?= htmlspecialchars($emp['email']) ?></div>
-                            <?php if(!empty($emp['phone'])): ?>
-                            <div class="text-xs text-gray-500 mt-1 flex items-center"><i class="fa-solid fa-phone mr-1.5 text-gray-400"></i> <?= htmlspecialchars($emp['phone']) ?></div>
+                            <div class="text-sm text-gray-900 dark:text-gray-300 flex items-center"><i class="fa-regular fa-envelope mr-1.5 text-gray-400"></i> <?= htmlspecialchars($emp['Email']) ?></div>
+                            <?php if(!empty($emp['PhoneNumber'])): ?>
+                            <div class="text-xs text-gray-500 mt-1 flex items-center"><i class="fa-solid fa-phone mr-1.5 text-gray-400"></i> <?= htmlspecialchars($emp['PhoneNumber']) ?></div>
                             <?php endif; ?>
                         </td>
                         <td class="px-6 py-4">
-                            <?php if($emp['status'] === 'Active'): ?>
+                            <?php if($emp['Status'] === 'Active'): ?>
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800/30 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span> Active</span>
                             <?php else: ?>
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800/30 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-rose-500 mr-1.5"></span> Inactive</span>
@@ -91,17 +91,17 @@
                         </td>
                         <td class="px-6 py-4 text-right">
                             <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <a href="/payrollsystem/admin/employee/<?= $emp['id'] ?>" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50 transition-colors tooltip" title="View Profile">
+                                <a href="/payrollsystem/admin/employee/<?= $emp['EmpID'] ?>" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50 transition-colors tooltip" title="View Profile">
                                     <i class="fa-solid fa-eye"></i>
                                 </a>
-                                <a href="/payrollsystem/admin/employee/<?= $emp['id'] ?>#edit" class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50 transition-colors tooltip" title="Edit Employee">
+                                <a href="/payrollsystem/admin/employee/<?= $emp['EmpID'] ?>#edit" class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50 transition-colors tooltip" title="Edit Employee">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </a>
                                 <form action="/payrollsystem/admin/employees" method="POST" class="inline m-0 p-0" onsubmit="return confirm('Are you sure you want to delete this employee?');">
     <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
 
                                     <input type="hidden" name="action" value="delete">
-                                    <input type="hidden" name="id" value="<?= $emp['id'] ?>">
+                                    <input type="hidden" name="id" value="<?= $emp['EmpID'] ?>">
                                     <button type="submit" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center hover:bg-rose-100 dark:bg-rose-900/30 dark:text-rose-400 dark:hover:bg-rose-900/50 transition-colors tooltip" title="Delete">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
@@ -176,7 +176,7 @@
                         <div class="grid grid-cols-2 gap-4 bg-gray-50 dark:bg-gray-800/50 p-5 rounded-xl border border-gray-100 dark:border-gray-700">
                             <div class="col-span-2 hidden">
                                 <label for="employee_code" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Employee Code</label>
-                                <input type="text" name="employee_code" id="employee_code" class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm text-sm" value="AUTO">
+                                <input type="hidden" name="employee_code" id="employee_code" class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm text-sm" value="AUTO">
                             </div>
                             <div>
                                 <label for="first_name" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">First Name</label>
@@ -205,7 +205,7 @@
                                 <select name="department_id" id="department_id" required class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm text-sm appearance-none cursor-pointer">
                                     <option value="">Select Department</option>
                                     <?php foreach($data['departments'] as $dept): ?>
-                                        <option value="<?= $dept['id'] ?>"><?= htmlspecialchars($dept['name']) ?></option>
+                                        <option value="<?= $dept['DeptID'] ?>"><?= htmlspecialchars($dept['DeptName']) ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
@@ -214,7 +214,7 @@
                                 <select name="position_id" id="position_id" required class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm text-sm appearance-none cursor-pointer">
                                     <option value="">Select Position</option>
                                     <?php foreach($data['positions'] as $pos): ?>
-                                        <option value="<?= $pos['id'] ?>" data-department-id="<?= $pos['department_id'] ?>" data-basic-salary="<?= $pos['basic_salary'] ?? 0 ?>"><?= htmlspecialchars($pos['name']) ?></option>
+                                        <option value="<?= $pos['PositionID'] ?>" data-department-id="<?= $pos['DeptID'] ?>" data-basic-salary="<?= $pos['BasicSalary'] ?? 0 ?>"><?= htmlspecialchars($pos['PositionName']) ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>

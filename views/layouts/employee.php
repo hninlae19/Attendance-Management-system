@@ -114,13 +114,13 @@
                     <div class="relative" x-data="{ userOpen: false }">
                         <button @click="userOpen = !userOpen" class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600">
                             <span class="sr-only">Open user menu</span>
-                            <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold"><?= htmlspecialchars(strtoupper(substr($_SESSION['first_name'] ?? 'U', 0, 1))) ?></div>
+                            <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold"><?= htmlspecialchars(strtoupper(substr($_SESSION['FirstName'] ?? 'U', 0, 1))) ?></div>
                         </button>
                         <!-- Dropdown -->
                         <div x-show="userOpen" @click.away="userOpen = false" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20 dark:bg-gray-800 border dark:border-gray-700" x-cloak>
                             <div class="px-4 py-3">
-                                <p class="text-sm text-gray-900 dark:text-white"><?= htmlspecialchars(($_SESSION['first_name'] ?? '') . ' ' . ($_SESSION['last_name'] ?? 'User')) ?></p>
-                                <p class="text-sm font-medium text-gray-500 truncate dark:text-gray-400"><?= htmlspecialchars($_SESSION['email'] ?? '') ?></p>
+                                <p class="text-sm text-gray-900 dark:text-white"><?= htmlspecialchars(($_SESSION['FirstName'] ?? '') . ' ' . ($_SESSION['LastName'] ?? 'User')) ?></p>
+                                <p class="text-sm font-medium text-gray-500 truncate dark:text-gray-400"><?= htmlspecialchars($_SESSION['Email'] ?? '') ?></p>
                             </div>
                             <ul class="py-1">
                                 <li>

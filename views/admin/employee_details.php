@@ -26,12 +26,12 @@
                 <i class="fa-solid fa-user text-4xl text-gray-400"></i>
             </div>
             
-            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-1"><?= htmlspecialchars($data['employee']['first_name'] . ' ' . $data['employee']['last_name']) ?></h2>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4"><?= htmlspecialchars($data['employee']['position_name']) ?> &bull; <?= htmlspecialchars($data['employee']['department_name']) ?></p>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-1"><?= htmlspecialchars($data['employee']['FirstName'] . ' ' . $data['employee']['LastName']) ?></h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4"><?= htmlspecialchars($data['employee']['PositionName'] ?? 'No Position') ?> &bull; <?= htmlspecialchars($data['employee']['DeptName'] ?? 'No Department') ?></p>
             
-            <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium <?= $data['employee']['status'] === 'Active' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' ?>">
-                <span class="w-2 h-2 rounded-full mr-2 <?= $data['employee']['status'] === 'Active' ? 'bg-green-500' : 'bg-red-500' ?>"></span>
-                <?= htmlspecialchars($data['employee']['status']) ?>
+            <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium <?= $data['employee']['Status'] === 'Active' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' ?>">
+                <span class="w-2 h-2 rounded-full mr-2 <?= $data['employee']['Status'] === 'Active' ? 'bg-green-500' : 'bg-red-500' ?>"></span>
+                <?= htmlspecialchars($data['employee']['Status']) ?>
             </div>
             
             <hr class="my-6 border-gray-100 dark:border-gray-700">
@@ -39,11 +39,11 @@
             <div class="flex justify-between text-sm text-left px-2">
                 <div>
                     <p class="text-gray-500 dark:text-gray-400 mb-1">Employee ID</p>
-                    <p class="font-semibold text-gray-900 dark:text-white"><?= htmlspecialchars($data['employee']['employee_code']) ?></p>
+                    <p class="font-semibold text-gray-900 dark:text-white">EMP-<?= htmlspecialchars(str_pad($data['employee']['EmpID'], 4, '0', STR_PAD_LEFT)) ?></p>
                 </div>
                 <div class="text-right">
                     <p class="text-gray-500 dark:text-gray-400 mb-1">Join Date</p>
-                    <p class="font-semibold text-gray-900 dark:text-white"><?= date('M j, Y', strtotime($data['employee']['join_date'])) ?></p>
+                    <p class="font-semibold text-gray-900 dark:text-white"><?= date('M j, Y', strtotime($data['employee']['JoinDate'])) ?></p>
                 </div>
             </div>
         </div>
@@ -59,23 +59,23 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Full Name</p>
-                    <p class="text-gray-900 dark:text-white font-medium"><?= htmlspecialchars($data['employee']['first_name'] . ' ' . $data['employee']['last_name']) ?></p>
+                    <p class="text-gray-900 dark:text-white font-medium"><?= htmlspecialchars($data['employee']['FirstName'] . ' ' . $data['employee']['LastName']) ?></p>
                 </div>
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Email Address (Login)</p>
-                    <p class="text-gray-900 dark:text-white font-medium"><?= htmlspecialchars($data['employee']['email']) ?></p>
+                    <p class="text-gray-900 dark:text-white font-medium"><?= htmlspecialchars($data['employee']['Email']) ?></p>
                 </div>
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Phone Number</p>
-                    <p class="text-gray-900 dark:text-white font-medium"><?= !empty($data['employee']['phone']) ? htmlspecialchars($data['employee']['phone']) : '<span class="text-gray-400 italic">Not provided</span>' ?></p>
+                    <p class="text-gray-900 dark:text-white font-medium"><?= !empty($data['employee']['PhoneNumber']) ? htmlspecialchars($data['employee']['PhoneNumber']) : '<span class="text-gray-400 italic">Not provided</span>' ?></p>
                 </div>
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Residential Address</p>
-                    <p class="text-gray-900 dark:text-white font-medium"><?= !empty($data['employee']['address']) ? htmlspecialchars($data['employee']['address']) : '<span class="text-gray-400 italic">Not provided</span>' ?></p>
+                    <p class="text-gray-900 dark:text-white font-medium"><?= !empty($data['employee']['Address']) ? htmlspecialchars($data['employee']['Address']) : '<span class="text-gray-400 italic">Not provided</span>' ?></p>
                 </div>
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Gender</p>
-                    <p class="text-gray-900 dark:text-white font-medium"><?= htmlspecialchars($data['employee']['gender'] ?? 'Other') ?></p>
+                    <p class="text-gray-900 dark:text-white font-medium"><?= htmlspecialchars($data['employee']['Gender'] ?? 'Other') ?></p>
                 </div>
             </div>
         </div>
@@ -88,19 +88,19 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Department</p>
-                    <p class="text-gray-900 dark:text-white font-medium"><?= htmlspecialchars($data['employee']['department_name']) ?></p>
+                    <p class="text-gray-900 dark:text-white font-medium"><?= htmlspecialchars($data['employee']['DeptName'] ?? 'No Department') ?></p>
                 </div>
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Position / Title</p>
-                    <p class="text-gray-900 dark:text-white font-medium"><?= htmlspecialchars($data['employee']['position_name']) ?></p>
+                    <p class="text-gray-900 dark:text-white font-medium"><?= htmlspecialchars($data['employee']['PositionName'] ?? 'No Position') ?></p>
                 </div>
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Date of Joining</p>
-                    <p class="text-gray-900 dark:text-white font-medium"><?= date('F j, Y', strtotime($data['employee']['join_date'])) ?></p>
+                    <p class="text-gray-900 dark:text-white font-medium"><?= date('F j, Y', strtotime($data['employee']['JoinDate'])) ?></p>
                 </div>
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Basic Salary</p>
-                    <p class="text-emerald-600 dark:text-emerald-400 font-bold"><?= number_format($data['employee']['basic_salary']) ?> MMK</p>
+                    <p class="text-emerald-600 dark:text-emerald-400 font-bold"><?= number_format($data['employee']['BasicSalary']) ?> MMK</p>
                 </div>
             </div>
         </div>
@@ -116,25 +116,27 @@
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
-        <form action="/payrollsystem/admin/employee/<?= $data['employee']['id'] ?>" method="POST" class="p-6">
+        <form action="/payrollsystem/admin/employee/<?= $data['employee']['EmpID'] ?>" method="POST" class="p-6">
+    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+
             <input type="hidden" name="action" value="edit">
 
             <h4 class="font-semibold text-gray-900 dark:text-white mb-4 border-b pb-2 dark:border-gray-700">Personal Details</h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
                     <label for="first_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">First Name</label>
-                    <input type="text" name="first_name" id="first_name" value="<?= htmlspecialchars($data['employee']['first_name']) ?>" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
+                    <input type="text" name="first_name" id="first_name" value="<?= htmlspecialchars($data['employee']['FirstName']) ?>" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
                 </div>
                 <div>
                     <label for="last_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Last Name</label>
-                    <input type="text" name="last_name" id="last_name" value="<?= htmlspecialchars($data['employee']['last_name']) ?>" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
+                    <input type="text" name="last_name" id="last_name" value="<?= htmlspecialchars($data['employee']['LastName']) ?>" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
                 </div>
                 <div class="md:col-span-2">
                     <label for="gender" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Gender</label>
                     <select name="gender" id="gender" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
-                        <option value="Other" <?= ($data['employee']['gender'] ?? '') === 'Other' ? 'selected' : '' ?>>Other</option>
-                        <option value="Male" <?= ($data['employee']['gender'] ?? '') === 'Male' ? 'selected' : '' ?>>Male</option>
-                        <option value="Female" <?= ($data['employee']['gender'] ?? '') === 'Female' ? 'selected' : '' ?>>Female</option>
+                        <option value="Other" <?= ($data['employee']['Gender'] ?? '') === 'Other' ? 'selected' : '' ?>>Other</option>
+                        <option value="Male" <?= ($data['employee']['Gender'] ?? '') === 'Male' ? 'selected' : '' ?>>Male</option>
+                        <option value="Female" <?= ($data['employee']['Gender'] ?? '') === 'Female' ? 'selected' : '' ?>>Female</option>
                     </select>
                 </div>
             </div>
@@ -145,7 +147,7 @@
                     <label for="department_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Department</label>
                     <select name="department_id" id="department_id" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
                         <?php foreach($data['departments'] as $dept): ?>
-                            <option value="<?= $dept['id'] ?>" <?= $dept['id'] == $data['employee']['department_id'] ? 'selected' : '' ?>><?= htmlspecialchars($dept['name']) ?></option>
+                            <option value="<?= $dept['DeptID'] ?>" <?= $dept['DeptID'] == $data['employee']['DeptID'] ? 'selected' : '' ?>><?= htmlspecialchars($dept['DeptName']) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -153,36 +155,48 @@
                     <label for="position_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Position</label>
                     <select name="position_id" id="position_id" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
                         <?php foreach($data['positions'] as $pos): ?>
-                            <option value="<?= $pos['id'] ?>" data-department-id="<?= $pos['department_id'] ?>" data-basic-salary="<?= $pos['basic_salary'] ?? 0 ?>" <?= $pos['id'] == $data['employee']['position_id'] ? 'selected' : '' ?>><?= htmlspecialchars($pos['name']) ?></option>
+                            <option value="<?= $pos['PositionID'] ?>" data-department-id="<?= $pos['DeptID'] ?>" data-basic-salary="<?= $pos['BasicSalary'] ?? 0 ?>" <?= $pos['PositionID'] == $data['employee']['PositionID'] ? 'selected' : '' ?>><?= htmlspecialchars($pos['PositionName']) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
                 <div>
                     <label for="join_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Join Date</label>
-                    <input type="date" name="join_date" id="join_date" value="<?= htmlspecialchars($data['employee']['join_date']) ?>" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
+                    <input type="date" name="join_date" id="join_date" value="<?= !empty($data['employee']['JoinDate']) ? date('Y-m-d', strtotime($data['employee']['JoinDate'])) : '' ?>" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
                 </div>
                 <div>
                     <label for="basic_salary" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Basic Salary</label>
-                    <input type="number" name="basic_salary" id="basic_salary" value="<?= htmlspecialchars($data['employee']['basic_salary']) ?>" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
+                    <input type="number" name="basic_salary" id="basic_salary" value="<?= htmlspecialchars($data['employee']['BasicSalary']) ?>" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
                 </div>
                 <div>
                     <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Account Status</label>
                     <select name="status" id="status" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
-                        <option value="Active" <?= $data['employee']['status'] === 'Active' ? 'selected' : '' ?>>Active</option>
-                        <option value="Inactive" <?= $data['employee']['status'] === 'Inactive' ? 'selected' : '' ?>>Inactive</option>
+                        <option value="Active" <?= $data['employee']['Status'] === 'Active' ? 'selected' : '' ?>>Active</option>
+                        <option value="Inactive" <?= $data['employee']['Status'] === 'Inactive' ? 'selected' : '' ?>>Inactive</option>
                     </select>
                 </div>
             </div>
             
+            <h4 class="font-semibold text-gray-900 dark:text-white mb-4 border-b pb-2 dark:border-gray-700">Account Security</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
+                    <input type="email" name="email" id="email" value="<?= htmlspecialchars($data['employee']['Email']) ?>" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
+                </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">New Password (leave blank to keep current)</label>
+                    <input type="password" name="password" id="password" placeholder="Enter new password..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
+                </div>
+            </div>
+
             <h4 class="font-semibold text-gray-900 dark:text-white mb-4 border-b pb-2 dark:border-gray-700">Contact Details</h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone</label>
-                    <input type="text" name="phone" id="phone" value="<?= htmlspecialchars($data['employee']['phone']) ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
+                    <input type="text" name="phone" id="phone" value="<?= htmlspecialchars($data['employee']['PhoneNumber']) ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
                 </div>
                 <div>
                     <label for="address" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Address</label>
-                    <input type="text" name="address" id="address" value="<?= htmlspecialchars($data['employee']['address']) ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
+                    <input type="text" name="address" id="address" value="<?= htmlspecialchars($data['employee']['Address']) ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
                 </div>
             </div>
 

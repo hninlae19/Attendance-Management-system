@@ -14,7 +14,6 @@ class AuthController extends Controller {
     public function login() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $this->validateCsrfToken($_POST['csrf_token'] ?? '');
-            $userModel = $this->model('User');
             
             $email = trim($_POST['email'] ?? '');
             $password = $_POST['password'] ?? '';
@@ -24,27 +23,30 @@ class AuthController extends Controller {
                 return;
             }
 
-            $result = $userModel->login($email, $password);
-
-            if ($result === true) {
-                $_SESSION['user_id'] = $userModel->id;
-                $_SESSION['role'] = $userModel->role;
-                $_SESSION['email'] = $userModel->email;
-
-                if ($userModel->role === 'Employee') {
-                    $profile = $userModel->getEmployeeProfile();
-                    if($profile) {
-                        $_SESSION['employee_id'] = $profile['employee_id'];
-                        $_SESSION['first_name'] = $profile['first_name'];
-                        $_SESSION['last_name'] = $profile['last_name'];
-                    }
-                    $this->redirect('/payrollsystem/employee');
-                } else {
-                    $this->redirect('/payrollsystem/admin');
-                }
-            } else {
-                $this->view('auth/login', ['title' => 'HRMS Login', 'error' => $result]);
+            // Try Admin login first
+            $adminModel = $this->model('Admin');
+            if ($adminModel->login($email, $password)) {
+                $_SESSION['user_id'] = $adminModel->AdminID;
+                $_SESSION['role'] = 'Admin';
+                $_SESSION['email'] = $adminModel->Email;
+                $this->redirect('/payrollsystem/admin');
+                return;
             }
+
+            // Try Employee login next
+            $employeeModel = $this->model('Employee');
+            if ($employeeModel->login($email, $password)) {
+                $_SESSION['user_id'] = $employeeModel->EmpID;
+                $_SESSION['employee_id'] = $employeeModel->EmpID;
+                $_SESSION['role'] = 'Employee';
+                $_SESSION['email'] = $email;
+                $_SESSION['first_name'] = $employeeModel->FirstName;
+                $_SESSION['last_name'] = $employeeModel->LastName;
+                $this->redirect('/payrollsystem/employee');
+                return;
+            }
+
+            $this->view('auth/login', ['title' => 'HRMS Login', 'error' => 'Invalid email or password.']);
         } else {
             $this->index();
         }

@@ -1,18 +1,16 @@
 <?php
+require_once __DIR__ . '/../config/database.php';
+
 class LeaveType {
     private $conn;
-    private $table = 'leave_types';
+    private $table = 'LeaveTypes';
 
-    public $id;
-    public $name;
-    public $days_allowed;
-    public $is_paid;
-    public $service_period_months;
-    public $gender_restriction;
-    public $carry_forward;
-    public $attachment_required;
-    public $approval_workflow;
-    public $is_active;
+    public $LeaveTypeID;
+    public $LeaveType;
+    public $DaysAllowed;
+    public $IsPaid;
+    public $DeductionRate;
+    public $DurationMonths;
 
     public function __construct() {
         $database = new Database();
@@ -20,97 +18,56 @@ class LeaveType {
     }
 
     public function getAll() {
-        $query = "SELECT * FROM " . $this->table . " ORDER BY is_active DESC, name ASC";
+        $query = "SELECT * FROM " . $this->table;
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    public function getActive() {
-        $query = "SELECT * FROM " . $this->table . " WHERE is_active = 1 ORDER BY name ASC";
-        $stmt = $this->conn->prepare($query);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    public function getById($id) {
-        $query = "SELECT * FROM " . $this->table . " WHERE id = :id LIMIT 0,1";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':id', $id);
-        $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public function create() {
-        $query = "INSERT INTO " . $this->table . " SET 
-                  name=:name, days_allowed=:days_allowed, is_paid=:is_paid,
-                  service_period_months=:service_period_months, gender_restriction=:gender_restriction,
-                  carry_forward=:carry_forward, attachment_required=:attachment_required,
-                  approval_workflow=:approval_workflow, is_active=:is_active";
+        $query = "INSERT INTO " . $this->table . " 
+                  SET LeaveType = :name, DaysAllowed = :days, IsPaid = :paid, DeductionRate = :rate, DurationMonths = :duration";
         $stmt = $this->conn->prepare($query);
-        
-        $this->name = htmlspecialchars(strip_tags($this->name));
-        $this->days_allowed = htmlspecialchars(strip_tags($this->days_allowed));
-        
-        $stmt->bindParam(":name", $this->name);
-        $stmt->bindParam(":days_allowed", $this->days_allowed);
-        $stmt->bindParam(":is_paid", $this->is_paid, PDO::PARAM_BOOL);
-        $stmt->bindParam(":service_period_months", $this->service_period_months);
-        $stmt->bindParam(":gender_restriction", $this->gender_restriction);
-        $stmt->bindParam(":carry_forward", $this->carry_forward, PDO::PARAM_BOOL);
-        $stmt->bindParam(":attachment_required", $this->attachment_required, PDO::PARAM_BOOL);
-        $stmt->bindParam(":approval_workflow", $this->approval_workflow);
-        $stmt->bindParam(":is_active", $this->is_active, PDO::PARAM_BOOL);
-        
-        if($stmt->execute()) {
-            return true;
-        }
-        return false;
+        $stmt->bindParam(':name', $this->LeaveType);
+        $stmt->bindParam(':days', $this->DaysAllowed);
+        $stmt->bindParam(':paid', $this->IsPaid);
+        $stmt->bindParam(':rate', $this->DeductionRate);
+        $stmt->bindParam(':duration', $this->DurationMonths);
+        return $stmt->execute();
     }
 
     public function update() {
-        $query = "UPDATE " . $this->table . " SET 
-                  name=:name, days_allowed=:days_allowed, is_paid=:is_paid,
-                  service_period_months=:service_period_months, gender_restriction=:gender_restriction,
-                  carry_forward=:carry_forward, attachment_required=:attachment_required,
-                  approval_workflow=:approval_workflow, is_active=:is_active
-                  WHERE id=:id";
+        $query = "UPDATE " . $this->table . " 
+                  SET LeaveType = :name, DaysAllowed = :days, IsPaid = :paid, DeductionRate = :rate, DurationMonths = :duration 
+                  WHERE LeaveTypeID = :id";
         $stmt = $this->conn->prepare($query);
-        
-        $this->name = htmlspecialchars(strip_tags($this->name));
-        $this->days_allowed = htmlspecialchars(strip_tags($this->days_allowed));
-        $this->id = htmlspecialchars(strip_tags($this->id));
-        
-        $stmt->bindParam(":name", $this->name);
-        $stmt->bindParam(":days_allowed", $this->days_allowed);
-        $stmt->bindParam(":is_paid", $this->is_paid, PDO::PARAM_BOOL);
-        $stmt->bindParam(":service_period_months", $this->service_period_months);
-        $stmt->bindParam(":gender_restriction", $this->gender_restriction);
-        $stmt->bindParam(":carry_forward", $this->carry_forward, PDO::PARAM_BOOL);
-        $stmt->bindParam(":attachment_required", $this->attachment_required, PDO::PARAM_BOOL);
-        $stmt->bindParam(":approval_workflow", $this->approval_workflow);
-        $stmt->bindParam(":is_active", $this->is_active, PDO::PARAM_BOOL);
-        $stmt->bindParam(":id", $this->id);
-        
-        if($stmt->execute()) {
-            return true;
-        }
-        return false;
+        $stmt->bindParam(':name', $this->LeaveType);
+        $stmt->bindParam(':days', $this->DaysAllowed);
+        $stmt->bindParam(':paid', $this->IsPaid);
+        $stmt->bindParam(':rate', $this->DeductionRate);
+        $stmt->bindParam(':duration', $this->DurationMonths);
+        $stmt->bindParam(':id', $this->LeaveTypeID);
+        return $stmt->execute();
     }
 
-    public function delete() {
-        // Soft delete
-        $query = "UPDATE " . $this->table . " SET is_active = 0 WHERE id=:id";
+    public function delete($id) {
+        $query = "DELETE FROM " . $this->table . " WHERE LeaveTypeID = :id";
         $stmt = $this->conn->prepare($query);
-        $this->id = htmlspecialchars(strip_tags($this->id));
-        $stmt->bindParam(":id", $this->id);
-        try {
-            if($stmt->execute()) {
-                return true;
-            }
-        } catch(PDOException $e) {
-            return false;
+        $stmt->bindParam(':id', $id);
+        return $stmt->execute();
+    }
+
+    public function nameExists($name, $excludeId = null) {
+        $query = "SELECT COUNT(*) FROM " . $this->table . " WHERE LeaveType = :name";
+        if ($excludeId) {
+            $query .= " AND LeaveTypeID != :id";
         }
-        return false;
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':name', $name);
+        if ($excludeId) {
+            $stmt->bindParam(':id', $excludeId);
+        }
+        $stmt->execute();
+        return $stmt->fetchColumn() > 0;
     }
 }

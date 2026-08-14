@@ -5,6 +5,16 @@
     </button>
 </div>
 
+<?php if(isset($_GET['error']) && $_GET['error'] === 'duplicate'): ?>
+<div class="mb-6 p-4 rounded-lg bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 flex items-start">
+    <i class="fa-solid fa-circle-exclamation text-red-500 mt-0.5 mr-3"></i>
+    <div>
+        <h4 class="text-sm font-bold text-red-800 dark:text-red-400">Save Failed</h4>
+        <p class="text-sm text-red-600 dark:text-red-300 mt-1">A position with this name already exists. Please choose a unique name.</p>
+    </div>
+</div>
+<?php endif; ?>
+
 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
     <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
         <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -24,17 +34,17 @@
             <?php else: ?>
                 <?php foreach($data['positions'] as $pos): ?>
                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
-                    <td class="px-6 py-4"><?= $pos['id'] ?></td>
-                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white"><?= htmlspecialchars($pos['name']) ?></td>
-                    <td class="px-6 py-4"><?= htmlspecialchars($pos['department_name']) ?></td>
-                    <td class="px-6 py-4"><?= number_format($pos['basic_salary'] ?? 0, 2) ?> MMK</td>
+                    <td class="px-6 py-4"><?= $pos['PositionID'] ?></td>
+                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white"><?= htmlspecialchars($pos['PositionName']) ?></td>
+                    <td class="px-6 py-4"><?= htmlspecialchars($pos['DeptName']) ?></td>
+                    <td class="px-6 py-4"><?= number_format($pos['BasicSalary'] ?? 0, 2) ?> MMK</td>
                     <td class="px-6 py-4 text-right space-x-2">
-                        <button onclick="editPosition(<?= $pos['id'] ?>, '<?= htmlspecialchars(addslashes($pos['name'])) ?>', <?= $pos['department_id'] ?>, <?= $pos['basic_salary'] ?? 0 ?>)" class="font-medium text-blue-600 dark:text-blue-500 hover:underline"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+                        <button onclick="editPosition(<?= $pos['PositionID'] ?>, '<?= htmlspecialchars(addslashes($pos['PositionName'])) ?>', <?= $pos['DeptID'] ?>, <?= $pos['BasicSalary'] ?? 0 ?>)" class="font-medium text-blue-600 dark:text-blue-500 hover:underline"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
                         <form action="/payrollsystem/admin/positions" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this position?');">
     <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
 
                             <input type="hidden" name="action" value="delete">
-                            <input type="hidden" name="id" value="<?= $pos['id'] ?>">
+                            <input type="hidden" name="id" value="<?= $pos['PositionID'] ?>">
                             <button type="submit" class="font-medium text-red-600 dark:text-red-500 hover:underline"><i class="fa-solid fa-trash"></i> Delete</button>
                         </form>
                     </td>
@@ -67,7 +77,7 @@
                 <select name="department_id" id="department_id" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
                     <option value="">Select Department</option>
                     <?php foreach($data['departments'] as $dept): ?>
-                        <option value="<?= $dept['id'] ?>"><?= htmlspecialchars($dept['name']) ?></option>
+                        <option value="<?= $dept['DeptID'] ?>"><?= htmlspecialchars($dept['DeptName']) ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -105,7 +115,7 @@
                 <label for="edit_department_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Department</label>
                 <select name="department_id" id="edit_department_id" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
                     <?php foreach($data['departments'] as $dept): ?>
-                        <option value="<?= $dept['id'] ?>"><?= htmlspecialchars($dept['name']) ?></option>
+                        <option value="<?= $dept['DeptID'] ?>"><?= htmlspecialchars($dept['DeptName']) ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>

@@ -14,8 +14,9 @@
             <thead class="text-xs text-gray-700 uppercase bg-gray-50/50 dark:bg-gray-700/50 dark:text-gray-400">
                 <tr>
                     <th scope="col" class="px-6 py-4">Employee</th>
+                    <th scope="col" class="px-6 py-4">Department</th>
                     <th scope="col" class="px-6 py-4">Amount</th>
-                    <th scope="col" class="px-6 py-4">Type / Reason</th>
+                    <th scope="col" class="px-6 py-4">Type</th>
                     <th scope="col" class="px-6 py-4">Date</th>
                     <th scope="col" class="px-6 py-4 text-right">Action</th>
                 </tr>
@@ -32,25 +33,27 @@
                     <?php foreach($data['bonuses'] as $bonus): ?>
                     <tr class="bg-white/50 border-b dark:bg-gray-800/50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                         <td class="px-6 py-4">
-                            <div class="font-bold text-gray-900 dark:text-white"><?= htmlspecialchars(($bonus['first_name'] ?? '') . ' ' . ($bonus['last_name'] ?? '')) ?></div>
-                            <div class="text-xs text-gray-500 mt-1"><?= htmlspecialchars($bonus['employee_code'] ?? '') ?></div>
+                            <div class="font-bold text-gray-900 dark:text-white"><?= htmlspecialchars(($bonus['FirstName'] ?? '') . ' ' . ($bonus['LastName'] ?? '')) ?></div>
+                            <div class="text-xs text-gray-500 mt-1">EMP-<?= str_pad($bonus['EmpID'] ?? 0, 5, '0', STR_PAD_LEFT) ?></div>
+                        </td>
+                        <td class="px-6 py-4 font-medium text-gray-900 dark:text-gray-300">
+                            <?= htmlspecialchars($bonus['DeptName'] ?? 'N/A') ?>
                         </td>
                         <td class="px-6 py-4 font-bold text-teal-600 dark:text-teal-400">
-                            <?= number_format($bonus['amount'] ?? 0) ?> MMK
+                            <?= number_format($bonus['Amount'] ?? 0) ?> MMK
                         </td>
                         <td class="px-6 py-4">
-                            <span class="px-2.5 py-1 text-xs font-medium bg-teal-100 text-teal-800 rounded-full dark:bg-teal-900 dark:text-teal-300"><?= htmlspecialchars($bonus['type'] ?? '') ?></span>
-                            <div class="text-xs text-gray-500 mt-1"><?= htmlspecialchars($bonus['reason'] ?? '') ?></div>
+                            <span class="px-2.5 py-1 text-xs font-medium bg-teal-100 text-teal-800 rounded-full dark:bg-teal-900 dark:text-teal-300"><?= htmlspecialchars($bonus['BonusType'] ?? '') ?></span>
                         </td>
                         <td class="px-6 py-4">
-                            <div class="font-semibold text-gray-900 dark:text-gray-300"><?= date('M j, Y', strtotime($bonus['date'] ?? 'now')) ?></div>
+                            <div class="font-semibold text-gray-900 dark:text-gray-300"><?= date('M j, Y', strtotime($bonus['BonusDate'] ?? 'now')) ?></div>
                         </td>
                         <td class="px-6 py-4 text-right">
                             <form action="/payrollsystem/admin/bonuses" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this bonus?');">
     <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
 
                                 <input type="hidden" name="action" value="delete">
-                                <input type="hidden" name="id" value="<?= $bonus['id'] ?>">
+                                <input type="hidden" name="id" value="<?= $bonus['EmpBonousID'] ?>">
                                 <button type="submit" class="font-medium text-red-600 dark:text-red-500 hover:underline"><i class="fa-solid fa-trash-can"></i></button>
                             </form>
                         </td>
@@ -81,8 +84,8 @@
                 <select name="employee_id" id="employee_id" required class="w-full px-4 py-2 bg-white/50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm transition-colors">
                     <option value="">Choose Employee...</option>
                     <?php foreach($data['employees'] as $emp): ?>
-                        <?php if($emp['status'] === 'Active'): ?>
-                            <option value="<?= $emp['id'] ?>"><?= htmlspecialchars($emp['first_name'] . ' ' . $emp['last_name']) ?> (<?= htmlspecialchars($emp['employee_code']) ?>)</option>
+                        <?php if($emp['Status'] === 'Active'): ?>
+                            <option value="<?= $emp['EmpID'] ?>"><?= htmlspecialchars($emp['FirstName'] . ' ' . $emp['LastName']) ?> (EMP-<?= str_pad($emp['EmpID'], 5, '0', STR_PAD_LEFT) ?>)</option>
                         <?php endif; ?>
                     <?php endforeach; ?>
                 </select>

@@ -28,7 +28,7 @@ CREATE TABLE `users` (
   `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `role` enum('Admin','Employee') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Employee',
   `status` enum('Active','Inactive') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Active',
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -43,7 +43,7 @@ DROP TABLE IF EXISTS `departments`;
 CREATE TABLE `departments` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -59,7 +59,7 @@ CREATE TABLE `positions` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `department_id` int NOT NULL,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
   PRIMARY KEY (`id`),
   KEY `department_id` (`department_id`),
   CONSTRAINT `positions_ibfk_1` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`) ON DELETE CASCADE
@@ -84,7 +84,7 @@ CREATE TABLE `employees` (
   `join_date` date NOT NULL,
   `phone` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `address` text COLLATE utf8mb4_unicode_ci,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
   PRIMARY KEY (`id`),
   UNIQUE KEY `employee_code` (`employee_code`),
   UNIQUE KEY `user_id_unique` (`user_id`),
@@ -130,7 +130,7 @@ CREATE TABLE `settings` (
   `late_deduction_rules` text COLLATE utf8mb4_unicode_ci,
   `excess_paid_leave_deduction_rules` text COLLATE utf8mb4_unicode_ci,
   `custom_deduction_rules` text COLLATE utf8mb4_unicode_ci,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -147,7 +147,7 @@ CREATE TABLE `leave_types` (
   `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `days_allowed` int NOT NULL,
   `is_paid` tinyint(1) NOT NULL DEFAULT '1',
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -167,7 +167,7 @@ CREATE TABLE `attendance` (
   `working_hours` decimal(5,2) DEFAULT NULL,
   `status` enum('Present','Late','Half Day','Absent','Paid Leave','Unpaid Leave','Holiday','N/A') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Absent',
   `is_auto_checkout` tinyint(1) NOT NULL DEFAULT '0',
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
   PRIMARY KEY (`id`),
   UNIQUE KEY `emp_date` (`employee_id`,`date`),
   KEY `date_index` (`date`),
@@ -192,7 +192,7 @@ CREATE TABLE `leave_requests` (
   `reason` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `status` enum('Pending','Approved','Rejected') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Pending',
   `admin_remark` text COLLATE utf8mb4_unicode_ci,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
   PRIMARY KEY (`id`),
   KEY `employee_id` (`employee_id`),
   KEY `leave_type_id` (`leave_type_id`),
@@ -217,7 +217,7 @@ CREATE TABLE `overtime_requests` (
   `type` enum('Working Day','Weekend','Holiday') COLLATE utf8mb4_unicode_ci NOT NULL,
   `reason` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `status` enum('Pending','Approved','Rejected') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Pending',
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
   PRIMARY KEY (`id`),
   KEY `employee_id` (`employee_id`),
   CONSTRAINT `overtime_requests_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE
@@ -239,7 +239,7 @@ CREATE TABLE `overtime_assignments` (
   `reason` text COLLATE utf8mb4_unicode_ci,
   `assigned_by` int NOT NULL,
   `status` enum('Active','Completed','Cancelled') COLLATE utf8mb4_unicode_ci DEFAULT 'Active',
-  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+
   PRIMARY KEY (`id`),
   KEY `assigned_by` (`assigned_by`),
   CONSTRAINT `overtime_assignments_ibfk_1` FOREIGN KEY (`assigned_by`) REFERENCES `users` (`id`) ON DELETE CASCADE
@@ -294,7 +294,7 @@ CREATE TABLE `payroll` (
   `status` enum('Pending','Paid') COLLATE utf8mb4_unicode_ci DEFAULT 'Pending',
   `payment_method` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `payment_date` datetime DEFAULT NULL,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
   PRIMARY KEY (`id`),
   UNIQUE KEY `emp_month_year` (`employee_id`,`month`,`year`),
   CONSTRAINT `payroll_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE
@@ -347,7 +347,7 @@ CREATE TABLE `deductions` (
   `related_id` int DEFAULT NULL,
   `deduction_days_hours` decimal(5,2) DEFAULT NULL,
   `total_absent_days` decimal(5,2) DEFAULT NULL,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
   PRIMARY KEY (`id`),
   KEY `employee_id` (`employee_id`),
   KEY `payroll_id` (`payroll_id`),
@@ -371,7 +371,7 @@ CREATE TABLE `notifications` (
   `link` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `reference_id` int DEFAULT NULL,
   `is_read` tinyint(1) NOT NULL DEFAULT '0',
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
   `sender_id` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),

@@ -30,22 +30,22 @@
                 <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 hover:shadow-md transition-shadow relative overflow-hidden group">
                     <div class="flex justify-between items-start mb-4">
                         <div>
-                            <p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1"><?= date('D, M j, Y', strtotime($att['date'])) ?></p>
+                            <p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1"><?= date('D, M j, Y', strtotime($att['AttendanceDate'])) ?></p>
                             <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
-                                <?php if($att['status'] === 'Present'): ?>
+                                <?php if($att['Status'] === 'Present'): ?>
                                     <span class="text-green-500"><i class="fa-solid fa-circle-check mr-2"></i> Present</span>
-                                <?php elseif($att['status'] === 'Absent'): ?>
+                                <?php elseif($att['Status'] === 'Absent'): ?>
                                     <span class="text-red-500"><i class="fa-solid fa-circle-xmark mr-2"></i> Absent</span>
-                                <?php elseif($att['status'] === 'Late'): ?>
+                                <?php elseif($att['Status'] === 'Late'): ?>
                                     <span class="text-orange-500"><i class="fa-solid fa-clock mr-2"></i> Late</span>
-                                <?php elseif($att['status'] === 'Half Day'): ?>
+                                <?php elseif($att['Status'] === 'Half Day'): ?>
                                     <span class="text-yellow-500"><i class="fa-solid fa-star-half-stroke mr-2"></i> Half Day</span>
                                 <?php else: ?>
-                                    <span class="text-blue-500"><i class="fa-solid fa-info-circle mr-2"></i> <?= htmlspecialchars($att['status']) ?></span>
+                                    <span class="text-blue-500"><i class="fa-solid fa-info-circle mr-2"></i> <?= htmlspecialchars($att['Status']) ?></span>
                                 <?php endif; ?>
                             </h3>
                         </div>
-                        <button onclick="requestCorrection(<?= $att['id'] ?>, '<?= $att['date'] ?>', '<?= $att['check_in'] ?? '' ?>', '<?= $att['check_out'] ?? '' ?>')" class="w-8 h-8 rounded-full bg-gray-50 text-gray-400 hover:text-primary hover:bg-blue-50 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors flex items-center justify-center">
+                        <button onclick="requestCorrection(<?= $att['AttendanceID'] ?>, '<?= $att['AttendanceDate'] ?>', '<?= $att['CheckInTime'] ?? '' ?>', '<?= $att['CheckOutTime'] ?? '' ?>')" class="w-8 h-8 rounded-full bg-gray-50 text-gray-400 hover:text-primary hover:bg-blue-50 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors flex items-center justify-center">
                             <i class="fa-solid fa-pen"></i>
                         </button>
                     </div>
@@ -53,16 +53,21 @@
                     <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
                         <div class="text-center w-1/2 border-r border-gray-200 dark:border-gray-700">
                             <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-1">IN</p>
-                            <p class="font-mono text-sm font-semibold text-gray-800 dark:text-gray-300"><?= $att['check_in'] ? date('h:i A', strtotime($att['check_in'])) : '--:--' ?></p>
+                            <p class="font-mono text-sm font-semibold text-gray-800 dark:text-gray-300"><?= $att['CheckInTime'] ? date('h:i A', strtotime($att['CheckInTime'])) : '--:--' ?></p>
                         </div>
                         <div class="text-center w-1/2">
                             <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-1">OUT</p>
-                            <p class="font-mono text-sm font-semibold text-gray-800 dark:text-gray-300"><?= $att['check_out'] ? date('h:i A', strtotime($att['check_out'])) : '--:--' ?></p>
+                            <p class="font-mono text-sm font-semibold text-gray-800 dark:text-gray-300"><?= $att['CheckOutTime'] ? date('h:i A', strtotime($att['CheckOutTime'])) : '--:--' ?></p>
                         </div>
                     </div>
-                    <?php if($att['working_hours']): ?>
+                    <?php if(!empty($att['working_hours']) || !empty($att['ot_hours'])): ?>
                         <div class="mt-3 text-right">
-                            <span class="text-xs text-gray-500 font-medium">Logged: <strong class="text-gray-900 dark:text-white"><?= $att['working_hours'] ?>h</strong></span>
+                            <?php if(!empty($att['working_hours'])): ?>
+                                <span class="text-xs text-gray-500 font-medium">Logged: <strong class="text-gray-900 dark:text-white"><?= $att['working_hours'] ?>h</strong></span>
+                            <?php endif; ?>
+                            <?php if(!empty($att['ot_hours'])): ?>
+                                <span class="text-xs text-gray-500 font-medium <?= !empty($att['working_hours']) ? 'ml-3 border-l pl-3 border-gray-300 dark:border-gray-600' : '' ?>">OT: <strong class="text-orange-600 dark:text-orange-400"><?= $att['ot_hours'] ?>h</strong></span>
+                            <?php endif; ?>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -93,14 +98,14 @@
                         <?php else: ?>
                             <?php foreach($data['myCorrections'] as $corr): ?>
                             <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
-                                <td class="px-6 py-4 font-medium text-gray-900 dark:text-white"><?= date('D, M j, Y', strtotime($corr['date'])) ?></td>
+                                <td class="px-6 py-4 font-medium text-gray-900 dark:text-white"><?= date('D, M j, Y', strtotime($corr['AttendanceDate'])) ?></td>
                                 <td class="px-6 py-4"><?= $corr['corrected_check_in'] ? date('h:i A', strtotime($corr['corrected_check_in'])) : 'None' ?></td>
                                 <td class="px-6 py-4"><?= $corr['corrected_check_out'] ? date('h:i A', strtotime($corr['corrected_check_out'])) : 'None' ?></td>
-                                <td class="px-6 py-4 max-w-[200px] truncate" title="<?= htmlspecialchars($corr['reason']) ?>"><?= htmlspecialchars($corr['reason']) ?></td>
+                                <td class="px-6 py-4 max-w-[200px] truncate" title="<?= htmlspecialchars($corr['Reason']) ?>"><?= htmlspecialchars($corr['Reason']) ?></td>
                                 <td class="px-6 py-4">
-                                    <?php if($corr['status'] === 'Approved'): ?>
+                                    <?php if($corr['Status'] === 'Approved'): ?>
                                         <span class="px-2.5 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full dark:bg-green-900 dark:text-green-300">Approved</span>
-                                    <?php elseif($corr['status'] === 'Rejected'): ?>
+                                    <?php elseif($corr['Status'] === 'Rejected'): ?>
                                         <span class="px-2.5 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full dark:bg-red-900 dark:text-red-300">Rejected</span>
                                     <?php else: ?>
                                         <span class="px-2.5 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full dark:bg-yellow-900 dark:text-yellow-300">Pending</span>

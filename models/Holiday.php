@@ -69,13 +69,17 @@ class Holiday {
     }
 
     public function isHoliday($date) {
-        $query = "SELECT id FROM " . $this->table . " WHERE date = :date LIMIT 1";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':date', $date);
-        $stmt->execute();
-        
-        if($stmt->rowCount() > 0) {
-            return true;
+        try {
+            $query = "SELECT id FROM " . $this->table . " WHERE date = :date LIMIT 1";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':date', $date);
+            $stmt->execute();
+            
+            if($stmt->rowCount() > 0) {
+                return true;
+            }
+        } catch (PDOException $e) {
+            // If table doesn't exist, assume not a holiday
         }
         return false;
     }

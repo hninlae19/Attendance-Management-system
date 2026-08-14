@@ -40,9 +40,9 @@
 <div class="mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
     <?php foreach($data['leaveBalances'] as $lb): ?>
         <?php 
-        $isUnlimited = $lb['days_allowed'] >= 999;
+        $isUnlimited = $lb['DaysAllowed'] >= 999;
         $used = $lb['used'];
-        $limit = $lb['days_allowed'];
+        $limit = $lb['DaysAllowed'];
         $pct = $isUnlimited ? 0 : ($limit > 0 ? min(100, round(($used / $limit) * 100)) : 100);
         $exhausted = !$isUnlimited && $used >= $limit;
         
@@ -52,7 +52,7 @@
             <div>
                 <div class="flex justify-between items-start mb-2">
                     <h3 class="text-md font-bold text-gray-900 dark:text-white flex items-center">
-                        <i class="fa-solid fa-calendar-check text-primary mr-2"></i> <?= htmlspecialchars($lb['name']) ?>
+                        <i class="fa-solid fa-calendar-check text-primary mr-2"></i> <?= htmlspecialchars($lb['LeaveType']) ?>
                     </h3>
                     <?php if($lb['is_paid']): ?>
                         <span class="px-2 py-0.5 text-[10px] uppercase font-bold bg-green-100 text-green-800 rounded-full dark:bg-green-900/50 dark:text-green-300">Paid</span>
@@ -84,29 +84,28 @@
 </div>
 
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-    <?php if(empty($data['myLeaves'])): ?>
+    <?php if(empty($data['leaveRequests'])): ?>
         <div class="col-span-full p-8 text-center bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
             <p class="text-gray-500 dark:text-gray-400">No leave applications found.</p>
         </div>
     <?php else: ?>
-        <?php foreach($data['myLeaves'] as $lr): ?>
+        <?php foreach($data['leaveRequests'] as $lr): ?>
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 hover:shadow-md transition-shadow relative overflow-hidden group">
             <div class="flex justify-between items-start mb-4">
                 <div>
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
-                        <?= htmlspecialchars($lr['leave_type_name']) ?>
-                        <?php if($lr['is_paid']): ?>
+                        <?= htmlspecialchars($lr['LeaveType']) ?>
+                        <?php if($lr['IsPaid']): ?>
                             <span class="ml-2 px-2 py-0.5 text-[10px] uppercase font-bold bg-green-100 text-green-800 rounded-full dark:bg-green-900/50 dark:text-green-300">Paid</span>
                         <?php else: ?>
                             <span class="ml-2 px-2 py-0.5 text-[10px] uppercase font-bold bg-gray-100 text-gray-800 rounded-full dark:bg-gray-700 dark:text-gray-300">Unpaid</span>
                         <?php endif; ?>
                     </h3>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Applied: <?= date('M j, Y', strtotime($lr['created_at'])) ?></p>
                 </div>
                 <div>
-                    <?php if($lr['status'] === 'Approved'): ?>
+                    <?php if($lr['Status'] === 'Approved'): ?>
                         <span class="px-2.5 py-1 text-xs font-bold bg-green-100 text-green-800 rounded-xl dark:bg-green-900/30 dark:text-green-400"><i class="fa-solid fa-check mr-1"></i> Approved</span>
-                    <?php elseif($lr['status'] === 'Rejected'): ?>
+                    <?php elseif($lr['Status'] === 'Rejected'): ?>
                         <span class="px-2.5 py-1 text-xs font-bold bg-red-100 text-red-800 rounded-xl dark:bg-red-900/30 dark:text-red-400"><i class="fa-solid fa-xmark mr-1"></i> Rejected</span>
                     <?php else: ?>
                         <span class="px-2.5 py-1 text-xs font-bold bg-yellow-100 text-yellow-800 rounded-xl dark:bg-yellow-900/30 dark:text-yellow-400"><i class="fa-solid fa-clock mr-1"></i> Pending</span>
@@ -117,11 +116,11 @@
             <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl mb-4">
                 <div class="text-center w-1/2 border-r border-gray-200 dark:border-gray-700">
                     <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-1">From</p>
-                    <p class="text-sm font-semibold text-gray-800 dark:text-gray-300"><?= date('M j', strtotime($lr['start_date'])) ?></p>
+                    <p class="text-sm font-semibold text-gray-800 dark:text-gray-300"><?= date('M j', strtotime($lr['StartDate'])) ?></p>
                 </div>
                 <div class="text-center w-1/2">
                     <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-1">To</p>
-                    <p class="text-sm font-semibold text-gray-800 dark:text-gray-300"><?= date('M j, Y', strtotime($lr['end_date'])) ?></p>
+                    <p class="text-sm font-semibold text-gray-800 dark:text-gray-300"><?= date('M j, Y', strtotime($lr['EndDate'])) ?></p>
                 </div>
             </div>
             
@@ -129,7 +128,7 @@
                 <span class="font-medium text-gray-900 dark:text-white">Duration:</span> <?= $lr['days'] ?> Day(s)
             </div>
             <div class="text-sm text-gray-600 dark:text-gray-400">
-                <span class="font-medium text-gray-900 dark:text-white">Reason:</span> <?= htmlspecialchars($lr['reason']) ?>
+                <span class="font-medium text-gray-900 dark:text-white">Reason:</span> <?= htmlspecialchars($lr['Reason']) ?>
             </div>
             <?php if(!empty($lr['admin_remark'])): ?>
             <div class="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-sm text-blue-800 dark:text-blue-300 border border-blue-100 dark:border-blue-800">
@@ -167,12 +166,12 @@
                         if (!$lb['is_eligible']) {
                             $disabled = 'disabled';
                             $suffix .= ' - Ineligible';
-                        } elseif ($lb['days_allowed'] < 999 && $lb['used'] >= $lb['days_allowed']) {
+                        } elseif ($lb['DaysAllowed'] < 999 && $lb['used'] >= $lb['DaysAllowed']) {
                             $disabled = 'disabled';
                             $suffix .= ' - Exhausted';
                         }
                         ?>
-                        <option value="<?= $lb['id'] ?>" <?= $disabled ?>><?= htmlspecialchars($lb['name']) ?> (<?= $suffix ?>)</option>
+                        <option value="<?= $lb['LeaveTypeID'] ?>" <?= $disabled ?>><?= htmlspecialchars($lb['LeaveType']) ?> (<?= $suffix ?>)</option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -224,9 +223,20 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const hasClockedInToday = <?= json_encode($data['hasClockedInToday']) ?>;
     
-    // Get today's date in YYYY-MM-DD local timezone
+    // Get today's date and tomorrow's date in YYYY-MM-DD local timezone
     const now = new Date();
     const todayStr = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = new Date(tomorrow.getTime() - (tomorrow.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+    
+    if (hasClockedInToday) {
+        startDate.min = tomorrowStr;
+        endDate.min = tomorrowStr;
+    } else {
+        startDate.min = todayStr;
+        endDate.min = todayStr;
+    }
 
     async function checkConflicts() {
         if (!startDate.value) return false;

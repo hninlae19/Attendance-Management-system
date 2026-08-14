@@ -171,29 +171,29 @@
                                 <td class="px-6 py-4">
                                     <div class="flex items-center">
                                         <div class="w-9 h-9 rounded-full bg-gradient-to-br from-primary/20 to-blue-500/20 text-primary dark:text-blue-400 flex items-center justify-center mr-3 font-bold text-xs ring-2 ring-white dark:ring-gray-800 group-hover:ring-primary/20 transition-all">
-                                            <?= strtoupper(substr($att['first_name'],0,1) . substr($att['last_name'],0,1)) ?>
+                                            <?= strtoupper(substr($att['FirstName'],0,1) . substr($att['LastName'],0,1)) ?>
                                         </div>
                                         <div>
-                                            <div class="font-bold text-gray-900 dark:text-white"><?= htmlspecialchars($att['first_name'] . ' ' . $att['last_name']) ?></div>
+                                            <div class="font-bold text-gray-900 dark:text-white"><?= htmlspecialchars($att['FirstName'] . ' ' . $att['LastName']) ?></div>
                                             <div class="text-xs text-gray-500">ID: EMP-<?= str_pad($att['employee_id'], 4, '0', STR_PAD_LEFT) ?></div>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
-                                        <?= htmlspecialchars($att['department_name'] ?? 'N/A') ?>
+                                        <?= htmlspecialchars($att['DeptName'] ?? 'N/A') ?>
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 font-medium text-gray-900 dark:text-gray-300">
-                                    <?= date('h:i A', strtotime($att['check_in'])) ?>
+                                    <?= date('h:i A', strtotime($att['CheckInTime'])) ?>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <?php if($att['status'] == 'Present'): ?>
+                                    <?php if($att['Status'] == 'Present'): ?>
                                         <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800/30 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span> Present</span>
-                                    <?php elseif($att['status'] == 'Late'): ?>
+                                    <?php elseif($att['Status'] == 'Late'): ?>
                                         <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800/30 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5"></span> Late</span>
                                     <?php else: ?>
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-gray-50 text-gray-700 border border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-gray-500 mr-1.5"></span> <?= htmlspecialchars($att['status']) ?></span>
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-gray-50 text-gray-700 border border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-gray-500 mr-1.5"></span> <?= htmlspecialchars($att['Status']) ?></span>
                                     <?php endif; ?>
                                 </td>
                             </tr>

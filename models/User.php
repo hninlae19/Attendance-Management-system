@@ -8,7 +8,7 @@ class User {
     public $password;
     public $role;
     public $status;
-    public $created_at;
+
 
     public function __construct() {
         $database = new Database();

@@ -39,7 +39,7 @@ class Notification {
         if ($type) {
             $query .= " AND n.type = :type";
         }
-        $query .= " ORDER BY n.created_at DESC LIMIT :limit";
+        $query .= " ORDER BY n.id DESC LIMIT :limit";
         
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':user_id', $user_id);

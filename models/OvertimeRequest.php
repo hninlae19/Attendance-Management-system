@@ -22,7 +22,7 @@ class OvertimeRequest {
         $query = "SELECT orq.*, e.first_name, e.last_name, e.employee_code 
                   FROM " . $this->table . " orq
                   LEFT JOIN employees e ON orq.employee_id = e.id
-                  ORDER BY orq.created_at DESC";
+                  ORDER BY orq.id DESC";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -76,7 +76,7 @@ class OvertimeRequest {
             $params[':date'] = $filters['date'];
         }
 
-        $query .= " ORDER BY orq.created_at DESC LIMIT :limit OFFSET :offset";
+        $query .= " ORDER BY orq.id DESC LIMIT :limit OFFSET :offset";
         
         $stmt = $this->conn->prepare($query);
         foreach($params as $key => &$val) {

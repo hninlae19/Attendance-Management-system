@@ -1,10 +1,12 @@
 <?php
+require_once __DIR__ . '/../config/database.php';
+
 class Department {
     private $conn;
-    private $table = 'departments';
+    private $table = 'Department';
 
-    public $id;
-    public $name;
+    public $DeptID;
+    public $DeptName;
 
     public function __construct() {
         $database = new Database();
@@ -12,57 +14,45 @@ class Department {
     }
 
     public function getAll() {
-        $query = "SELECT * FROM " . $this->table . " ORDER BY name ASC";
+        $query = "SELECT * FROM " . $this->table . " ORDER BY DeptName";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getById($id) {
-        $query = "SELECT * FROM " . $this->table . " WHERE id = :id LIMIT 0,1";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':id', $id);
-        $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
     public function create() {
-        $query = "INSERT INTO " . $this->table . " SET name=:name";
+        $query = "INSERT INTO " . $this->table . " SET DeptName = :name";
         $stmt = $this->conn->prepare($query);
-        $this->name = htmlspecialchars(strip_tags($this->name));
-        $stmt->bindParam(":name", $this->name);
-        if($stmt->execute()) {
-            return true;
-        }
-        return false;
+        $stmt->bindParam(':name', $this->DeptName);
+        return $stmt->execute();
     }
 
     public function update() {
-        $query = "UPDATE " . $this->table . " SET name=:name WHERE id=:id";
+        $query = "UPDATE " . $this->table . " SET DeptName = :name WHERE DeptID = :id";
         $stmt = $this->conn->prepare($query);
-        $this->name = htmlspecialchars(strip_tags($this->name));
-        $this->id = htmlspecialchars(strip_tags($this->id));
-        $stmt->bindParam(":name", $this->name);
-        $stmt->bindParam(":id", $this->id);
-        if($stmt->execute()) {
-            return true;
-        }
-        return false;
+        $stmt->bindParam(':name', $this->DeptName);
+        $stmt->bindParam(':id', $this->DeptID);
+        return $stmt->execute();
     }
 
-    public function delete() {
-        $query = "DELETE FROM " . $this->table . " WHERE id=:id";
+    public function delete($id) {
+        $query = "DELETE FROM " . $this->table . " WHERE DeptID = :id";
         $stmt = $this->conn->prepare($query);
-        $this->id = htmlspecialchars(strip_tags($this->id));
-        $stmt->bindParam(":id", $this->id);
-        
-        try {
-            if($stmt->execute()) {
-                return true;
-            }
-        } catch(PDOException $e) {
-            return false; // likely foreign key constraint
+        $stmt->bindParam(':id', $id);
+        return $stmt->execute();
+    }
+
+    public function nameExists($name, $excludeId = null) {
+        $query = "SELECT COUNT(*) FROM " . $this->table . " WHERE DeptName = :name";
+        if ($excludeId) {
+            $query .= " AND DeptID != :id";
         }
-        return false;
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':name', $name);
+        if ($excludeId) {
+            $stmt->bindParam(':id', $excludeId);
+        }
+        $stmt->execute();
+        return $stmt->fetchColumn() > 0;
     }
 }

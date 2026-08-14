@@ -5,6 +5,16 @@
     </button>
 </div>
 
+<?php if(isset($_GET['error']) && $_GET['error'] === 'duplicate'): ?>
+<div class="mb-6 p-4 rounded-lg bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 flex items-start">
+    <i class="fa-solid fa-circle-exclamation text-red-500 mt-0.5 mr-3"></i>
+    <div>
+        <h4 class="text-sm font-bold text-red-800 dark:text-red-400">Save Failed</h4>
+        <p class="text-sm text-red-600 dark:text-red-300 mt-1">A department with this name already exists. Please choose a unique name.</p>
+    </div>
+</div>
+<?php endif; ?>
+
 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
     <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
         <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -22,15 +32,15 @@
             <?php else: ?>
                 <?php foreach($data['departments'] as $dept): ?>
                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
-                    <td class="px-6 py-4"><?= $dept['id'] ?></td>
-                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white"><?= htmlspecialchars($dept['name']) ?></td>
+                    <td class="px-6 py-4"><?= $dept['DeptID'] ?></td>
+                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white"><?= htmlspecialchars($dept['DeptName']) ?></td>
                     <td class="px-6 py-4 text-right space-x-2">
-                        <button onclick="editDepartment(<?= $dept['id'] ?>, '<?= htmlspecialchars(addslashes($dept['name'])) ?>')" class="font-medium text-blue-600 dark:text-blue-500 hover:underline"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+                        <button onclick="editDepartment(<?= $dept['DeptID'] ?>, '<?= htmlspecialchars(addslashes($dept['DeptName'])) ?>')" class="font-medium text-blue-600 dark:text-blue-500 hover:underline"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
                         <form action="/payrollsystem/admin/departments" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this department?');">
     <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
 
                             <input type="hidden" name="action" value="delete">
-                            <input type="hidden" name="id" value="<?= $dept['id'] ?>">
+                            <input type="hidden" name="id" value="<?= $dept['DeptID'] ?>">
                             <button type="submit" class="font-medium text-red-600 dark:text-red-500 hover:underline"><i class="fa-solid fa-trash"></i> Delete</button>
                         </form>
                     </td>
