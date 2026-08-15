@@ -109,18 +109,7 @@
                 </div>
             </div>
 
-            <div class="flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 hover:border-primary/30 transition-colors">
-                <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 flex items-center justify-center"><i class="fa-solid fa-business-time"></i></div>
-                    <div>
-                        <p class="text-sm font-bold text-gray-900 dark:text-white">Pending Overtime</p>
-                        <p class="text-xs text-gray-500">Awaiting verification</p>
-                    </div>
-                </div>
-                <div class="text-right">
-                    <span class="text-xl font-bold text-gray-900 dark:text-white" id="stat-pend-ot"><?= $pendingOvertime ?? 0 ?></span>
-                </div>
-            </div>
+
             
             <a href="/payrollsystem/admin/leaves" class="block w-full py-2.5 px-4 text-center text-sm font-bold text-primary bg-primary/5 hover:bg-primary/10 rounded-xl transition-colors">
                 View All Requests <i class="fa-solid fa-arrow-right ml-1"></i>
@@ -175,7 +164,7 @@
                                         </div>
                                         <div>
                                             <div class="font-bold text-gray-900 dark:text-white"><?= htmlspecialchars($att['FirstName'] . ' ' . $att['LastName']) ?></div>
-                                            <div class="text-xs text-gray-500">ID: EMP-<?= str_pad($att['employee_id'], 4, '0', STR_PAD_LEFT) ?></div>
+                                            <div class="text-xs text-gray-500">ID: EMP-<?= str_pad($att['EmpID'], 4, '0', STR_PAD_LEFT) ?></div>
                                         </div>
                                     </div>
                                 </td>
@@ -242,17 +231,6 @@
                     <div class="flex-1">
                         <p class="font-bold text-sm">Onboard Employee</p>
                         <p class="text-xs text-indigo-200">Add new staff member</p>
-                    </div>
-                    <i class="fa-solid fa-chevron-right text-xs opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all"></i>
-                </a>
-
-                <a href="/payrollsystem/admin/settings" class="flex items-center p-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 backdrop-blur-sm transition-all duration-300 group">
-                    <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
-                        <i class="fa-solid fa-sliders"></i>
-                    </div>
-                    <div class="flex-1">
-                        <p class="font-bold text-sm">System Settings</p>
-                        <p class="text-xs text-indigo-200">Configure rules & policies</p>
                     </div>
                     <i class="fa-solid fa-chevron-right text-xs opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all"></i>
                 </a>

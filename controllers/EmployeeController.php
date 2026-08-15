@@ -20,6 +20,9 @@ class EmployeeController extends Controller {
         $recentAttendance = $attendanceModel->getEmployeeRecords($emp_id);
 
         $recentPayrolls = $payrollModel->getByEmployee($emp_id);
+        
+        $overtimeModel = $this->model('OvertimeAssign');
+        $upcomingOvertime = $overtimeModel->getUpcomingByEmployee($emp_id);
 
         $this->view('layouts/main', [
             'title' => 'Employee Dashboard',
@@ -27,7 +30,9 @@ class EmployeeController extends Controller {
             'employee' => $employee,
             'todayRecord' => $todayRecord,
             'recentAttendance' => array_slice($recentAttendance, 0, 5),
-            'recentPayrolls' => array_slice($recentPayrolls, 0, 5)
+            'recentPayrolls' => array_slice($recentPayrolls, 0, 5),
+            'upcomingOvertime' => array_slice($upcomingOvertime, 0, 5),
+            'is_working_day' => HolidayHelper::isWorkingDay($today)
         ]);
     }
 
@@ -41,15 +46,21 @@ class EmployeeController extends Controller {
             $time = date('H:i:s');
             
             if ($_POST['action'] === 'check_in') {
-                if ($time < '08:30:00' || $time > '17:00:00') {
+                if (!HolidayHelper::isWorkingDay($today)) {
+                    $_SESSION['att_error'] = 'Attendance recording is disabled on non-working days.';
+                } elseif ($time < '08:30:00' || $time > '17:00:00') {
                     $_SESSION['att_error'] = 'Check-in is only allowed between 8:30 AM and 5:00 PM.';
                 } else {
                     $attendanceModel->checkIn($emp_id, $time, $today);
                     $_SESSION['att_success'] = 'Checked in successfully.';
                 }
             } elseif ($_POST['action'] === 'check_out') {
-                $attendanceModel->checkOut($emp_id, $time, $today);
-                $_SESSION['att_success'] = 'Checked out successfully.';
+                if (!HolidayHelper::isWorkingDay($today)) {
+                    $_SESSION['att_error'] = 'Attendance recording is disabled on non-working days.';
+                } else {
+                    $attendanceModel->checkOut($emp_id, $time, $today);
+                    $_SESSION['att_success'] = 'Checked out successfully.';
+                }
             }
             $this->redirect('/payrollsystem/employee');
         }
@@ -80,8 +91,51 @@ class EmployeeController extends Controller {
             'title' => 'My Attendance',
             'content' => 'employee/attendance',
             'myAttendance' => $records,
-            'myCorrections' => []
+            'myCorrections' => [],
+            'is_working_day' => HolidayHelper::isWorkingDay(date('Y-m-d'))
         ]);
+    }
+
+    public function ot_action() {
+        $emp_id = $_SESSION['employee_id'];
+        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
+            $this->validateCsrfToken($_POST['csrf_token'] ?? '');
+            $ot_id = $_POST['ot_id'];
+            $response = $_POST['response'] ?? '';
+            $status = $_POST['action'] === 'accept' ? 'Accepted' : 'Rejected';
+            
+            $overtimeModel = $this->model('OvertimeAssign');
+            $overtimeModel->acceptReject($ot_id, $emp_id, $status, $response);
+            
+            $_SESSION['flash_success'] = "Overtime assignment " . strtolower($status) . ".";
+        }
+        $this->redirect('/payrollsystem/employee');
+    }
+
+    public function ot_attendance() {
+        $emp_id = $_SESSION['employee_id'];
+        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
+            $this->validateCsrfToken($_POST['csrf_token'] ?? '');
+            $ot_id = $_POST['ot_id'];
+            $overtimeModel = $this->model('OvertimeAssign');
+            $ot = $overtimeModel->getById($ot_id);
+            
+            if ($ot && $ot['EmpID'] == $emp_id) {
+                $time = date('Y-m-d H:i:s');
+                if ($_POST['action'] === 'check_in') {
+                    $overtimeModel->otCheckIn($ot_id, $emp_id, $time);
+                    $_SESSION['flash_success'] = "Overtime checked in.";
+                } elseif ($_POST['action'] === 'check_out') {
+                    // Calculate actual hours
+                    $inTime = strtotime($ot['OTCheckIn']);
+                    $outTime = time();
+                    $actualHours = round(($outTime - $inTime) / 3600, 2);
+                    $overtimeModel->otCheckOut($ot_id, $emp_id, $time, $actualHours);
+                    $_SESSION['flash_success'] = "Overtime checked out. Total: {$actualHours} Hrs.";
+                }
+            }
+        }
+        $this->redirect('/payrollsystem/employee');
     }
 
     public function leaves() {
@@ -163,19 +217,6 @@ class EmployeeController extends Controller {
             'leaveTypes' => $leaveTypes,
             'leaveBalances' => $leaveBalances,
             'hasClockedInToday' => false // Default to false, or check attendance model
-        ]);
-    }
-
-    public function overtime() {
-        $emp_id = $_SESSION['employee_id'];
-        $overtimeModel = $this->model('OvertimeAssign');
-        
-        $myAssignments = $overtimeModel->getByEmployee($emp_id);
-
-        $this->view('layouts/main', [
-            'title' => 'My Overtime',
-            'content' => 'employee/overtime',
-            'myAssignments' => $myAssignments
         ]);
     }
 

@@ -6,20 +6,6 @@ class NotificationController extends Controller {
         }
     }
 
-    public function index() {
-        $notificationModel = $this->model('Notification');
-        $type = $_GET['type'] ?? null;
-        $notifications = $notificationModel->getAll($_SESSION['user_id'], $type, 100);
-        
-        $layout = $_SESSION['role'] === 'Admin' ? 'layouts/main' : 'layouts/employee';
-
-        $this->view($layout, [
-            'title' => 'Notification History',
-            'content' => 'common/notifications',
-            'notifications' => $notifications,
-            'current_type' => $type
-        ]);
-    }
 
     public function api() {
         header('Content-Type: application/json');

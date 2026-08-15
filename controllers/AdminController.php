@@ -9,9 +9,6 @@ class AdminController extends Controller {
     public function index() {
         $employeeModel = $this->model('Employee');
         $attendanceModel = $this->model('Attendance');
-        $leaveRequestModel = $this->model('LeaveRequest');
-        $payrollModel = $this->model('Payroll');
-        $bonousModel = $this->model('EmpBonous');
 
         $employees = $employeeModel->getAll();
         $totalEmployees = count($employees);
@@ -25,6 +22,31 @@ class AdminController extends Controller {
         
         $recentAttendance = array_slice($attendance, 0, 5);
 
+        // Fetch additional metrics
+        $db = new Database();
+        $conn = $db->getConnection();
+        
+        // Monthly Payroll (Sum of NetSalary for current month)
+        $payrollMonthStr = date('F Y');
+        $payrollQuery = $conn->prepare("SELECT SUM(NetSalary) FROM Payroll WHERE PayrollMonth = ?");
+        $payrollQuery->execute([$payrollMonthStr]);
+        $monthlyPayroll = (float)($payrollQuery->fetchColumn() ?: 0);
+
+        // Monthly Bonuses (Sum of Amount for current month)
+        $bonusQuery = $conn->prepare("SELECT SUM(Amount) FROM EmpBonous WHERE MONTH(BonusDate) = ? AND YEAR(BonusDate) = ?");
+        $bonusQuery->execute([date('n'), date('Y')]);
+        $monthlyBonus = (float)($bonusQuery->fetchColumn() ?: 0);
+
+        // Pending Leaves
+        $leaveQuery = $conn->prepare("SELECT COUNT(*) FROM LeaveRequest WHERE Status = 'Pending'");
+        $leaveQuery->execute();
+        $pendingLeaves = (int)($leaveQuery->fetchColumn() ?: 0);
+
+        // Employees currently on leave
+        $onLeaveQuery = $conn->prepare("SELECT COUNT(DISTINCT EmpID) FROM LeaveRequest WHERE ? BETWEEN StartDate AND EndDate AND Status = 'Approved'");
+        $onLeaveQuery->execute([$today]);
+        $employeesOnLeave = (int)($onLeaveQuery->fetchColumn() ?: 0);
+
         $this->view('layouts/main', [
             'title' => 'Admin Dashboard',
             'content' => 'admin/dashboard',
@@ -33,7 +55,11 @@ class AdminController extends Controller {
             'presentToday' => $presentToday,
             'lateToday' => $lateToday,
             'absentToday' => $absentToday,
-            'recentAttendance' => $recentAttendance
+            'recentAttendance' => $recentAttendance,
+            'monthlyPayroll' => $monthlyPayroll,
+            'monthlyBonus' => $monthlyBonus,
+            'pendingLeaves' => $pendingLeaves,
+            'employeesOnLeave' => $employeesOnLeave
         ]);
     }
 
@@ -424,6 +450,13 @@ class AdminController extends Controller {
                             $this->redirect('/payrollsystem/admin/overtime_assignments?error=' . urlencode('New overtime assignments must be for the current date or a future date.'));
                             return;
                         }
+                        if ($otDate === $today) {
+                            $startDatetime = strtotime("$today $startTime");
+                            if ($startDatetime < time()) {
+                                $this->redirect('/payrollsystem/admin/overtime_assignments?error=' . urlencode('Overtime assignment failed: Cannot assign overtime for a time that has already passed today.'));
+                                return;
+                            }
+                        }
                     }
                     
                     $db = new Database();
@@ -455,11 +488,10 @@ class AdminController extends Controller {
                         $employeesToProcess[] = $empIdInput;
                     }
                     
-                    $holidayModel = $this->model('Holiday');
-                    $isHoliday = $holidayModel->isHoliday($otDate);
+                    $isHoliday = HolidayHelper::isPublicHoliday($otDate);
                     $dayOfWeek = date('N', strtotime($otDate));
-                    $isWeekend = ($dayOfWeek >= 6);
-                    $isWorkingDay = (!$isHoliday && !$isWeekend);
+                    $isWeekend = HolidayHelper::isWeekend($otDate);
+                    $isWorkingDay = HolidayHelper::isWorkingDay($otDate);
                     
                     // Time rules
                     $startUnix = strtotime("1970-01-01 $startTime");
@@ -555,6 +587,10 @@ class AdminController extends Controller {
                             $overtimeModel->update();
                         }
                     }
+                } elseif ($_POST['action'] === 'approve' || $_POST['action'] === 'cancel') {
+                    $status = $_POST['action'] === 'approve' ? 'Approved' : 'Cancelled';
+                    $appBy = $_POST['action'] === 'approve' ? $_SESSION['user_id'] : null;
+                    $overtimeModel->updateStatus($_POST['id'], $status, $appBy);
                 } elseif ($_POST['action'] === 'delete') {
                     $overtimeModel->delete($_POST['id']);
                 }
@@ -574,18 +610,6 @@ class AdminController extends Controller {
             'employees' => $employees,
             'departments' => $departments,
             'error' => $_GET['error'] ?? null
-        ]);
-    }
-
-    public function overtime() {
-        $overtimeModel = $this->model('OvertimeAssign');
-
-        $assignments = $overtimeModel->getAll();
-
-        $this->view('layouts/main', [
-            'title' => 'Overtime Management',
-            'content' => 'admin/overtime',
-            'assignments' => $assignments
         ]);
     }
 
@@ -694,7 +718,7 @@ class AdminController extends Controller {
                     $attStats = $stmt->fetch(PDO::FETCH_ASSOC);
                     
                     // Overtime stats
-                    $stmt = $conn->prepare("SELECT SUM(OvertimeHours) as ot_hours, SUM(OTAmount) as ot_amount FROM overtimeassign WHERE EmpID = :emp AND OvertimeDate BETWEEN :sd AND :ed");
+                    $stmt = $conn->prepare("SELECT SUM(ActualOTHours) as ot_hours, SUM(ActualOTHours * OTRate) as ot_amount FROM overtimeassign WHERE EmpID = :emp AND OvertimeDate BETWEEN :sd AND :ed AND Status = 'Approved'");
                     $stmt->execute([':emp' => $empId, ':sd' => $startDate, ':ed' => $endDate]);
                     $otStats = $stmt->fetch(PDO::FETCH_ASSOC);
                     

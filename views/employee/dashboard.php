@@ -32,7 +32,16 @@
                 <?php unset($_SESSION['att_success']); ?>
             <?php endif; ?>
 
-            <?php if(!$data['todayRecord']): ?>
+            <?php if (!$data['is_working_day']): ?>
+                <!-- Non-working day -->
+                <div class="mb-6 p-4 bg-gray-800/80 border border-gray-700 rounded-2xl relative z-10 text-center">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-700/50 text-gray-400 mb-4">
+                        <i class="fa-solid fa-calendar-xmark text-3xl"></i>
+                    </div>
+                    <p class="font-bold text-white text-lg mb-2">Non-Working Day</p>
+                    <p class="text-sm text-gray-400">Attendance recording is disabled on weekends and public holidays.</p>
+                </div>
+            <?php elseif(!$data['todayRecord']): ?>
                 <!-- Not Clocked In Yet -->
                 <div class="mb-4 p-4 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-start">
                     <i class="fa-solid fa-triangle-exclamation text-orange-400 mt-1 mr-3"></i>
@@ -108,6 +117,115 @@
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Position</p>
                     <p class="text-lg font-bold text-gray-900 dark:text-white"><?= htmlspecialchars($data['employee']['PositionName']) ?></p>
                 </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Overtime -->
+        <div class="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+            <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50">
+                <h3 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-clock text-orange-500"></i> My Upcoming Overtime
+                </h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                    <thead class="text-xs text-gray-500 uppercase bg-gray-50 dark:bg-gray-700/50">
+                        <tr>
+                            <th class="px-4 py-3">Date</th>
+                            <th class="px-4 py-3">Start Time</th>
+                            <th class="px-4 py-3">End Time</th>
+                            <th class="px-4 py-3">Hours</th>
+                            <th class="px-4 py-3">Status</th>
+                            <th class="px-4 py-3 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($data['upcomingOvertime'])): ?>
+                            <tr>
+                                <td colspan="6" class="px-4 py-8 text-center text-gray-500">
+                                    <i class="fa-solid fa-mug-hot text-3xl mb-2 text-gray-300 dark:text-gray-600"></i>
+                                    <p>No upcoming overtime scheduled.</p>
+                                </td>
+                            </tr>
+                        <?php else: ?>
+                            <?php foreach ($data['upcomingOvertime'] as $ot): ?>
+                            <tr class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                <td class="px-4 py-3 font-medium text-gray-900 dark:text-white"><?= date('D, M j, Y', strtotime($ot['OvertimeDate'])) ?></td>
+                                <td class="px-4 py-3"><?= date('h:i A', strtotime($ot['StartTime'])) ?></td>
+                                <td class="px-4 py-3"><?= date('h:i A', strtotime($ot['EndTime'])) ?></td>
+                                <td class="px-4 py-3 text-right font-bold text-orange-600 dark:text-orange-400">
+                                    <?= $ot['OvertimeHours'] ?> <span class="text-xs text-gray-400">h</span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <?php 
+                                        $statusColors = [
+                                            'Assigned' => 'bg-blue-50 text-blue-700',
+                                            'Accepted' => 'bg-indigo-50 text-indigo-700',
+                                            'Rejected' => 'bg-red-50 text-red-700',
+                                            'In Progress' => 'bg-yellow-50 text-yellow-700',
+                                            'Completed' => 'bg-teal-50 text-teal-700',
+                                            'Approved' => 'bg-emerald-50 text-emerald-700',
+                                            'No Show' => 'bg-gray-50 text-gray-700',
+                                            'Cancelled' => 'bg-rose-50 text-rose-700'
+                                        ];
+                                        $color = $statusColors[$ot['Status']] ?? 'bg-blue-50 text-blue-700';
+                                    ?>
+                                    <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-bold <?= $color ?>"><?= $ot['Status'] ?></span>
+                                </td>
+                                <td class="px-4 py-3 text-right">
+                                    <?php if ($ot['Status'] === 'Assigned'): ?>
+                                        <div class="flex gap-2 justify-end">
+                                            <form method="POST" action="/payrollsystem/employee/ot_action" class="inline m-0 p-0">
+                                                <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+                                                <input type="hidden" name="ot_id" value="<?= $ot['OvertimeID'] ?>">
+                                                <input type="hidden" name="action" value="accept">
+                                                <button type="submit" class="px-3 py-1 bg-emerald-500 text-white rounded-md hover:bg-emerald-600 text-xs font-medium transition-colors shadow-sm">Accept</button>
+                                            </form>
+                                            <form method="POST" action="/payrollsystem/employee/ot_action" class="inline m-0 p-0" onsubmit="return confirm('Are you sure you want to reject this overtime?');">
+                                                <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+                                                <input type="hidden" name="ot_id" value="<?= $ot['OvertimeID'] ?>">
+                                                <input type="hidden" name="action" value="reject">
+                                                <button type="submit" class="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 text-xs font-medium transition-colors shadow-sm">Reject</button>
+                                            </form>
+                                        </div>
+                                    <?php elseif ($ot['Status'] === 'Accepted'): ?>
+                                        <?php 
+                                            $today = date('Y-m-d');
+                                            $now = time();
+                                            $start = strtotime($ot['OvertimeDate'] . ' ' . $ot['StartTime']);
+                                            $end = strtotime($ot['OvertimeDate'] . ' ' . $ot['EndTime']);
+                                            if ($end < $start) $end += 86400; // overnight shift
+                                            
+                                            // Allow check in 15 mins before start, until the end time
+                                            if ($ot['OvertimeDate'] === $today && $now >= ($start - 900) && $now <= $end):
+                                        ?>
+                                            <form method="POST" action="/payrollsystem/employee/ot_attendance" class="inline m-0 p-0">
+                                                <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+                                                <input type="hidden" name="ot_id" value="<?= $ot['OvertimeID'] ?>">
+                                                <input type="hidden" name="action" value="check_in">
+                                                <button type="submit" class="px-4 py-1.5 bg-gradient-to-r from-[#D4AF37] to-[#C5A017] text-white rounded-md hover:from-[#C5A017] hover:to-[#B49006] text-xs font-bold transition-colors shadow-md">
+                                                    <i class="fa-solid fa-fingerprint mr-1"></i> Check In
+                                                </button>
+                                            </form>
+                                        <?php else: ?>
+                                            <span class="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">Wait for schedule</span>
+                                        <?php endif; ?>
+                                    <?php elseif ($ot['Status'] === 'In Progress'): ?>
+                                        <form method="POST" action="/payrollsystem/employee/ot_attendance" class="inline m-0 p-0">
+                                            <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+                                            <input type="hidden" name="ot_id" value="<?= $ot['OvertimeID'] ?>">
+                                            <input type="hidden" name="action" value="check_out">
+                                            <button type="submit" class="px-4 py-1.5 bg-gradient-to-r from-[#FF6B6B] to-[#E63946] text-white rounded-md hover:from-[#E63946] hover:to-[#D62828] text-xs font-bold transition-colors shadow-md">
+                                                <i class="fa-solid fa-right-from-bracket mr-1"></i> Check Out
+                                            </button>
+                                        </form>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
 

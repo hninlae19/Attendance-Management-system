@@ -117,8 +117,6 @@ class Attendance {
             $datesToCheck[] = $today;
         }
 
-        require_once __DIR__ . '/Holiday.php';
-        $holidayModel = new Holiday();
 
         // Get all active employees
         $empQuery = "SELECT EmpID, JoinDate FROM Employee WHERE Status = 'Active'";
@@ -129,15 +127,12 @@ class Attendance {
         if (empty($activeEmployees)) return;
 
         foreach ($datesToCheck as $date) {
-            // Skip weekends (Saturday=6, Sunday=7)
-            if (date('N', strtotime($date)) >= 6) {
+            // Skip non-working days (Weekends and Public Holidays)
+            if (!HolidayHelper::isWorkingDay($date)) {
                 continue;
             }
 
-            // Skip holidays
-            if ($holidayModel->isHoliday($date)) {
-                continue;
-            }
+
 
             // Check each employee
             $insertQuery = "INSERT INTO " . $this->table . " (EmpID, AttendanceDate, Status) VALUES (:emp_id, :date, 'Full-Day Absence')";

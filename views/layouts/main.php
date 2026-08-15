@@ -315,7 +315,6 @@
                          x-transition:leave-start="opacity-100 translate-y-0"
                          x-transition:leave-end="opacity-0 translate-y-10"
                          class="fixed bottom-5 right-5 z-[100] w-80 card-glass rounded-2xl overflow-hidden cursor-pointer hover:border-violet-400/50 transition-all"
-                         @click="window.location.href='/payrollsystem/notification'; toastNotif=null"
                          x-cloak>
                         <div class="p-4 flex gap-3 relative">
                             <button @click.stop="toastNotif=null" class="absolute top-3 right-3 text-gray-500 hover:text-gray-300 transition-colors"><i class="fa-solid fa-xmark text-xs"></i></button>
@@ -383,10 +382,6 @@
                             </a>
                         </template>
                     </div>
-                    <a href="/payrollsystem/notification"
-                       class="block text-center py-3 text-xs text-violet-400 font-bold hover:text-violet-300 border-t border-violet-900/50 hover:bg-violet-500/5 transition-colors">
-                        View All <i class="fa-solid fa-arrow-right ml-1"></i>
-                    </a>
                 </div>
             </div>
 
@@ -414,9 +409,6 @@
                         <p class="text-sm font-bold text-white truncate"><?= htmlspecialchars($_SESSION['Email'] ?? '') ?></p>
                     </div>
                     <div class="p-2">
-                        <a href="/payrollsystem/admin/settings" class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-violet-500/10 hover:text-violet-300 transition-colors">
-                            <i class="fa-solid fa-gear w-4 text-center text-violet-500"></i> Settings
-                        </a>
                         <a href="/payrollsystem/auth/logout" class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-red-400 hover:bg-red-500/10 transition-colors">
                             <i class="fa-solid fa-right-from-bracket w-4 text-center"></i> Sign Out
                         </a>
@@ -469,7 +461,6 @@ $isActive = function($path) use ($currentPath) {
                         'label' => 'Requests',
                         'items' => [
                             ['href' => '/payrollsystem/employee/leaves', 'icon' => 'fa-calendar-minus', 'label' => 'My Leaves', 'match' => '/leaves'],
-                            ['href' => '/payrollsystem/employee/overtime', 'icon' => 'fa-bolt', 'label' => 'My Overtime', 'match' => '/overtime'],
                         ]
                     ]
                 ];
@@ -493,7 +484,6 @@ $isActive = function($path) use ($currentPath) {
                         'label' => 'Attendance',
                         'items' => [
                             ['href' => '/payrollsystem/admin/attendance', 'icon' => 'fa-clock-rotate-left', 'label' => 'Attendance', 'match' => '/attendance'],
-                            ['href' => '/payrollsystem/admin/attendance?tab=corrections', 'icon' => 'fa-file-pen', 'label' => 'Corrections', 'match' => 'corrections'],
                         ]
                     ],
                     [
@@ -501,7 +491,6 @@ $isActive = function($path) use ($currentPath) {
                         'items' => [
                             ['href' => '/payrollsystem/admin/leaves',      'icon' => 'fa-calendar-minus',  'label' => 'Leave Requests', 'match' => '/leaves'],
                             ['href' => '/payrollsystem/admin/leave_types', 'icon' => 'fa-list-check',       'label' => 'Leave Types',    'match' => '/leave_types'],
-                            ['href' => '/payrollsystem/admin/overtime',    'icon' => 'fa-bolt',              'label' => 'OT Requests',    'match' => '/overtime'],
                             ['href' => '/payrollsystem/admin/overtime_assignments','icon' => 'fa-clipboard-list','label' => 'OT Assignments','match' => '/overtime_assignments'],
                         ]
                     ],
@@ -510,8 +499,6 @@ $isActive = function($path) use ($currentPath) {
                         'items' => [
                             ['href' => '/payrollsystem/admin/payroll',     'icon' => 'fa-file-invoice-dollar','label' => 'Payroll List',   'match' => '/payroll'],
                             ['href' => '/payrollsystem/admin/bonuses',     'icon' => 'fa-gift',               'label' => 'Bonuses',        'match' => '/bonuses'],
-                            ['href' => '/payrollsystem/admin/deductions',  'icon' => 'fa-scissors',           'label' => 'Deductions',     'match' => '/deductions'],
-                            ['href' => '/payrollsystem/admin/holidays',    'icon' => 'fa-umbrella-beach',     'label' => 'Holidays',       'match' => '/holidays'],
                         ]
                     ]
                 ];
@@ -578,10 +565,7 @@ $isActive = function($path) use ($currentPath) {
     });
 </script>
 
-<!-- Pseudo-Cron -->
-<script>
-    fetch('/payrollsystem/cron/run?token=cron_secret_12345').catch(() => {});
-</script>
+
 
 </body>
 </html>

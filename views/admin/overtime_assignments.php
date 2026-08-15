@@ -25,6 +25,8 @@
                     <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Hours</th>
                     <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Rate/Hr</th>
                     <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Total Amount</th>
+                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Status</th>
+                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Actual Hrs</th>
                     <th scope="col" class="px-6 py-4 font-semibold tracking-wider text-right">Actions</th>
                 </tr>
             </thead>
@@ -73,19 +75,55 @@
                         <td class="px-6 py-4 font-bold text-emerald-600 dark:text-emerald-400">
                             <?= number_format($ot['OTAmount'], 2) ?> MMK
                         </td>
+                        <td class="px-6 py-4">
+                            <?php 
+                                $statusColors = [
+                                    'Assigned' => 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800/30',
+                                    'Accepted' => 'bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800/30',
+                                    'Rejected' => 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800/30',
+                                    'In Progress' => 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800/30',
+                                    'Completed' => 'bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-900/30 dark:text-teal-400 dark:border-teal-800/30',
+                                    'Approved' => 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800/30',
+                                    'No Show' => 'bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-800/30 dark:text-gray-400 dark:border-gray-700/30',
+                                    'Cancelled' => 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800/30'
+                                ];
+                                $colorClass = $statusColors[$ot['Status']] ?? $statusColors['Assigned'];
+                            ?>
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold border <?= $colorClass ?>">
+                                <?= $ot['Status'] ?? 'Assigned' ?>
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="font-bold <?= ($ot['ActualOTHours'] > 0) ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400' ?>">
+                                <?= $ot['ActualOTHours'] > 0 ? $ot['ActualOTHours'] . ' Hrs' : '-' ?>
+                            </span>
+                        </td>
                         <td class="px-6 py-4 text-right">
                             <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button onclick="editModal(<?= htmlspecialchars(json_encode($ot)) ?>)" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50 transition-colors tooltip" title="Edit">
+                                <?php if (($ot['Status'] ?? 'Assigned') === 'Completed'): ?>
+                                    <form action="/payrollsystem/admin/overtime_assignments" method="POST" class="inline m-0 p-0" onsubmit="return confirm('Approve this overtime?');">
+                                        <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+                                        <input type="hidden" name="action" value="approve">
+                                        <input type="hidden" name="id" value="<?= $ot['OvertimeID'] ?>">
+                                        <button type="submit" class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-100 transition-colors tooltip" title="Approve">
+                                            <i class="fa-solid fa-check"></i>
+                                        </button>
+                                    </form>
+                                <?php endif; ?>
+                                
+                                <?php if (!in_array($ot['Status'] ?? 'Assigned', ['Approved', 'Completed', 'Cancelled', 'No Show'])): ?>
+                                <button onclick="editModal(<?= htmlspecialchars(json_encode($ot)) ?>)" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-100 transition-colors tooltip" title="Edit">
                                     <i class="fa-solid fa-pen"></i>
                                 </button>
-                                <form action="/payrollsystem/admin/overtime_assignments" method="POST" class="inline m-0 p-0" onsubmit="return confirm('Are you sure you want to delete this assignment?');">
+                                <form action="/payrollsystem/admin/overtime_assignments" method="POST" class="inline m-0 p-0" onsubmit="return confirm('Cancel this assignment?');">
                                     <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
-                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="action" value="cancel">
                                     <input type="hidden" name="id" value="<?= $ot['OvertimeID'] ?>">
-                                    <button type="submit" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center hover:bg-rose-100 dark:bg-rose-900/30 dark:text-rose-400 dark:hover:bg-rose-900/50 transition-colors tooltip" title="Delete">
-                                        <i class="fa-solid fa-trash"></i>
+                                    <button type="submit" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center hover:bg-rose-100 transition-colors tooltip" title="Cancel">
+                                        <i class="fa-solid fa-ban"></i>
                                     </button>
                                 </form>
+                                <?php endif; ?>
                             </div>
                         </td>
                     </tr>
@@ -144,19 +182,20 @@
                 
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Date</label>
-                    <input type="date" name="overtime_date" id="overtime_date" min="<?= date('Y-m-d') ?>" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm">
+                    <input type="date" name="overtime_date" id="overtime_date" min="<?= date('Y-m-d') ?>" required onchange="validateOT()" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm">
                 </div>
                 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Start Time</label>
-                        <input type="time" name="start_time" id="start_time" required onchange="calculateHoursAndAmount()" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm">
+                        <input type="time" name="start_time" id="start_time" required onchange="calculateHoursAndAmount(); validateOT();" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm">
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">End Time</label>
-                        <input type="time" name="end_time" id="end_time" required onchange="calculateHoursAndAmount()" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm">
+                        <input type="time" name="end_time" id="end_time" required onchange="calculateHoursAndAmount(); validateOT();" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm">
                     </div>
                 </div>
+                <p id="time_error" class="text-red-500 text-xs hidden mt-1 font-medium"></p>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -179,8 +218,8 @@
                 <button type="button" onclick="closeModal()" class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 transition-colors">
                     Cancel
                 </button>
-                <button type="submit" class="px-5 py-2.5 text-sm font-medium text-white bg-primary rounded-xl hover:bg-indigo-600 hover:-translate-y-0.5 transition-all shadow-lg shadow-primary/30">
-                    Save Assignment
+                <button type="submit" id="save_btn" class="px-5 py-2.5 text-sm font-medium text-white bg-primary rounded-xl hover:bg-indigo-600 hover:-translate-y-0.5 transition-all shadow-lg shadow-primary/30 disabled:opacity-50 disabled:cursor-not-allowed">
+                    Assign OT
                 </button>
             </div>
         </form>
@@ -217,7 +256,6 @@
             const start = new Date(`2000-01-01T${startTimeStr}`);
             let end = new Date(`2000-01-01T${endTimeStr}`);
             
-            // Handle overnight shifts if end time is earlier than start time
             if (end < start) {
                 end.setDate(end.getDate() + 1);
             }
@@ -225,12 +263,67 @@
             const diffMs = end - start;
             const diffHours = diffMs / (1000 * 60 * 60);
             
-            // Round to nearest half hour if desired, or keep exact
             hoursInput.value = diffHours > 0 ? diffHours.toFixed(2) : '';
         } else {
             hoursInput.value = '';
         }
         calculateAmount();
+    }
+
+    const allAssignments = <?= json_encode($data['assignments']) ?>;
+
+    function validateOT() {
+        const errorEl = document.getElementById('time_error');
+        const saveBtn = document.getElementById('save_btn');
+        const dateVal = document.getElementById('overtime_date').value;
+        const startVal = document.getElementById('start_time').value;
+        const endVal = document.getElementById('end_time').value;
+        const empId = document.getElementById('emp_id').value;
+        const currentId = document.getElementById('assignment_id').value;
+        const type = document.querySelector('input[name="assign_type"]:checked').value;
+        
+        errorEl.classList.add('hidden');
+        errorEl.innerText = '';
+        saveBtn.disabled = false;
+
+        if (!dateVal || !startVal || !endVal) return;
+
+        // 1. Past time validation
+        const today = new Date();
+        const selectedDate = new Date(dateVal);
+        
+        if (selectedDate.toDateString() === today.toDateString()) {
+            const startDateTime = new Date(`${dateVal}T${startVal}`);
+            if (startDateTime < today) {
+                errorEl.innerText = "Cannot assign overtime for a time that has already passed today.";
+                errorEl.classList.remove('hidden');
+                saveBtn.disabled = true;
+                return;
+            }
+        }
+
+        // 2. Overlap validation (only for individual employee for now, department is too complex to check client-side instantly)
+        if (type === 'individual' && empId) {
+            const startUnix = new Date(`1970-01-01T${startVal}`).getTime();
+            let endUnix = new Date(`1970-01-01T${endVal}`).getTime();
+            if (endUnix < startUnix) endUnix += 86400000;
+
+            for (let ot of allAssignments) {
+                if (ot.EmpID == empId && ot.OvertimeDate === dateVal && ot.OvertimeID != currentId && !['Cancelled', 'Rejected'].includes(ot.Status)) {
+                    if (!ot.StartTime || !ot.EndTime) continue;
+                    const exStart = new Date(`1970-01-01T${ot.StartTime}`).getTime();
+                    let exEnd = new Date(`1970-01-01T${ot.EndTime}`).getTime();
+                    if (exEnd < exStart) exEnd += 86400000;
+
+                    if (startUnix < exEnd && endUnix > exStart) {
+                        errorEl.innerText = "Overtime schedule overlaps with an existing assignment for this employee.";
+                        errorEl.classList.remove('hidden');
+                        saveBtn.disabled = true;
+                        return;
+                    }
+                }
+            }
+        }
     }
 
     function openModal() {

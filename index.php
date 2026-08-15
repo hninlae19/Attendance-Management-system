@@ -6,6 +6,8 @@ require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/core/Controller.php';
 require_once __DIR__ . '/core/Router.php';
 
+require_once __DIR__ . '/core/HolidayHelper.php';
+
 // Initialize the core Router
 $router = new Router();
 
@@ -14,3 +16,7 @@ require_once __DIR__ . '/models/Attendance.php';
 $attendanceModel = new Attendance();
 $attendanceModel->processAutoCheckouts();
 $attendanceModel->processFullDayAbsences();
+
+require_once __DIR__ . '/models/OvertimeAssign.php';
+$overtimeModel = new OvertimeAssign();
+$overtimeModel->processNoShows();

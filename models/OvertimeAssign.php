@@ -79,6 +79,16 @@ class OvertimeAssign {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getUpcomingByEmployee($emp_id) {
+        $query = "SELECT * FROM " . $this->table . " 
+                  WHERE EmpID = :emp_id AND OvertimeDate >= CURRENT_DATE()
+                  ORDER BY OvertimeDate ASC, StartTime ASC";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':emp_id', $emp_id);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function getMonthlyHours($emp_id, $year, $month, $exclude_id = null) {
         $query = "SELECT SUM(OvertimeHours) as total_hours FROM " . $this->table . " 
                   WHERE EmpID = :emp_id AND YEAR(OvertimeDate) = :year AND MONTH(OvertimeDate) = :month";
@@ -113,5 +123,74 @@ class OvertimeAssign {
         }
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getById($id) {
+        $query = "SELECT * FROM " . $this->table . " WHERE OvertimeID = :id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function updateStatus($id, $status, $approvedBy = null) {
+        $query = "UPDATE " . $this->table . " SET Status = :status";
+        if ($approvedBy) {
+            $query .= ", ApprovedBy = :app_by, ApprovedAt = NOW()";
+        }
+        $query .= " WHERE OvertimeID = :id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':status', $status);
+        $stmt->bindParam(':id', $id);
+        if ($approvedBy) {
+            $stmt->bindParam(':app_by', $approvedBy);
+        }
+        return $stmt->execute();
+    }
+
+    public function acceptReject($id, $emp_id, $status, $response = null) {
+        $query = "UPDATE " . $this->table . " 
+                  SET Status = :status, EmployeeResponse = :resp, AcceptedAt = NOW() 
+                  WHERE OvertimeID = :id AND EmpID = :emp_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':status', $status);
+        $stmt->bindParam(':resp', $response);
+        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(':emp_id', $emp_id);
+        return $stmt->execute();
+    }
+
+    public function otCheckIn($id, $emp_id, $datetime) {
+        $query = "UPDATE " . $this->table . " 
+                  SET Status = 'In Progress', OTCheckIn = :dt 
+                  WHERE OvertimeID = :id AND EmpID = :emp_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':dt', $datetime);
+        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(':emp_id', $emp_id);
+        return $stmt->execute();
+    }
+
+    public function otCheckOut($id, $emp_id, $datetime, $actual_hours) {
+        $query = "UPDATE " . $this->table . " 
+                  SET Status = 'Completed', OTCheckOut = :dt, ActualOTHours = :ah 
+                  WHERE OvertimeID = :id AND EmpID = :emp_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':dt', $datetime);
+        $stmt->bindParam(':ah', $actual_hours);
+        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(':emp_id', $emp_id);
+        return $stmt->execute();
+    }
+
+    public function processNoShows() {
+        // Any accepted OT where the scheduled EndTime has passed, but hasn't been checked in
+        $query = "UPDATE " . $this->table . " 
+                  SET Status = 'No Show' 
+                  WHERE Status = 'Accepted' 
+                  AND CONCAT(OvertimeDate, ' ', EndTime) < NOW() 
+                  AND OTCheckIn IS NULL";
+        $stmt = $this->conn->prepare($query);
+        return $stmt->execute();
     }
 }

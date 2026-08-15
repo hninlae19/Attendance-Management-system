@@ -1,385 +1,239 @@
--- ==============================================================================
--- Final Consolidated Database Schema: Attendance and Payroll Management System
--- ==============================================================================
--- This script contains the fully normalized, production-ready database schema.
--- Duplicate structures have been removed, engines set to InnoDB, and 
--- foreign keys rigorously enforced. Missing indexes for performance have been added.
-
-SET FOREIGN_KEY_CHECKS=0;
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
+-- MySQL dump 10.13  Distrib 8.4.7, for Win64 (x86_64)
+--
+-- Host: localhost    Database: payrolldb
+-- ------------------------------------------------------
+-- Server version	8.4.7
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `users`
--- Purpose: Stores authentication details and roles for all system users (Admin/Employee).
---
-DROP TABLE IF EXISTS `users`;
-CREATE TABLE `users` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `role` enum('Admin','Employee') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Employee',
-  `status` enum('Active','Inactive') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Active',
-
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
+/*!50503 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `departments`
--- Purpose: Manages company departments to group employees.
+-- Table structure for table `admin`
 --
-DROP TABLE IF EXISTS `departments`;
-CREATE TABLE `departments` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
 
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `positions`
--- Purpose: Defines job titles and links them to specific departments.
---
-DROP TABLE IF EXISTS `positions`;
-CREATE TABLE `positions` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `department_id` int NOT NULL,
-
-  PRIMARY KEY (`id`),
-  KEY `department_id` (`department_id`),
-  CONSTRAINT `positions_ibfk_1` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `employees`
--- Purpose: Core table storing employee profile, linked to users, departments, and positions.
---
-DROP TABLE IF EXISTS `employees`;
-CREATE TABLE `employees` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `user_id` int NOT NULL,
-  `employee_code` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `first_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `last_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `department_id` int NOT NULL,
-  `position_id` int NOT NULL,
-  `basic_salary` decimal(10,2) NOT NULL,
-  `join_date` date NOT NULL,
-  `phone` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `address` text COLLATE utf8mb4_unicode_ci,
-
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `employee_code` (`employee_code`),
-  UNIQUE KEY `user_id_unique` (`user_id`),
-  KEY `department_id` (`department_id`),
-  KEY `position_id` (`position_id`),
-  CONSTRAINT `employees_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `employees_ibfk_2` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`) ON DELETE RESTRICT,
-  CONSTRAINT `employees_ibfk_3` FOREIGN KEY (`position_id`) REFERENCES `positions` (`id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `settings`
--- Purpose: Stores global business rules for attendance, leave limits, and deductions.
---
-DROP TABLE IF EXISTS `settings`;
-CREATE TABLE `settings` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `company_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `company_logo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `office_start_time` time NOT NULL DEFAULT '09:00:00',
-  `office_end_time` time NOT NULL DEFAULT '17:00:00',
-  `auto_checkout_time` time NOT NULL DEFAULT '17:30:00',
-  `late_time` time NOT NULL DEFAULT '09:00:00',
-  `working_hours` int NOT NULL DEFAULT '8',
-  `late_deduction_rate` decimal(5,2) NOT NULL DEFAULT '0.00',
-  `weekday_ot_rate` decimal(5,2) NOT NULL DEFAULT '0.02',
-  `weekend_ot_rate` decimal(5,2) NOT NULL DEFAULT '0.03',
-  `holiday_ot_rate` decimal(5,2) NOT NULL DEFAULT '0.04',
-  `max_ot_hours` int NOT NULL DEFAULT '60',
-  `annual_leave_limit` int DEFAULT '14',
-  `casual_leave_limit` int DEFAULT '7',
-  `medical_leave_limit` int DEFAULT '14',
-  `paid_leave_limit` int DEFAULT '35',
-  `unpaid_leave_rules` text COLLATE utf8mb4_unicode_ci,
-  `half_day_leave_rules` text COLLATE utf8mb4_unicode_ci,
-  `absent_deduction_rate` decimal(10,2) DEFAULT '0.00',
-  `half_day_deduction_rate` decimal(10,2) DEFAULT '0.00',
-  `unpaid_leave_deduction_rate` decimal(5,2) NOT NULL DEFAULT '1.00',
-  `auto_deduction_enabled` tinyint(1) NOT NULL DEFAULT '1',
-  `deduction_calculation_method` enum('Fixed Amount','Salary-Based') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Salary-Based',
-  `late_deduction_rules` text COLLATE utf8mb4_unicode_ci,
-  `excess_paid_leave_deduction_rules` text COLLATE utf8mb4_unicode_ci,
-  `custom_deduction_rules` text COLLATE utf8mb4_unicode_ci,
-
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
-
---
--- Table structure for table `leave_types`
--- Purpose: Defines types of leaves (e.g., Annual, Sick) and if they are paid/unpaid.
---
-DROP TABLE IF EXISTS `leave_types`;
-CREATE TABLE `leave_types` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `days_allowed` int NOT NULL,
-  `is_paid` tinyint(1) NOT NULL DEFAULT '1',
-
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
+DROP TABLE IF EXISTS `admin`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `admin` (
+  `AdminID` int NOT NULL AUTO_INCREMENT,
+  `Email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`AdminID`)
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `attendance`
--- Purpose: Daily logging of employee check-in and check-out times.
 --
+
 DROP TABLE IF EXISTS `attendance`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `attendance` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `employee_id` int NOT NULL,
-  `date` date NOT NULL,
-  `check_in` time DEFAULT NULL,
-  `check_out` time DEFAULT NULL,
-  `working_hours` decimal(5,2) DEFAULT NULL,
-  `status` enum('Present','Late','Half Day','Absent','Paid Leave','Unpaid Leave','Holiday','N/A') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Absent',
-  `is_auto_checkout` tinyint(1) NOT NULL DEFAULT '0',
-
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `emp_date` (`employee_id`,`date`),
-  KEY `date_index` (`date`),
-  CONSTRAINT `attendance_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
+  `AttendanceID` int NOT NULL AUTO_INCREMENT,
+  `EmpID` int NOT NULL,
+  `CheckInTime` time DEFAULT NULL,
+  `CheckOutTime` time DEFAULT NULL,
+  `AttendanceDate` date NOT NULL,
+  `Status` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `is_auto_checkout` tinyint(1) DEFAULT '0',
+  PRIMARY KEY (`AttendanceID`),
+  KEY `EmpID` (`EmpID`)
+) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `leave_requests`
--- Purpose: Manages employee leave applications and admin approval flow.
+-- Table structure for table `bonous`
 --
-DROP TABLE IF EXISTS `leave_requests`;
-CREATE TABLE `leave_requests` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `employee_id` int NOT NULL,
-  `leave_type_id` int NOT NULL,
-  `start_date` date NOT NULL,
-  `end_date` date NOT NULL,
-  `days` int NOT NULL,
-  `reason` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `status` enum('Pending','Approved','Rejected') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Pending',
-  `admin_remark` text COLLATE utf8mb4_unicode_ci,
 
-  PRIMARY KEY (`id`),
-  KEY `employee_id` (`employee_id`),
-  KEY `leave_type_id` (`leave_type_id`),
-  CONSTRAINT `leave_requests_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `leave_requests_ibfk_2` FOREIGN KEY (`leave_type_id`) REFERENCES `leave_types` (`id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
+DROP TABLE IF EXISTS `bonous`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `bonous` (
+  `BonousID` int NOT NULL AUTO_INCREMENT,
+  `BonusType` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`BonousID`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `overtime_requests`
--- Purpose: Employee-initiated overtime claims for approval.
+-- Table structure for table `department`
 --
-DROP TABLE IF EXISTS `overtime_requests`;
-CREATE TABLE `overtime_requests` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `employee_id` int NOT NULL,
-  `date` date NOT NULL,
-  `start_time` time NOT NULL,
-  `end_time` time NOT NULL,
-  `hours` decimal(5,2) NOT NULL,
-  `type` enum('Working Day','Weekend','Holiday') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `reason` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `status` enum('Pending','Approved','Rejected') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Pending',
 
-  PRIMARY KEY (`id`),
-  KEY `employee_id` (`employee_id`),
-  CONSTRAINT `overtime_requests_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
+DROP TABLE IF EXISTS `department`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `department` (
+  `DeptID` int NOT NULL AUTO_INCREMENT,
+  `DeptName` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`DeptID`)
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `overtime_assignments`
--- Purpose: Admin-initiated overtime tasks assigned to employees.
+-- Table structure for table `empbonous`
 --
-DROP TABLE IF EXISTS `overtime_assignments`;
-CREATE TABLE `overtime_assignments` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `date` date NOT NULL,
-  `start_time` time NOT NULL,
-  `end_time` time NOT NULL,
-  `reason` text COLLATE utf8mb4_unicode_ci,
-  `assigned_by` int NOT NULL,
-  `status` enum('Active','Completed','Cancelled') COLLATE utf8mb4_unicode_ci DEFAULT 'Active',
 
-  PRIMARY KEY (`id`),
-  KEY `assigned_by` (`assigned_by`),
-  CONSTRAINT `overtime_assignments_ibfk_1` FOREIGN KEY (`assigned_by`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
+DROP TABLE IF EXISTS `empbonous`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `empbonous` (
+  `EmpBonousID` int NOT NULL AUTO_INCREMENT,
+  `BonousID` int NOT NULL,
+  `EmpID` int NOT NULL,
+  `BonusDate` date NOT NULL,
+  `Amount` decimal(10,2) NOT NULL,
+  PRIMARY KEY (`EmpBonousID`),
+  KEY `BonousID` (`BonousID`),
+  KEY `EmpID` (`EmpID`)
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `overtime_assignment_employees`
--- Purpose: Maps specific employees to a given overtime assignment.
+-- Table structure for table `employee`
 --
-DROP TABLE IF EXISTS `overtime_assignment_employees`;
-CREATE TABLE `overtime_assignment_employees` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `assignment_id` int NOT NULL,
-  `employee_id` int NOT NULL,
-  `status` enum('Assigned','Completed','Missed') COLLATE utf8mb4_unicode_ci DEFAULT 'Assigned',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `assign_emp` (`assignment_id`,`employee_id`),
-  KEY `employee_id` (`employee_id`),
-  CONSTRAINT `otae_ibfk_1` FOREIGN KEY (`assignment_id`) REFERENCES `overtime_assignments` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `otae_ibfk_2` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- --------------------------------------------------------
+DROP TABLE IF EXISTS `employee`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `employee` (
+  `EmpID` int NOT NULL AUTO_INCREMENT,
+  `FirstName` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `LastName` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Gender` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `PhoneNumber` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Address` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `PositionID` int NOT NULL,
+  `JoinDate` date NOT NULL,
+  `Status` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`EmpID`),
+  KEY `PositionID` (`PositionID`)
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `leaverequest`
+--
+
+DROP TABLE IF EXISTS `leaverequest`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `leaverequest` (
+  `RequestID` int NOT NULL AUTO_INCREMENT,
+  `LeaveTypeID` int NOT NULL,
+  `EmpID` int NOT NULL,
+  `StartDate` date NOT NULL,
+  `EndDate` date NOT NULL,
+  `Reason` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Status` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`RequestID`),
+  KEY `LeaveTypeID` (`LeaveTypeID`),
+  KEY `EmpID` (`EmpID`)
+) ENGINE=MyISAM AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `leavetypes`
+--
+
+DROP TABLE IF EXISTS `leavetypes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `leavetypes` (
+  `LeaveTypeID` int NOT NULL AUTO_INCREMENT,
+  `LeaveType` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `DaysAllowed` int NOT NULL,
+  `IsPaid` tinyint(1) NOT NULL,
+  `DeductionRate` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `DurationMonths` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`LeaveTypeID`)
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `overtimeassign`
+--
+
+DROP TABLE IF EXISTS `overtimeassign`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `overtimeassign` (
+  `OvertimeID` int NOT NULL AUTO_INCREMENT,
+  `EmpID` int NOT NULL,
+  `OvertimeDate` date NOT NULL,
+  `StartTime` time DEFAULT NULL,
+  `EndTime` time DEFAULT NULL,
+  `OvertimeHours` decimal(5,2) NOT NULL,
+  `OTRate` decimal(12,2) NOT NULL,
+  `OTAmount` decimal(12,2) NOT NULL,
+  PRIMARY KEY (`OvertimeID`),
+  KEY `EmpID` (`EmpID`)
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `payroll`
--- Purpose: Consolidates monthly calculations for employee salary, OT, bonuses, and deductions.
 --
+
 DROP TABLE IF EXISTS `payroll`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `payroll` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `employee_id` int NOT NULL,
-  `month` int NOT NULL,
-  `year` int NOT NULL,
-  `basic_salary` decimal(10,2) NOT NULL,
-  `present_days` int NOT NULL DEFAULT '0',
-  `half_days` int NOT NULL DEFAULT '0',
-  `absent_days` int NOT NULL DEFAULT '0',
-  `late_days` int NOT NULL DEFAULT '0',
-  `leave_days` int NOT NULL DEFAULT '0',
-  `ot_amount` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `bonus_amount` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `allowance_amount` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `leave_deduction_amount` decimal(10,2) DEFAULT '0.00',
-  `late_deduction_amount` decimal(10,2) DEFAULT '0.00',
-  `other_deduction_amount` decimal(10,2) DEFAULT '0.00',
-  `deduction_amount` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `gross_salary` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `net_salary` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `status` enum('Pending','Paid') COLLATE utf8mb4_unicode_ci DEFAULT 'Pending',
-  `payment_method` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `payment_date` datetime DEFAULT NULL,
-
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `emp_month_year` (`employee_id`,`month`,`year`),
-  CONSTRAINT `payroll_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
+  `PayrollID` int NOT NULL AUTO_INCREMENT,
+  `EmpID` int NOT NULL,
+  `employee_code` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `BasicSalary` decimal(10,2) NOT NULL,
+  `present_days` int DEFAULT '0',
+  `leave_days` int DEFAULT '0',
+  `absent_days` int DEFAULT '0',
+  `half_days` int DEFAULT '0',
+  `late_days` int DEFAULT '0',
+  `ot_hours` decimal(10,2) DEFAULT '0.00',
+  `PayrollMonth` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `BonousAmount` decimal(10,2) NOT NULL,
+  `OvertimeAmount` decimal(10,2) NOT NULL,
+  `LeaveDeductionAmount` decimal(10,2) NOT NULL,
+  `NetSalary` decimal(10,2) NOT NULL,
+  `Status` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`PayrollID`),
+  KEY `EmpID` (`EmpID`)
+) ENGINE=MyISAM AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `bonuses`
--- Purpose: Records additions to employee salary, linked to specific payroll cycles.
+-- Table structure for table `position`
 --
-DROP TABLE IF EXISTS `bonuses`;
-CREATE TABLE `bonuses` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `employee_id` int NOT NULL,
-  `payroll_id` int DEFAULT NULL,
-  `amount` decimal(10,2) NOT NULL,
-  `notes` text COLLATE utf8mb4_unicode_ci,
-  `reason` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `date` date NOT NULL,
-  `type` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `employee_id` (`employee_id`),
-  KEY `payroll_id` (`payroll_id`),
-  CONSTRAINT `bonuses_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `bonuses_ibfk_2` FOREIGN KEY (`payroll_id`) REFERENCES `payroll` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- --------------------------------------------------------
+DROP TABLE IF EXISTS `position`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `position` (
+  `PositionID` int NOT NULL AUTO_INCREMENT,
+  `PositionName` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `DeptID` int NOT NULL,
+  `BasicSalary` decimal(10,2) NOT NULL,
+  PRIMARY KEY (`PositionID`),
+  KEY `DeptID` (`DeptID`)
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
---
--- Table structure for table `deductions`
--- Purpose: Records subtractions from employee salary, linking to payroll cycles.
---
-DROP TABLE IF EXISTS `deductions`;
-CREATE TABLE `deductions` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `employee_id` int NOT NULL,
-  `payroll_id` int DEFAULT NULL,
-  `amount` decimal(10,2) NOT NULL,
-  `status` enum('Active','Pending','Applied','Cancelled') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Active',
-  `created_by` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT 'Admin',
-  `notes` text COLLATE utf8mb4_unicode_ci,
-  `reason` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `date` date NOT NULL,
-  `start_date` date DEFAULT NULL,
-  `end_date` date DEFAULT NULL,
-  `type` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `source` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'System',
-  `related_id` int DEFAULT NULL,
-  `deduction_days_hours` decimal(5,2) DEFAULT NULL,
-  `total_absent_days` decimal(5,2) DEFAULT NULL,
-
-  PRIMARY KEY (`id`),
-  KEY `employee_id` (`employee_id`),
-  KEY `payroll_id` (`payroll_id`),
-  CONSTRAINT `deductions_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `deductions_ibfk_2` FOREIGN KEY (`payroll_id`) REFERENCES `payroll` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `notifications`
--- Purpose: System alerts and messages for users based on actions like leave requests.
---
-DROP TABLE IF EXISTS `notifications`;
-CREATE TABLE `notifications` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `user_id` int NOT NULL,
-  `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `message` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `type` enum('leave','overtime','payroll','attendance','system') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `link` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `reference_id` int DEFAULT NULL,
-  `is_read` tinyint(1) NOT NULL DEFAULT '0',
-
-  `sender_id` int DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`),
-  CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-SET FOREIGN_KEY_CHECKS=1;
-COMMIT;
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2026-08-14 23:20:52

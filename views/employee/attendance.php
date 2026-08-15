@@ -2,6 +2,12 @@
     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">My Attendance</h1>
 </div>
 
+<?php if(!$data['is_working_day']): ?>
+<div class="mb-6 p-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300" role="alert">
+  <span class="font-medium"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Today is a non-working day!</span> Attendance submission is disabled for weekends and public holidays.
+</div>
+<?php endif; ?>
+
 <div class="mb-8" x-data="{ tab: 'history' }">
     <div class="border-b border-gray-200 dark:border-gray-700">
         <ul class="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400">

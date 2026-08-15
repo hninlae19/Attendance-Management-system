@@ -1,7 +1,0 @@
-<pre class='xdebug-var-dump' dir='ltr'>
-<small>C:\wamp64\www\payrollsystem\test_ctrl.php:13:</small><small>string</small> <font color='#cc0000'>'POST'</font> <i>(length=4)</i>
-</pre><pre class='xdebug-var-dump' dir='ltr'>
-<small>C:\wamp64\www\payrollsystem\test_ctrl.php:14:</small><small>boolean</small> <font color='#75507b'>true</font>
-</pre><pre class='xdebug-var-dump' dir='ltr'>
-<small>C:\wamp64\www\payrollsystem\test_ctrl.php:15:</small><small>string</small> <font color='#cc0000'>'apply'</font> <i>(length=5)</i>
-</pre>Redirecting to: /payrollsystem/auth/login

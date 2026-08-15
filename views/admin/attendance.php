@@ -25,7 +25,6 @@
                     <option value="weekly">Weekly</option>
                     <option value="monthly">Monthly</option>
                     <option value="custom">Custom Date Range</option>
-                    <option value="corrections">Corrections</option>
                 </select>
             </div>
 
@@ -214,64 +213,6 @@
                     Next <i class="fa-solid fa-chevron-right ml-1"></i>
                 </button>
             </div>
-        </div>
-    </div>
-
-    <!-- Corrections Table -->
-    <div x-show="filters.view_type === 'corrections'" x-cloak class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden" data-aos="fade-up" data-aos-delay="200">
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                <thead class="text-xs text-gray-500 uppercase bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-700 sticky top-0">
-                    <tr>
-                        <th scope="col" class="px-6 py-4 font-semibold">Employee</th>
-                        <th scope="col" class="px-6 py-4 font-semibold">Date</th>
-                        <th scope="col" class="px-6 py-4 font-semibold">Reason</th>
-                        <th scope="col" class="px-6 py-4 font-semibold">Requested Times</th>
-                        <th scope="col" class="px-6 py-4 font-semibold">Status</th>
-                        <th scope="col" class="px-6 py-4 font-semibold text-right">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if(empty($data['corrections'])): ?>
-                        <tr><td colspan="6" class="px-6 py-12 text-center text-gray-500">No correction requests found.</td></tr>
-                    <?php else: foreach($data['corrections'] as $corr): ?>
-                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                            <td class="px-6 py-4">
-                                <div class="font-bold text-gray-900 dark:text-white"><?= htmlspecialchars($corr['FirstName'] . ' ' . $corr['LastName']) ?></div>
-                                <div class="text-xs text-gray-500"><?= htmlspecialchars($corr['employee_code']) ?></div>
-                            </td>
-                            <td class="px-6 py-4 text-gray-900 dark:text-white"><?= date('M j, Y', strtotime($corr['AttendanceDate'])) ?></td>
-                            <td class="px-6 py-4 max-w-xs truncate text-gray-700 dark:text-gray-300" title="<?= htmlspecialchars($corr['Reason']) ?>"><?= htmlspecialchars($corr['Reason']) ?></td>
-                            <td class="px-6 py-4 text-xs whitespace-nowrap">
-                                <span class="text-gray-400">In:</span> <span class="line-through text-red-400"><?= $corr['old_in'] ? date('h:i A', strtotime($corr['old_in'])) : 'None' ?></span> <i class="fa-solid fa-arrow-right mx-1 text-gray-400"></i> <span class="text-green-600 font-medium"><?= $corr['corrected_check_in'] ? date('h:i A', strtotime($corr['corrected_check_in'])) : 'None' ?></span><br>
-                                <span class="text-gray-400">Out:</span> <span class="line-through text-red-400"><?= $corr['old_out'] ? date('h:i A', strtotime($corr['old_out'])) : 'None' ?></span> <i class="fa-solid fa-arrow-right mx-1 text-gray-400"></i> <span class="text-green-600 font-medium"><?= $corr['corrected_check_out'] ? date('h:i A', strtotime($corr['corrected_check_out'])) : 'None' ?></span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <?php if($corr['Status'] === 'Approved'): ?>
-                                    <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full dark:bg-green-900 dark:text-green-300">Approved</span>
-                                <?php elseif($corr['Status'] === 'Rejected'): ?>
-                                    <span class="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full dark:bg-red-900 dark:text-red-300">Rejected</span>
-                                <?php else: ?>
-                                    <span class="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full dark:bg-yellow-900 dark:text-yellow-300">Pending</span>
-                                <?php endif; ?>
-                            </td>
-                            <td class="px-6 py-4 text-right space-x-2">
-                                <?php if($corr['Status'] === 'Pending'): ?>
-                                <form action="/payrollsystem/admin/attendance" method="POST" class="inline">
-    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
-
-                                    <input type="hidden" name="id" value="<?= $corr['id'] ?>">
-                                    <button type="submit" name="action" value="approve" class="text-green-600 dark:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/30 p-2 rounded-full transition-colors"><i class="fa-solid fa-check w-4"></i></button>
-                                    <button type="submit" name="action" value="reject" class="text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 p-2 rounded-full transition-colors"><i class="fa-solid fa-xmark w-4"></i></button>
-                                </form>
-                                <?php else: ?>
-                                <span class="text-gray-400 text-xs italic">Processed</span>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                    <?php endforeach; endif; ?>
-                </tbody>
-            </table>
         </div>
     </div>
 
