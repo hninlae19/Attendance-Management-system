@@ -241,6 +241,18 @@ class EmployeeController extends Controller {
         ]);
     }
 
+    public function salary_history() {
+        $emp_id = $_SESSION['employee_id'];
+        $payrollModel = $this->model('Payroll');
+        $payrolls = $payrollModel->getByEmployee($emp_id);
+        
+        $this->view('layouts/main', [
+            'title' => 'My Salary History',
+            'content' => 'employee/salary_history',
+            'payrolls' => $payrolls
+        ]);
+    }
+
     public function profile() {
         $emp_id = $_SESSION['employee_id'];
         $employee = $this->model('Employee')->getEmployeeById($emp_id);

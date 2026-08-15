@@ -20,8 +20,8 @@
         <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
                 <th scope="col" class="px-6 py-4">ID</th>
-                <th scope="col" class="px-6 py-4">Position Name</th>
                 <th scope="col" class="px-6 py-4">Department</th>
+                <th scope="col" class="px-6 py-4">Position Name</th>
                 <th scope="col" class="px-6 py-4">Basic Salary</th>
                 <th scope="col" class="px-6 py-4 text-right">Actions</th>
             </tr>
@@ -35,8 +35,8 @@
                 <?php foreach($data['positions'] as $pos): ?>
                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
                     <td class="px-6 py-4"><?= $pos['PositionID'] ?></td>
-                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white"><?= htmlspecialchars($pos['PositionName']) ?></td>
                     <td class="px-6 py-4"><?= htmlspecialchars($pos['DeptName']) ?></td>
+                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white"><?= htmlspecialchars($pos['PositionName']) ?></td>
                     <td class="px-6 py-4"><?= number_format($pos['BasicSalary'] ?? 0, 2) ?> MMK</td>
                     <td class="px-6 py-4 text-right space-x-2">
                         <button onclick="editPosition(<?= $pos['PositionID'] ?>, '<?= htmlspecialchars(addslashes($pos['PositionName'])) ?>', <?= $pos['DeptID'] ?>, <?= $pos['BasicSalary'] ?? 0 ?>)" class="font-medium text-blue-600 dark:text-blue-500 hover:underline"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
@@ -69,10 +69,6 @@
 
             <input type="hidden" name="action" value="add">
             <div>
-                <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Position Name</label>
-                <input type="text" name="name" id="name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
-            </div>
-            <div>
                 <label for="department_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Department</label>
                 <select name="department_id" id="department_id" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
                     <option value="">Select Department</option>
@@ -80,6 +76,10 @@
                         <option value="<?= $dept['DeptID'] ?>"><?= htmlspecialchars($dept['DeptName']) ?></option>
                     <?php endforeach; ?>
                 </select>
+            </div>
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Position Name</label>
+                <input type="text" name="name" id="name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
             </div>
             <div>
                 <label for="basic_salary" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Basic Salary (MMK)</label>
@@ -108,16 +108,16 @@
             <input type="hidden" name="action" value="edit">
             <input type="hidden" name="id" id="edit_id">
             <div>
-                <label for="edit_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Position Name</label>
-                <input type="text" name="name" id="edit_name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
-            </div>
-            <div>
                 <label for="edit_department_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Department</label>
                 <select name="department_id" id="edit_department_id" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
                     <?php foreach($data['departments'] as $dept): ?>
                         <option value="<?= $dept['DeptID'] ?>"><?= htmlspecialchars($dept['DeptName']) ?></option>
                     <?php endforeach; ?>
                 </select>
+            </div>
+            <div>
+                <label for="edit_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Position Name</label>
+                <input type="text" name="name" id="edit_name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
             </div>
             <div>
                 <label for="edit_basic_salary" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Basic Salary (MMK)</label>

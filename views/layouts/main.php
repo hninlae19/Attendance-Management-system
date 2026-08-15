@@ -465,6 +465,12 @@ $isActive = function($path) use ($currentPath) {
                         ]
                     ],
                     [
+                        'label' => 'Payroll',
+                        'items' => [
+                            ['href' => '/payrollsystem/employee/salary_history', 'icon' => 'fa-file-invoice-dollar', 'label' => 'My Salary History', 'match' => '/salary_history'],
+                        ]
+                    ],
+                    [
                         'label' => 'Settings',
                         'items' => [
                             ['href' => '/payrollsystem/employee/profile', 'icon' => 'fa-user-pen', 'label' => 'My Profile', 'match' => '/profile'],

@@ -18,7 +18,7 @@ class Position {
     public function getAll() {
         $query = "SELECT p.*, d.DeptName FROM " . $this->table . " p
                   LEFT JOIN Department d ON p.DeptID = d.DeptID
-                  ORDER BY p.PositionName";
+                  ORDER BY p.PositionID ASC";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

@@ -104,12 +104,17 @@
 
             <div>
                 <label for="type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bonus Type</label>
-                <select name="type" id="type" required class="w-full px-4 py-2 bg-white/50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm transition-colors">
+                <select name="type" id="type" required onchange="const ct = document.getElementById('custom_type_container'); const cti = document.getElementById('custom_type'); if(this.value === 'Other') { ct.classList.remove('hidden'); cti.setAttribute('required', 'required'); } else { ct.classList.add('hidden'); cti.removeAttribute('required'); }" class="w-full px-4 py-2 bg-white/50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm transition-colors">
                     <option value="Performance">Performance Bonus</option>
                     <option value="Annual">Annual Bonus</option>
                     <option value="Referral">Referral Bonus</option>
                     <option value="Other">Other / Custom</option>
                 </select>
+            </div>
+
+            <div id="custom_type_container" class="hidden">
+                <label for="custom_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Custom Bonus Type</label>
+                <input type="text" name="custom_type" id="custom_type" placeholder="e.g. Holiday Bonus" class="w-full px-4 py-2 bg-white/50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm transition-colors">
             </div>
 
             <div>

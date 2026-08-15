@@ -94,6 +94,9 @@
                                 <a href="/payrollsystem/admin/employee/<?= $emp['EmpID'] ?>" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50 transition-colors tooltip" title="View Profile">
                                     <i class="fa-solid fa-eye"></i>
                                 </a>
+                                <a href="/payrollsystem/admin/employee_salary_history/<?= $emp['EmpID'] ?>" class="w-8 h-8 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center hover:bg-teal-100 dark:bg-teal-900/30 dark:text-teal-400 dark:hover:bg-teal-900/50 transition-colors tooltip" title="Salary History">
+                                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                                </a>
                                 <a href="/payrollsystem/admin/employee/<?= $emp['EmpID'] ?>#edit" class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50 transition-colors tooltip" title="Edit Employee">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </a>

@@ -150,6 +150,30 @@ class AdminController extends Controller {
         ]);
     }
     
+    public function employee_salary_history($id = null) {
+        if (!$id) {
+            $this->redirect('/payrollsystem/admin/employees');
+            return;
+        }
+
+        $employeeModel = $this->model('Employee');
+        $employee = $employeeModel->getEmployeeById($id);
+        if (!$employee) {
+            $this->redirect('/payrollsystem/admin/employees');
+            return;
+        }
+
+        $payrollModel = $this->model('Payroll');
+        $payrolls = $payrollModel->getByEmployee($id);
+
+        $this->view('layouts/main', [
+            'title' => 'Employee Salary History',
+            'content' => 'admin/employee_salary_history',
+            'employee' => $employee,
+            'payrolls' => $payrolls
+        ]);
+    }
+    
     public function employees() {
         $employeeModel = $this->model('Employee');
         $departmentModel = $this->model('Department');
@@ -656,7 +680,10 @@ class AdminController extends Controller {
                     $empId = $_POST['employee_id'];
                     $amount = $_POST['amount'];
                     $date = $_POST['date'];
-                    $type = $_POST['type']; // This is a string from the UI select
+                    $type = $_POST['type'];
+                    if ($type === 'Other' && !empty($_POST['custom_type'])) {
+                        $type = trim($_POST['custom_type']);
+                    }
                     
                     // Find or create Bonus type in Bonous table
                     $db = new Database();
@@ -937,19 +964,52 @@ class AdminController extends Controller {
                 return;
             }
         }
-        
         $payrollModel = $this->model('Payroll');
-        $payrolls = $payrollModel->getAll();
+        $employeeModel = $this->model('Employee');
+        $employees = $employeeModel->getAll();
 
         $selectedMonth = $_GET['month'] ?? date('n');
         $selectedYear = $_GET['year'] ?? date('Y');
+        $selectedEmpId = $_GET['emp_id'] ?? null;
+
+        if ($selectedEmpId) {
+            $payrolls = $payrollModel->getByEmployee($selectedEmpId);
+            $viewMode = 'employee_history';
+            
+            // Find selected employee name for header
+            $selectedEmpName = '';
+            foreach($employees as $e) {
+                if ($e['EmpID'] == $selectedEmpId) {
+                    $selectedEmpName = $e['FirstName'] . ' ' . $e['LastName'];
+                    break;
+                }
+            }
+        } else {
+            $payrolls = $payrollModel->getAll();
+            // Filter getAll by the selected month string
+            $monthNames = [1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April', 5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August', 9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'];
+            $targetMonthStr = $monthNames[(int)$selectedMonth] . ' ' . $selectedYear;
+            
+            $filteredPayrolls = [];
+            foreach ($payrolls as $p) {
+                if ($p['PayrollMonth'] === $targetMonthStr) {
+                    $filteredPayrolls[] = $p;
+                }
+            }
+            $payrolls = $filteredPayrolls;
+            $viewMode = 'month_view';
+        }
 
         $this->view('layouts/main', [
             'title' => 'Monthly Payroll',
             'content' => 'admin/payroll',
             'payrolls' => $payrolls,
             'selectedMonth' => $selectedMonth,
-            'selectedYear' => $selectedYear
+            'selectedYear' => $selectedYear,
+            'employees' => $employees,
+            'selectedEmpId' => $selectedEmpId,
+            'viewMode' => $viewMode,
+            'selectedEmpName' => $selectedEmpName ?? ''
         ]);
     }
     

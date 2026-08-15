@@ -33,7 +33,13 @@ class Payroll {
     }
 
     public function getByEmployee($emp_id) {
-        $query = "SELECT * FROM " . $this->table . " WHERE EmpID = :emp_id ORDER BY PayrollID DESC";
+        $query = "SELECT p.*, e.FirstName, e.LastName, pos.PositionName, d.DeptName 
+                  FROM " . $this->table . " p
+                  LEFT JOIN Employee e ON p.EmpID = e.EmpID
+                  LEFT JOIN Position pos ON e.PositionID = pos.PositionID
+                  LEFT JOIN Department d ON pos.DeptID = d.DeptID
+                  WHERE p.EmpID = :emp_id 
+                  ORDER BY p.PayrollID DESC";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':emp_id', $emp_id);
         $stmt->execute();

@@ -30,9 +30,9 @@
                     <td colspan="3" class="px-6 py-4 text-center">No departments found.</td>
                 </tr>
             <?php else: ?>
-                <?php foreach($data['departments'] as $dept): ?>
+                <?php $i = 1; foreach($data['departments'] as $dept): ?>
                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
-                    <td class="px-6 py-4"><?= $dept['DeptID'] ?></td>
+                    <td class="px-6 py-4"><?= $i++ ?></td>
                     <td class="px-6 py-4 font-medium text-gray-900 dark:text-white"><?= htmlspecialchars($dept['DeptName']) ?></td>
                     <td class="px-6 py-4 text-right space-x-2">
                         <button onclick="editDepartment(<?= $dept['DeptID'] ?>, '<?= htmlspecialchars(addslashes($dept['DeptName'])) ?>')" class="font-medium text-blue-600 dark:text-blue-500 hover:underline"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
