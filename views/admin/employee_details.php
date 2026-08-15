@@ -185,6 +185,7 @@
                 <div>
                     <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">New Password (leave blank to keep current)</label>
                     <input type="password" name="password" id="password" placeholder="Enter new password..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
+                    <span id="password-error" class="text-xs text-red-500 hidden mt-1">Password must be at least 6 characters.</span>
                 </div>
             </div>
 
@@ -193,6 +194,7 @@
                 <div>
                     <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone</label>
                     <input type="text" name="phone" id="phone" value="<?= htmlspecialchars($data['employee']['PhoneNumber']) ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
+                    <span id="phone-error" class="text-xs text-red-500 hidden mt-1">Invalid phone number format.</span>
                 </div>
                 <div>
                     <label for="address" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Address</label>
@@ -261,5 +263,37 @@
                 basicSalaryInput.value = "";
             }
         });
+
+        // Inline Validation
+        const phoneInput = document.getElementById('phone');
+        const phoneError = document.getElementById('phone-error');
+        if (phoneInput && phoneError) {
+            phoneInput.addEventListener('input', function() {
+                const phoneVal = this.value.trim();
+                const isValid = /^[0-9\-\+\s\(\)]{7,20}$/.test(phoneVal) || phoneVal === '';
+                if (!isValid) {
+                    phoneError.classList.remove('hidden');
+                    this.classList.add('border-red-500', 'focus:border-red-500');
+                } else {
+                    phoneError.classList.add('hidden');
+                    this.classList.remove('border-red-500', 'focus:border-red-500');
+                }
+            });
+        }
+
+        const passwordInput = document.getElementById('password');
+        const passwordError = document.getElementById('password-error');
+        if (passwordInput && passwordError) {
+            passwordInput.addEventListener('input', function() {
+                const pwdVal = this.value;
+                if (pwdVal.length > 0 && pwdVal.length < 6) {
+                    passwordError.classList.remove('hidden');
+                    this.classList.add('border-red-500', 'focus:border-red-500');
+                } else {
+                    passwordError.classList.add('hidden');
+                    this.classList.remove('border-red-500', 'focus:border-red-500');
+                }
+            });
+        }
     });
 </script>

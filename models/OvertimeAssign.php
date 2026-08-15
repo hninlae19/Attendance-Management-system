@@ -29,6 +29,14 @@ class OvertimeAssign {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getPendingCount() {
+        $query = "SELECT COUNT(*) as count FROM " . $this->table . " WHERE Status = 'Pending'";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row['count'] ?? 0;
+    }
+
     public function create() {
         $query = "INSERT INTO " . $this->table . " 
                   (EmpID, OvertimeDate, StartTime, EndTime, OvertimeHours, OTRate, OTAmount) 

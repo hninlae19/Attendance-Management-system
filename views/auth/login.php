@@ -81,7 +81,7 @@
                         </label>
                     </div>
                     <div class="text-sm">
-                        <a href="#" class="font-medium text-primary hover:text-indigo-500 transition-colors">Forgot password?</a>
+                        <a href="/payrollsystem/auth/forgot_password" class="font-medium text-primary hover:text-indigo-500 transition-colors">Forgot password?</a>
                     </div>
                 </div>
 

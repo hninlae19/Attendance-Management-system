@@ -109,11 +109,28 @@
                 </div>
             </div>
 
+            <!-- Pending Password Resets Widget -->
+            <div class="flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 hover:border-primary/30 transition-colors">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 flex items-center justify-center"><i class="fa-solid fa-key"></i></div>
+                    <div>
+                        <p class="text-sm font-bold text-gray-900 dark:text-white">Password Resets</p>
+                        <p class="text-xs text-gray-500">Requires admin action</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="text-xl font-bold text-gray-900 dark:text-white" id="stat-pend-resets"><?= $pendingResets ?? 0 ?></span>
+                </div>
+            </div>
 
-            
-            <a href="/payrollsystem/admin/leaves" class="block w-full py-2.5 px-4 text-center text-sm font-bold text-primary bg-primary/5 hover:bg-primary/10 rounded-xl transition-colors">
-                View All Requests <i class="fa-solid fa-arrow-right ml-1"></i>
-            </a>
+            <div class="grid grid-cols-2 gap-3 mt-2">
+                <a href="/payrollsystem/admin/leaves" class="block w-full py-2 px-3 text-center text-xs font-bold text-primary bg-primary/5 hover:bg-primary/10 rounded-xl transition-colors">
+                    View Leaves <i class="fa-solid fa-arrow-right ml-1"></i>
+                </a>
+                <a href="/payrollsystem/admin/password_resets" class="block w-full py-2 px-3 text-center text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40">
+                    View Resets <i class="fa-solid fa-arrow-right ml-1"></i>
+                </a>
+            </div>
         </div>
     </div>
 
@@ -320,6 +337,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 updateStat('stat-leave', data.employeesOnLeave);
                 updateStat('stat-pend-leave', data.pendingLeaves);
                 updateStat('stat-pend-ot', data.pendingOvertime);
+                updateStat('stat-pend-resets', data.pendingResets);
                 updateStat('stat-payroll', 'MMK ' + parseFloat(data.monthlyPayroll).toFixed(2));
                 updateStat('stat-bonus', 'MMK ' + parseFloat(data.monthlyBonus).toFixed(2));
 

@@ -150,6 +150,7 @@
                             <div>
                                 <label for="password" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Password</label>
                                 <input type="password" name="password" id="password" required class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm text-sm">
+                                <span id="password-error" class="text-xs text-red-500 hidden mt-1">Password must be at least 6 characters.</span>
                             </div>
                         </div>
                     </div>
@@ -160,6 +161,7 @@
                             <div>
                                 <label for="phone" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Phone Number</label>
                                 <input type="text" name="phone" id="phone" class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm text-sm">
+                                <span id="phone-error" class="text-xs text-red-500 hidden mt-1">Invalid phone number format.</span>
                             </div>
                             <div>
                                 <label for="address" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Residential Address</label>
@@ -281,5 +283,37 @@ document.addEventListener('DOMContentLoaded', function() {
             basicSalaryInput.value = "";
         }
     });
+
+    // Inline Validation
+    const phoneInput = document.getElementById('phone');
+    const phoneError = document.getElementById('phone-error');
+    if (phoneInput && phoneError) {
+        phoneInput.addEventListener('input', function() {
+            const phoneVal = this.value.trim();
+            const isValid = /^[0-9\-\+\s\(\)]{7,20}$/.test(phoneVal) || phoneVal === '';
+            if (!isValid) {
+                phoneError.classList.remove('hidden');
+                this.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500/20');
+            } else {
+                phoneError.classList.add('hidden');
+                this.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500/20');
+            }
+        });
+    }
+
+    const passwordInput = document.getElementById('password');
+    const passwordError = document.getElementById('password-error');
+    if (passwordInput && passwordError) {
+        passwordInput.addEventListener('input', function() {
+            const pwdVal = this.value;
+            if (pwdVal.length > 0 && pwdVal.length < 6) {
+                passwordError.classList.remove('hidden');
+                this.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500/20');
+            } else {
+                passwordError.classList.add('hidden');
+                this.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500/20');
+            }
+        });
+    }
 });
 </script>

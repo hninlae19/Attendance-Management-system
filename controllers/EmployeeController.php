@@ -240,4 +240,140 @@ class EmployeeController extends Controller {
             'payroll' => $payrollData
         ]);
     }
+
+    public function profile() {
+        $emp_id = $_SESSION['employee_id'];
+        $employee = $this->model('Employee')->getEmployeeById($emp_id);
+        
+        $this->view('layouts/main', [
+            'title' => 'My Profile',
+            'content' => 'employee/profile',
+            'employee' => $employee
+        ]);
+    }
+
+    public function updateProfile() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $this->validateCsrfToken($_POST['csrf_token'] ?? '');
+            
+            $emp_id = $_SESSION['employee_id'];
+            $employeeModel = $this->model('Employee');
+            $employee = $employeeModel->getEmployeeById($emp_id);
+
+            $phone = trim($_POST['phone_number']);
+            if (!preg_match('/^[0-9\-\+\s\(\)]{7,20}$/', $phone)) {
+                $_SESSION['profile_error'] = 'Invalid phone number format.';
+                $this->redirect('/payrollsystem/employee/profile');
+                return;
+            }
+
+            $employeeModel->EmpID = $emp_id;
+            $employeeModel->FirstName = trim($_POST['first_name']);
+            $employeeModel->LastName = trim($_POST['last_name']);
+            $employeeModel->Email = trim($_POST['email']);
+            $employeeModel->PhoneNumber = $phone;
+            $employeeModel->Address = trim($_POST['address']);
+            
+            // Retain fields
+            $employeeModel->Gender = $employee['Gender'];
+            $employeeModel->PositionID = $employee['PositionID'];
+            $employeeModel->JoinDate = $employee['JoinDate'];
+            $employeeModel->Status = $employee['Status'];
+            
+            if ($employeeModel->update()) {
+                $_SESSION['first_name'] = $employeeModel->FirstName;
+                $_SESSION['last_name'] = $employeeModel->LastName;
+                $_SESSION['email'] = $employeeModel->Email;
+                $_SESSION['profile_success'] = 'Profile updated successfully.';
+            } else {
+                $_SESSION['profile_error'] = 'Failed to update profile.';
+            }
+        }
+        $this->redirect('/payrollsystem/employee/profile');
+    }
+
+    public function changePassword() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $this->validateCsrfToken($_POST['csrf_token'] ?? '');
+            
+            $emp_id = $_SESSION['employee_id'];
+            $current_password = $_POST['current_password'];
+            $new_password = $_POST['new_password'];
+            $confirm_password = $_POST['confirm_password'];
+
+            if (strlen($new_password) < 6) {
+                $_SESSION['profile_error'] = 'New password must be at least 6 characters.';
+                $this->redirect('/payrollsystem/employee/profile');
+                return;
+            }
+
+            if ($new_password !== $confirm_password) {
+                $_SESSION['profile_error'] = 'New passwords do not match.';
+                $this->redirect('/payrollsystem/employee/profile');
+                return;
+            }
+
+            $employeeModel = $this->model('Employee');
+            $employee = $employeeModel->getEmployeeById($emp_id);
+
+            if (!password_verify($current_password, $employee['Password'])) {
+                $_SESSION['profile_error'] = 'Incorrect current password.';
+                $this->redirect('/payrollsystem/employee/profile');
+                return;
+            }
+
+            // Update only password
+            $db = new Database();
+            $conn = $db->getConnection();
+            $query = "UPDATE employee SET Password = :pwd WHERE EmpID = :id";
+            $stmt = $conn->prepare($query);
+            $hash = password_hash($new_password, PASSWORD_DEFAULT);
+            $stmt->bindParam(':pwd', $hash);
+            $stmt->bindParam(':id', $emp_id);
+            
+            if ($stmt->execute()) {
+                $_SESSION['profile_success'] = 'Password changed successfully.';
+            } else {
+                $_SESSION['profile_error'] = 'Failed to change password.';
+            }
+        }
+        $this->redirect('/payrollsystem/employee/profile');
+    }
+
+    public function updatePhoto() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['profile_photo'])) {
+            $this->validateCsrfToken($_POST['csrf_token'] ?? '');
+            $emp_id = $_SESSION['employee_id'];
+            $file = $_FILES['profile_photo'];
+
+            if ($file['error'] === 0) {
+                $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+                $allowed = ['jpg', 'jpeg', 'png', 'gif'];
+                if (in_array(strtolower($ext), $allowed)) {
+                    $newFileName = 'emp_' . $emp_id . '_' . time() . '.' . $ext;
+                    $uploadPath = __DIR__ . '/../../assets/uploads/profiles/' . $newFileName;
+                    
+                    if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
+                        $db = new Database();
+                        $conn = $db->getConnection();
+                        $query = "UPDATE employee SET ProfilePhoto = :photo WHERE EmpID = :id";
+                        $stmt = $conn->prepare($query);
+                        $photoUrl = 'assets/uploads/profiles/' . $newFileName;
+                        $stmt->bindParam(':photo', $photoUrl);
+                        $stmt->bindParam(':id', $emp_id);
+                        $stmt->execute();
+                        
+                        $_SESSION['profile_success'] = 'Profile photo updated.';
+                    } else {
+                        $_SESSION['profile_error'] = 'Failed to upload photo.';
+                    }
+                } else {
+                    $_SESSION['profile_error'] = 'Invalid file type. Only JPG, PNG, GIF are allowed.';
+                }
+            } else {
+                $_SESSION['profile_error'] = 'Error uploading file.';
+            }
+        }
+        $this->redirect('/payrollsystem/employee/profile');
+    }
 }

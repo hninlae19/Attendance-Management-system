@@ -308,13 +308,14 @@
                 <!-- Toast -->
                 <template x-teleport="body">
                     <div x-show="toastNotif"
+                         @click="if(toastNotif && toastNotif.link && toastNotif.link !== '#') window.location.href = '/payrollsystem' + toastNotif.link"
                          x-transition:enter="transition ease-out duration-300"
                          x-transition:enter-start="opacity-0 translate-y-10"
                          x-transition:enter-end="opacity-100 translate-y-0"
                          x-transition:leave="transition ease-in duration-300"
                          x-transition:leave-start="opacity-100 translate-y-0"
                          x-transition:leave-end="opacity-0 translate-y-10"
-                         class="fixed bottom-5 right-5 z-[100] w-80 card-glass rounded-2xl overflow-hidden cursor-pointer hover:border-violet-400/50 transition-all"
+                         class="fixed bottom-5 right-5 z-[100] w-80 card-glass rounded-2xl overflow-hidden cursor-pointer hover:border-violet-400/50 hover:scale-105 transition-all shadow-2xl"
                          x-cloak>
                         <div class="p-4 flex gap-3 relative">
                             <button @click.stop="toastNotif=null" class="absolute top-3 right-3 text-gray-500 hover:text-gray-300 transition-colors"><i class="fa-solid fa-xmark text-xs"></i></button>
@@ -462,6 +463,12 @@ $isActive = function($path) use ($currentPath) {
                         'items' => [
                             ['href' => '/payrollsystem/employee/leaves', 'icon' => 'fa-calendar-minus', 'label' => 'My Leaves', 'match' => '/leaves'],
                         ]
+                    ],
+                    [
+                        'label' => 'Settings',
+                        'items' => [
+                            ['href' => '/payrollsystem/employee/profile', 'icon' => 'fa-user-pen', 'label' => 'My Profile', 'match' => '/profile'],
+                        ]
                     ]
                 ];
             } else {
@@ -487,10 +494,15 @@ $isActive = function($path) use ($currentPath) {
                         ]
                     ],
                     [
-                        'label' => 'Leave & OT',
+                        'label' => 'Leave Management',
                         'items' => [
                             ['href' => '/payrollsystem/admin/leaves',      'icon' => 'fa-calendar-minus',  'label' => 'Leave Requests', 'match' => '/leaves'],
                             ['href' => '/payrollsystem/admin/leave_types', 'icon' => 'fa-list-check',       'label' => 'Leave Types',    'match' => '/leave_types'],
+                        ]
+                    ],
+                    [
+                        'label' => 'Overtime Assign',
+                        'items' => [
                             ['href' => '/payrollsystem/admin/overtime_assignments','icon' => 'fa-clipboard-list','label' => 'OT Assignments','match' => '/overtime_assignments'],
                         ]
                     ],
@@ -499,6 +511,12 @@ $isActive = function($path) use ($currentPath) {
                         'items' => [
                             ['href' => '/payrollsystem/admin/payroll',     'icon' => 'fa-file-invoice-dollar','label' => 'Payroll List',   'match' => '/payroll'],
                             ['href' => '/payrollsystem/admin/bonuses',     'icon' => 'fa-gift',               'label' => 'Bonuses',        'match' => '/bonuses'],
+                        ]
+                    ],
+                    [
+                        'label' => 'Security',
+                        'items' => [
+                            ['href' => '/payrollsystem/admin/password_resets', 'icon' => 'fa-key', 'label' => 'Password Resets', 'match' => '/password_resets'],
                         ]
                     ]
                 ];

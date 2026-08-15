@@ -46,20 +46,26 @@ class AdminController extends Controller {
         $onLeaveQuery = $conn->prepare("SELECT COUNT(DISTINCT EmpID) FROM LeaveRequest WHERE ? BETWEEN StartDate AND EndDate AND Status = 'Approved'");
         $onLeaveQuery->execute([$today]);
         $employeesOnLeave = (int)($onLeaveQuery->fetchColumn() ?: 0);
+        $overtimeModel = $this->model('OvertimeAssign');
+        $pendingOvertime = $overtimeModel->getPendingCount();
+
+        $pendingResetsCount = $conn->query("SELECT COUNT(*) FROM employee WHERE PasswordResetRequest = 1")->fetchColumn();
 
         $this->view('layouts/main', [
-            'title' => 'Admin Dashboard',
+            'title' => 'Dashboard',
             'content' => 'admin/dashboard',
             'totalEmployees' => $totalEmployees,
             'activeEmployees' => $activeEmployees,
             'presentToday' => $presentToday,
             'lateToday' => $lateToday,
             'absentToday' => $absentToday,
-            'recentAttendance' => $recentAttendance,
+            'employeesOnLeave' => $employeesOnLeave,
             'monthlyPayroll' => $monthlyPayroll,
             'monthlyBonus' => $monthlyBonus,
+            'recentAttendance' => $recentAttendance,
             'pendingLeaves' => $pendingLeaves,
-            'employeesOnLeave' => $employeesOnLeave
+            'pendingOvertime' => $pendingOvertime,
+            'pendingResets' => $pendingResetsCount
         ]);
     }
 
@@ -153,18 +159,31 @@ class AdminController extends Controller {
             $this->validateCsrfToken($_POST['csrf_token'] ?? '');
             if (isset($_POST['action'])) {
                 if ($_POST['action'] === 'add') {
+                    $phone = $_POST['phone'];
+                    if (!preg_match('/^[0-9\-\+\s\(\)]{7,20}$/', $phone)) {
+                        $_SESSION['error'] = 'Invalid phone number format.';
+                        $this->redirect('/payrollsystem/admin/employees');
+                        return;
+                    }
+                    if (strlen($_POST['password']) < 6) {
+                        $_SESSION['error'] = 'Password must be at least 6 characters.';
+                        $this->redirect('/payrollsystem/admin/employees');
+                        return;
+                    }
+
                     $employeeModel->FirstName = $_POST['first_name'];
                     $employeeModel->LastName = $_POST['last_name'];
                     $employeeModel->Gender = $_POST['gender'] ?? 'Other';
                     $employeeModel->Email = $_POST['email'];
                     $employeeModel->Password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-                    $employeeModel->PhoneNumber = $_POST['phone'];
+                    $employeeModel->PhoneNumber = $phone;
                     $employeeModel->Address = $_POST['address'];
                     $employeeModel->PositionID = $_POST['position_id'];
                     $employeeModel->JoinDate = $_POST['join_date'];
                     $employeeModel->Status = 'Active';
                     
                     $employeeModel->create();
+                    $_SESSION['success'] = 'Employee added successfully.';
                 }
             }
             $this->redirect('/payrollsystem/admin/employees');
@@ -197,22 +216,35 @@ class AdminController extends Controller {
             if (isset($_POST['action']) && $_POST['action'] === 'edit') {
                 $existingEmployee = $employeeModel->getEmployeeById($id);
                 
+                $phone = $_POST['phone'];
+                if (!preg_match('/^[0-9\-\+\s\(\)]{7,20}$/', $phone)) {
+                    $_SESSION['error'] = 'Invalid phone number format.';
+                    $this->redirect('/payrollsystem/admin/employee/' . $id);
+                    return;
+                }
+
                 $employeeModel->EmpID = $id;
                 $employeeModel->FirstName = $_POST['first_name'];
                 $employeeModel->LastName = $_POST['last_name'];
                 $employeeModel->Gender = $_POST['gender'];
                 $employeeModel->Email = $_POST['email'];
                 $employeeModel->JoinDate = $_POST['join_date'];
-                $employeeModel->PhoneNumber = $_POST['phone'];
+                $employeeModel->PhoneNumber = $phone;
                 $employeeModel->Address = $_POST['address'];
                 $employeeModel->PositionID = $_POST['position_id'];
                 $employeeModel->Status = $_POST['status'];
                 
                 if (!empty($_POST['password'])) {
+                    if (strlen($_POST['password']) < 6) {
+                        $_SESSION['error'] = 'Password must be at least 6 characters.';
+                        $this->redirect('/payrollsystem/admin/employee/' . $id);
+                        return;
+                    }
                     $employeeModel->Password = password_hash($_POST['password'], PASSWORD_DEFAULT);
                 }
 
                 $employeeModel->update();
+                $_SESSION['success'] = 'Employee updated successfully.';
                 $this->redirect('/payrollsystem/admin/employee/' . $id);
             }
         }
@@ -667,6 +699,60 @@ class AdminController extends Controller {
             'bonuses' => $bonuses,
             'employees' => $employees
         ]);
+    }
+
+    public function password_resets() {
+        $db = new Database();
+        $conn = $db->getConnection();
+        
+        // Fetch all pending requests
+        $query = "SELECT e.EmpID, e.FirstName, e.LastName, e.Email, d.DeptName as DeptName
+                  FROM employee e
+                  LEFT JOIN position p ON e.PositionID = p.PositionID
+                  LEFT JOIN department d ON p.DeptID = d.DeptID
+                  WHERE e.PasswordResetRequest = 1 AND e.Status = 'Active'";
+        $stmt = $conn->prepare($query);
+        $stmt->execute();
+        $pending_requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $this->view('layouts/main', [
+            'title' => 'Password Resets',
+            'content' => 'admin/password_resets',
+            'pending_requests' => $pending_requests
+        ]);
+    }
+
+    public function reset_employee_password() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $this->validateCsrfToken($_POST['csrf_token'] ?? '');
+            
+            $empId = $_POST['emp_id'] ?? null;
+            $newPassword = $_POST['new_password'] ?? '';
+            
+            if ($empId && strlen($newPassword) >= 6) {
+                $db = new Database();
+                $conn = $db->getConnection();
+                
+                $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+                
+                $stmt = $conn->prepare("UPDATE employee SET Password = :password, PasswordResetRequest = 0 WHERE EmpID = :id");
+                $stmt->execute([
+                    ':password' => $hashedPassword,
+                    ':id' => $empId
+                ]);
+
+                // Send notification to the employee
+                require_once __DIR__ . '/../models/Notification.php';
+                $notifModel = new Notification();
+                $notifModel->create($empId, "Your password has been successfully reset by an Administrator.", "info", "/employee/profile", "Password Reset Successful", 1);
+                
+                $_SESSION['reset_success'] = "Password reset successfully. Please share the new password with the employee.";
+            } else {
+                $_SESSION['reset_error'] = "Invalid input or password too short.";
+            }
+            
+            $this->redirect('/payrollsystem/admin/password_resets');
+        }
     }
 
     public function payroll() {

@@ -30,10 +30,9 @@ class Notification {
     }
 
     public function getAll($user_id, $type = null, $limit = 50) {
-        $query = "SELECT n.*, u.email as sender_email, e.first_name as sender_name
+        $query = "SELECT n.*, e.FirstName as sender_name
                   FROM " . $this->table . " n
-                  LEFT JOIN users u ON n.sender_id = u.id
-                  LEFT JOIN employees e ON n.sender_id = e.user_id
+                  LEFT JOIN employee e ON n.sender_id = e.EmpID
                   WHERE n.user_id=:user_id";
         
         if ($type) {

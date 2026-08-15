@@ -162,7 +162,7 @@
 
                 <div id="dept_container" class="hidden">
                     <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Select Department</label>
-                    <select name="assign_dept_id" id="assign_dept_id" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm">
+                    <select name="assign_dept_id" id="assign_dept_id" onchange="validateOT()" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm">
                         <option value="">Select a Department</option>
                         <?php foreach($data['departments'] as $dept): ?>
                             <option value="<?= $dept['DeptID'] ?>"><?= htmlspecialchars($dept['DeptName']) ?></option>
@@ -172,7 +172,7 @@
 
                 <div id="emp_container">
                     <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Employee</label>
-                    <select name="emp_id" id="emp_id" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm">
+                    <select name="emp_id" id="emp_id" onchange="validateOT()" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm">
                         <option value="">Select Employee</option>
                         <?php foreach($data['employees'] as $emp): ?>
                             <option value="<?= $emp['EmpID'] ?>" data-dept="<?= $emp['DeptID'] ?>"><?= htmlspecialchars($emp['FirstName'] . ' ' . $emp['LastName']) ?> (EMP-<?= str_pad($emp['EmpID'], 5, '0', STR_PAD_LEFT) ?>) <?= $emp['Status'] !== 'Active' ? '[Inactive]' : '' ?></option>
@@ -182,7 +182,7 @@
                 
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Date</label>
-                    <input type="date" name="overtime_date" id="overtime_date" min="<?= date('Y-m-d') ?>" required onchange="validateOT()" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm">
+                    <input type="date" name="overtime_date" id="overtime_date" min="<?= date('Y-m-d') ?>" required onchange="updateTimeConstraints(); validateOT()" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm">
                 </div>
                 
                 <div class="grid grid-cols-2 gap-4">
@@ -245,6 +245,25 @@
             deptSelect.removeAttribute('required');
             empSelect.setAttribute('required', 'required');
         }
+        validateOT();
+    }
+
+    function updateTimeConstraints() {
+        const dateInput = document.getElementById('overtime_date');
+        const startTimeInput = document.getElementById('start_time');
+        
+        if (!dateInput.value) return;
+        
+        const today = new Date();
+        const selectedDate = new Date(dateInput.value);
+        
+        if (selectedDate.toDateString() === today.toDateString()) {
+            const hours = String(today.getHours()).padStart(2, '0');
+            const minutes = String(today.getMinutes()).padStart(2, '0');
+            startTimeInput.min = `${hours}:${minutes}`;
+        } else {
+            startTimeInput.removeAttribute('min');
+        }
     }
 
     function calculateHoursAndAmount() {
@@ -286,37 +305,53 @@
         errorEl.innerText = '';
         saveBtn.disabled = false;
 
-        if (!dateVal || !startVal || !endVal) return;
+        if (!dateVal || !startVal) return;
 
         // 1. Past time validation
         const today = new Date();
-        const selectedDate = new Date(dateVal);
+        const startDateTime = new Date(`${dateVal}T${startVal}`);
         
-        if (selectedDate.toDateString() === today.toDateString()) {
-            const startDateTime = new Date(`${dateVal}T${startVal}`);
-            if (startDateTime < today) {
-                errorEl.innerText = "Cannot assign overtime for a time that has already passed today.";
-                errorEl.classList.remove('hidden');
-                saveBtn.disabled = true;
-                return;
-            }
+        if (startDateTime < today) {
+            errorEl.innerText = "Cannot assign overtime for a time that has already passed.";
+            errorEl.classList.remove('hidden');
+            saveBtn.disabled = true;
+            return;
         }
 
-        // 2. Overlap validation (only for individual employee for now, department is too complex to check client-side instantly)
-        if (type === 'individual' && empId) {
-            const startUnix = new Date(`1970-01-01T${startVal}`).getTime();
-            let endUnix = new Date(`1970-01-01T${endVal}`).getTime();
-            if (endUnix < startUnix) endUnix += 86400000;
+        if (!endVal) return;
 
+        // 2. Overlap validation
+        const startUnix = new Date(`1970-01-01T${startVal}`).getTime();
+        let endUnix = new Date(`1970-01-01T${endVal}`).getTime();
+        if (endUnix <= startUnix) endUnix += 86400000;
+
+        const deptId = document.getElementById('assign_dept_id').value;
+        let empsToCheck = [];
+        if (type === 'individual' && empId) {
+            empsToCheck.push(empId);
+        } else if (type === 'department' && deptId) {
+            const empOptions = document.querySelectorAll('#emp_id option');
+            empOptions.forEach(opt => {
+                if (opt.getAttribute('data-dept') === deptId) {
+                    empsToCheck.push(opt.value);
+                }
+            });
+        }
+
+        if (empsToCheck.length > 0) {
             for (let ot of allAssignments) {
-                if (ot.EmpID == empId && ot.OvertimeDate === dateVal && ot.OvertimeID != currentId && !['Cancelled', 'Rejected'].includes(ot.Status)) {
+                if (empsToCheck.includes(ot.EmpID.toString()) && ot.OvertimeDate === dateVal && ot.OvertimeID != currentId && !['Cancelled', 'Rejected'].includes(ot.Status)) {
                     if (!ot.StartTime || !ot.EndTime) continue;
                     const exStart = new Date(`1970-01-01T${ot.StartTime}`).getTime();
                     let exEnd = new Date(`1970-01-01T${ot.EndTime}`).getTime();
-                    if (exEnd < exStart) exEnd += 86400000;
+                    if (exEnd <= exStart) exEnd += 86400000;
 
                     if (startUnix < exEnd && endUnix > exStart) {
-                        errorEl.innerText = "Overtime schedule overlaps with an existing assignment for this employee.";
+                        if (type === 'department') {
+                            errorEl.innerText = "Overtime schedule overlaps with an existing assignment for one or more employees in this department.";
+                        } else {
+                            errorEl.innerText = "Overtime schedule overlaps with an existing assignment for this employee.";
+                        }
                         errorEl.classList.remove('hidden');
                         saveBtn.disabled = true;
                         return;
