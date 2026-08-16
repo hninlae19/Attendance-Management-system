@@ -179,11 +179,11 @@
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label for="start_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</label>
-                    <input type="date" name="start_date" id="start_date" required min="<?= date('Y-m-d') ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
+                    <input type="date" name="start_date" id="start_date" required min="<?= date('Y-m-d', strtotime('+1 day')) ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
                 </div>
                 <div>
                     <label for="end_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Date</label>
-                    <input type="date" name="end_date" id="end_date" required min="<?= date('Y-m-d') ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
+                    <input type="date" name="end_date" id="end_date" required min="<?= date('Y-m-d', strtotime('+1 day')) ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
                 </div>
             </div>
             <div id="dateError" class="text-red-500 text-xs mt-1 hidden"><i class="fa-solid fa-circle-exclamation mr-1"></i> End Date cannot be earlier than Start Date.</div>
@@ -230,13 +230,9 @@ document.addEventListener('DOMContentLoaded', function() {
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowStr = new Date(tomorrow.getTime() - (tomorrow.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
     
-    if (hasClockedInToday) {
-        startDate.min = tomorrowStr;
-        endDate.min = tomorrowStr;
-    } else {
-        startDate.min = todayStr;
-        endDate.min = todayStr;
-    }
+    // Always require at least 1 day in advance
+    startDate.min = tomorrowStr;
+    endDate.min = tomorrowStr;
 
     async function checkConflicts() {
         if (!startDate.value) return false;

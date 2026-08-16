@@ -40,6 +40,28 @@ class Employee {
         return false;
     }
 
+    public function emailExists($email, $excludeEmpID = null) {
+        $query = "SELECT EmpID FROM " . $this->table . " WHERE Email = :email";
+        if ($excludeEmpID) {
+            $query .= " AND EmpID != :exclude_id";
+        }
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':email', $email);
+        if ($excludeEmpID) {
+            $stmt->bindParam(':exclude_id', $excludeEmpID);
+        }
+        $stmt->execute();
+        return $stmt->rowCount() > 0;
+    }
+
+    public function updateStatus($id, $status) {
+        $query = "UPDATE " . $this->table . " SET Status = :status WHERE EmpID = :id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':status', $status);
+        $stmt->bindParam(':id', $id);
+        return $stmt->execute();
+    }
+
     public function getAll() {
         $query = "SELECT e.*, p.PositionName, p.DeptID, d.DeptName 
                   FROM " . $this->table . " e

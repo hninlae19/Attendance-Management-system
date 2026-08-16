@@ -201,4 +201,48 @@ class OvertimeAssign {
         $stmt = $this->conn->prepare($query);
         return $stmt->execute();
     }
+
+    public function processAutoCheckouts() {
+        // First ensure the column exists (safe to run once)
+        try {
+            $this->conn->exec("ALTER TABLE " . $this->table . " ADD COLUMN is_auto_checkout TINYINT(1) DEFAULT 0");
+        } catch (PDOException $e) {
+            // Column already exists, ignore
+        }
+
+        $currentTime = date('Y-m-d H:i:s');
+        
+        // Find overtimes that are in progress and 5 minutes past their scheduled EndTime
+        $query = "SELECT * FROM " . $this->table . " 
+                  WHERE Status = 'In Progress' 
+                  AND :current_time >= DATE_ADD(CONCAT(OvertimeDate, ' ', EndTime), INTERVAL 5 MINUTE)";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':current_time', $currentTime);
+        $stmt->execute();
+        $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (empty($records)) {
+            return;
+        }
+
+        $updateQuery = "UPDATE " . $this->table . " 
+                        SET Status = 'Completed', OTCheckOut = :dt, ActualOTHours = :ah, is_auto_checkout = 1
+                        WHERE OvertimeID = :id";
+        $updateStmt = $this->conn->prepare($updateQuery);
+
+        foreach ($records as $record) {
+            // Set check-out time to exactly 5 minutes after scheduled EndTime
+            $scheduledEndDateTime = $record['OvertimeDate'] . ' ' . $record['EndTime'];
+            $outTime = strtotime($scheduledEndDateTime) + (5 * 60);
+            $outTimeStr = date('Y-m-d H:i:s', $outTime);
+
+            $inTime = strtotime($record['OTCheckIn']);
+            $actualHours = round(($outTime - $inTime) / 3600, 2);
+
+            $updateStmt->bindParam(':dt', $outTimeStr);
+            $updateStmt->bindParam(':ah', $actualHours);
+            $updateStmt->bindParam(':id', $record['OvertimeID']);
+            $updateStmt->execute();
+        }
+    }
 }

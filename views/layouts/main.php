@@ -338,11 +338,8 @@
                      x-transition:enter-end="opacity-100 scale-100 translate-y-0"
                      class="absolute right-0 top-12 w-80 card-glass rounded-2xl overflow-hidden shadow-2xl z-50"
                      x-cloak>
-                    <div class="px-4 py-3 border-b border-violet-900/50 flex items-center justify-between">
-                        <span class="font-bold text-white text-sm">Notifications</span>
-                        <button x-show="unreadCount > 0"
-                                @click="fetch('/payrollsystem/notification/api?action=read_all',{method:'POST'}).then(()=>{ unreadCount=0; notifications.forEach(n=>n.is_read=1); })"
-                                class="text-[11px] text-violet-400 hover:text-violet-300 font-semibold transition-colors">Mark all read</button>
+                    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
+                        <span class="font-bold text-white text-sm">Active Alerts</span>
                     </div>
                     <div class="max-h-72 overflow-y-auto">
                         <template x-if="notifications.length === 0">
@@ -353,9 +350,8 @@
                         </template>
                         <template x-for="notif in notifications" :key="notif.id">
                             <a :href="'/payrollsystem' + notif.link"
-                               @click="fetch('/payrollsystem/notification/api?action=read',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:notif.id})})"
-                               class="flex items-start gap-3 px-4 py-3 hover:bg-violet-500/8 border-b border-violet-900/30 transition-colors relative"
-                               :class="notif.is_read == 0 ? 'bg-violet-500/5' : ''">
+                               class="flex items-start gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-b border-gray-50 dark:border-gray-700/50 last:border-0 group relative overflow-hidden"
+                               :class="!notif.is_read ? 'bg-indigo-50/50 dark:bg-indigo-900/10' : ''">
                                 <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center text-white text-xs mt-0.5"
                                      :class="{
                                          'bg-blue-500/80':    notif.type === 'attendance',
@@ -462,6 +458,7 @@ $isActive = function($path) use ($currentPath) {
                         'label' => 'Requests',
                         'items' => [
                             ['href' => '/payrollsystem/employee/leaves', 'icon' => 'fa-calendar-minus', 'label' => 'My Leaves', 'match' => '/leaves'],
+                            ['href' => '/payrollsystem/employee/overtime', 'icon' => 'fa-clipboard-list', 'label' => 'Overtime Assign', 'match' => '/overtime'],
                         ]
                     ],
                     [

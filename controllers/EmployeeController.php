@@ -36,6 +36,41 @@ class EmployeeController extends Controller {
         ]);
     }
 
+    public function overtime() {
+        $emp_id = $_SESSION['employee_id'];
+        $overtimeModel = $this->model('OvertimeAssign');
+        $overtimes = $overtimeModel->getByEmployee($emp_id);
+
+        $upcoming = 0;
+        $totalHours = 0;
+        $totalEarnings = 0;
+        $pending = 0;
+        $today = date('Y-m-d');
+
+        foreach ($overtimes as $ot) {
+            if ($ot['OvertimeDate'] >= $today && in_array($ot['Status'], ['Assigned', 'Accepted'])) {
+                $upcoming++;
+            }
+            if ($ot['Status'] === 'Assigned') {
+                $pending++;
+            }
+            if (in_array($ot['Status'], ['Accepted', 'In Progress', 'Completed', 'Approved'])) {
+                $totalHours += (float)($ot['ActualOTHours'] > 0 ? $ot['ActualOTHours'] : $ot['OvertimeHours']);
+                $totalEarnings += (float)$ot['OTAmount'];
+            }
+        }
+
+        $this->view('layouts/main', [
+            'title' => 'My Overtime',
+            'content' => 'employee/overtime',
+            'overtimes' => $overtimes,
+            'upcoming' => $upcoming,
+            'totalHours' => round($totalHours, 1),
+            'totalEarnings' => round($totalEarnings, 2),
+            'pending' => $pending
+        ]);
+    }
+
     public function attendance() {
         $emp_id = $_SESSION['employee_id'];
         $attendanceModel = $this->model('Attendance');
@@ -148,6 +183,12 @@ class EmployeeController extends Controller {
             if ($_POST['action'] === 'apply') {
                 $start_date = $_POST['start_date'];
                 $end_date = $_POST['end_date'];
+
+                if ($start_date <= date('Y-m-d')) {
+                    $_SESSION['leave_error'] = "Leave request failed: Leave must be requested at least one day in advance.";
+                    $this->redirect('/payrollsystem/employee/leaves');
+                    return;
+                }
                 
                 // Validate against attendance
                 $db = new Database();
@@ -173,6 +214,12 @@ class EmployeeController extends Controller {
                 $leaveRequestModel->Reason = $_POST['reason'];
                 $leaveRequestModel->Status = 'Pending';
                 $leaveRequestModel->create();
+
+                $notifModel = $this->model('Notification');
+                $employeeName = $_SESSION['first_name'] . ' ' . $_SESSION['last_name'];
+                $msg = "{$employeeName} submitted a new leave request from {$start_date} to {$end_date}.";
+                $notifModel->create(1, $msg, 'info', '/admin/leaves', 'New Leave Request', $emp_id);
+
                 $_SESSION['leave_success'] = "Leave application submitted successfully.";
                 $this->redirect('/payrollsystem/employee/leaves');
                 return;
@@ -282,7 +329,7 @@ class EmployeeController extends Controller {
             $employeeModel->EmpID = $emp_id;
             $employeeModel->FirstName = trim($_POST['first_name']);
             $employeeModel->LastName = trim($_POST['last_name']);
-            $employeeModel->Email = trim($_POST['email']);
+            $employeeModel->Email = $employee['Email']; // Email is immutable
             $employeeModel->PhoneNumber = $phone;
             $employeeModel->Address = trim($_POST['address']);
             
@@ -363,7 +410,7 @@ class EmployeeController extends Controller {
                 $allowed = ['jpg', 'jpeg', 'png', 'gif'];
                 if (in_array(strtolower($ext), $allowed)) {
                     $newFileName = 'emp_' . $emp_id . '_' . time() . '.' . $ext;
-                    $uploadPath = __DIR__ . '/../../assets/uploads/profiles/' . $newFileName;
+                    $uploadPath = dirname(__DIR__) . '/assets/uploads/profiles/' . $newFileName;
                     
                     if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
                         $db = new Database();

@@ -194,6 +194,11 @@ class AdminController extends Controller {
                         $this->redirect('/payrollsystem/admin/employees');
                         return;
                     }
+                    if ($employeeModel->emailExists($_POST['email'])) {
+                        $_SESSION['error'] = 'Email address already exists.';
+                        $this->redirect('/payrollsystem/admin/employees');
+                        return;
+                    }
 
                     $employeeModel->FirstName = $_POST['first_name'];
                     $employeeModel->LastName = $_POST['last_name'];
@@ -208,6 +213,9 @@ class AdminController extends Controller {
                     
                     $employeeModel->create();
                     $_SESSION['success'] = 'Employee added successfully.';
+                } elseif ($_POST['action'] === 'delete') {
+                    $employeeModel->updateStatus($_POST['id'], 'Inactive');
+                    $_SESSION['success'] = 'Employee deactivated successfully.';
                 }
             }
             $this->redirect('/payrollsystem/admin/employees');
@@ -251,7 +259,8 @@ class AdminController extends Controller {
                 $employeeModel->FirstName = $_POST['first_name'];
                 $employeeModel->LastName = $_POST['last_name'];
                 $employeeModel->Gender = $_POST['gender'];
-                $employeeModel->Email = $_POST['email'];
+                // Email is immutable on update
+                $employeeModel->Email = $existingEmployee['Email'];
                 $employeeModel->JoinDate = $_POST['join_date'];
                 $employeeModel->PhoneNumber = $phone;
                 $employeeModel->Address = $_POST['address'];
@@ -412,6 +421,17 @@ class AdminController extends Controller {
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && isset($_POST['id'])) {
             $status = $_POST['action'] === 'approve' ? 'Approved' : ($_POST['action'] === 'reject' ? 'Rejected' : 'Pending');
             $leaveRequestModel->updateStatus($_POST['id'], $status);
+
+            // Fetch the leave request to get EmpID
+            $leave = $leaveRequestModel->getById($_POST['id']);
+            if ($leave) {
+                $notifModel = $this->model('Notification');
+                $adminName = $_SESSION['email'] ?? 'Admin'; // Admin does not have first_name/last_name in session currently
+                $msg = "Your leave request for {$leave['LeaveType']} from {$leave['StartDate']} to {$leave['EndDate']} has been {$status}.";
+                $type = $status === 'Approved' ? 'success' : 'error';
+                $notifModel->create($leave['EmpID'], $msg, $type, '/employee/leaves', "Leave Request {$status}", $_SESSION['user_id']);
+            }
+
             $this->redirect('/payrollsystem/admin/leaves');
         }
 
@@ -638,6 +658,9 @@ class AdminController extends Controller {
                         
                         if ($_POST['action'] === 'add') {
                             $overtimeModel->create();
+                            $notifModel = $this->model('Notification');
+                            $msg = "You have been assigned overtime on {$otDate} from {$startTime} to {$endTime}.";
+                            $notifModel->create($empId, $msg, 'info', '/employee/overtime', 'New Overtime Assignment', $_SESSION['user_id']);
                         } else {
                             $overtimeModel->OvertimeID = $_POST['id'];
                             $overtimeModel->update();
@@ -816,6 +839,31 @@ class AdminController extends Controller {
                 foreach ($employees as $emp) {
                     $empId = $emp['EmpID'];
                     $basicSalary = $emp['BasicSalary'];
+                    
+                    // Prorate salary based on JoinDate
+                    $joinDateStr = $emp['JoinDate'] ?? null;
+                    if ($joinDateStr) {
+                        $joinTime = strtotime($joinDateStr);
+                        $joinMonth = (int)date('n', $joinTime);
+                        $joinYear = (int)date('Y', $joinTime);
+                        
+                        $targetMonthInt = (int)$month;
+                        $targetYearInt = (int)$year;
+                        
+                        if ($targetYearInt < $joinYear || ($targetYearInt == $joinYear && $targetMonthInt < $joinMonth)) {
+                            // Joined after this payroll month, skip entirely.
+                            continue;
+                        } elseif ($targetYearInt == $joinYear && $targetMonthInt == $joinMonth) {
+                            $joinDay = (int)date('j', $joinTime);
+                            $daysInTargetMonth = (int)date('t', strtotime($startDate));
+                            
+                            $daysWorked = $daysInTargetMonth - $joinDay + 1;
+                            if ($daysWorked < 0) $daysWorked = 0;
+                            
+                            $basicSalary = round(($basicSalary / $daysInTargetMonth) * $daysWorked);
+                        }
+                    }
+                    
                     $dailySalary = $basicSalary / 30;
                     
                     // Attendance stats
@@ -972,32 +1020,96 @@ class AdminController extends Controller {
         $selectedYear = $_GET['year'] ?? date('Y');
         $selectedEmpId = $_GET['emp_id'] ?? null;
 
-        if ($selectedEmpId) {
-            $payrolls = $payrollModel->getByEmployee($selectedEmpId);
-            $viewMode = 'employee_history';
+        $payrolls = $payrollModel->getAll();
+        
+        $filteredPayrolls = [];
+        if ($selectedMonth === 'yearly') {
+            $grouped = [];
+            foreach ($payrolls as $p) {
+                if (strpos($p['PayrollMonth'], (string)$selectedYear) !== false) {
+                    if ($selectedEmpId && $p['EmpID'] != $selectedEmpId) continue;
+                    
+                    $eid = $p['EmpID'];
+                    if (!isset($grouped[$eid])) {
+                        $grouped[$eid] = $p;
+                        $grouped[$eid]['PayrollMonth'] = 'Yearly Total ' . $selectedYear;
+                        $grouped[$eid]['BasicSalary'] = 0;
+                        $grouped[$eid]['present_days'] = 0;
+                        $grouped[$eid]['leave_days'] = 0;
+                        $grouped[$eid]['absent_days'] = 0;
+                        $grouped[$eid]['half_days'] = 0;
+                        $grouped[$eid]['late_days'] = 0;
+                        $grouped[$eid]['ot_hours'] = 0;
+                        $grouped[$eid]['OvertimeAmount'] = 0;
+                        $grouped[$eid]['BonousAmount'] = 0;
+                        $grouped[$eid]['LeaveDeductionAmount'] = 0;
+                        $grouped[$eid]['NetSalary'] = 0;
+                        $grouped[$eid]['Status'] = 'N/A';
+                    }
+                    
+                    $grouped[$eid]['BasicSalary'] += $p['BasicSalary'];
+                    $grouped[$eid]['present_days'] += $p['present_days'];
+                    $grouped[$eid]['leave_days'] += $p['leave_days'];
+                    $grouped[$eid]['absent_days'] += $p['absent_days'];
+                    $grouped[$eid]['half_days'] += $p['half_days'];
+                    $grouped[$eid]['late_days'] += $p['late_days'];
+                    $grouped[$eid]['ot_hours'] += $p['ot_hours'];
+                    $grouped[$eid]['OvertimeAmount'] += $p['OvertimeAmount'];
+                    $grouped[$eid]['BonousAmount'] += $p['BonousAmount'];
+                    $grouped[$eid]['LeaveDeductionAmount'] += $p['LeaveDeductionAmount'];
+                    $grouped[$eid]['NetSalary'] += $p['NetSalary'];
+                }
+            }
+            $filteredPayrolls = array_values($grouped);
+        } elseif ($selectedMonth === 'all') {
+            foreach ($payrolls as $p) {
+                if (strpos($p['PayrollMonth'], (string)$selectedYear) !== false) {
+                    if ($selectedEmpId) {
+                        if ($p['EmpID'] == $selectedEmpId) {
+                            $filteredPayrolls[] = $p;
+                        }
+                    } else {
+                        $filteredPayrolls[] = $p;
+                    }
+                }
+            }
             
-            // Find selected employee name for header
-            $selectedEmpName = '';
+            // Sort by month (Jan to Dec), then by employee ID
+            usort($filteredPayrolls, function($a, $b) {
+                $timeA = strtotime($a['PayrollMonth']);
+                $timeB = strtotime($b['PayrollMonth']);
+                if ($timeA == $timeB) {
+                    return $a['EmpID'] <=> $b['EmpID'];
+                }
+                return $timeA <=> $timeB;
+            });
+        } else {
+            $monthNames = [1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April', 5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August', 9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'];
+            $targetMonthStr = $monthNames[(int)$selectedMonth] . ' ' . $selectedYear;
+            
+            foreach ($payrolls as $p) {
+                if ($p['PayrollMonth'] === $targetMonthStr) {
+                    if ($selectedEmpId) {
+                        if ($p['EmpID'] == $selectedEmpId) {
+                            $filteredPayrolls[] = $p;
+                        }
+                    } else {
+                        $filteredPayrolls[] = $p;
+                    }
+                }
+            }
+        }
+        $payrolls = $filteredPayrolls;
+        $viewMode = 'month_view';
+
+        $selectedEmpName = '';
+        if ($selectedEmpId) {
             foreach($employees as $e) {
                 if ($e['EmpID'] == $selectedEmpId) {
                     $selectedEmpName = $e['FirstName'] . ' ' . $e['LastName'];
                     break;
                 }
             }
-        } else {
-            $payrolls = $payrollModel->getAll();
-            // Filter getAll by the selected month string
-            $monthNames = [1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April', 5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August', 9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'];
-            $targetMonthStr = $monthNames[(int)$selectedMonth] . ' ' . $selectedYear;
-            
-            $filteredPayrolls = [];
-            foreach ($payrolls as $p) {
-                if ($p['PayrollMonth'] === $targetMonthStr) {
-                    $filteredPayrolls[] = $p;
-                }
-            }
-            $payrolls = $filteredPayrolls;
-            $viewMode = 'month_view';
         }
 
         $this->view('layouts/main', [

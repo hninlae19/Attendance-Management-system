@@ -54,6 +54,18 @@ class LeaveRequest {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getById($id) {
+        $query = "SELECT lr.*, lt.LeaveType, e.FirstName, e.LastName 
+                  FROM " . $this->table . " lr
+                  LEFT JOIN LeaveTypes lt ON lr.LeaveTypeID = lt.LeaveTypeID
+                  LEFT JOIN Employee e ON lr.EmpID = e.EmpID
+                  WHERE lr.RequestID = :id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function updateStatus($id, $status) {
         $query = "UPDATE " . $this->table . " SET Status = :status WHERE RequestID = :id";
         $stmt = $this->conn->prepare($query);

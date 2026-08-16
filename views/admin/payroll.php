@@ -1,6 +1,8 @@
 <?php
 $monthNames = [1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April', 5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August', 9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'];
-$currentMonthName = $monthNames[(int)$data['selectedMonth']];
+if ($data['selectedMonth'] === 'yearly') $currentMonthName = 'Yearly Total';
+elseif ($data['selectedMonth'] === 'all') $currentMonthName = 'All Months';
+else $currentMonthName = $monthNames[(int)$data['selectedMonth']];
 ?>
 <div class="space-y-6" x-data="{ 
     paymentModal: false, 
@@ -19,72 +21,51 @@ $currentMonthName = $monthNames[(int)$data['selectedMonth']];
     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6" data-aos="fade-down">
         <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
-                <?php if (($data['viewMode'] ?? 'month_view') === 'employee_history'): ?>
-                    Salary History: <?= htmlspecialchars($data['selectedEmpName']) ?>
+                <?php if ($data['selectedEmpName']): ?>
+                    Salary for <?= htmlspecialchars($data['selectedEmpName']) ?>
                 <?php else: ?>
                     Monthly Payroll Summary
                 <?php endif; ?>
             </h1>
             <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">
-                <?php if (($data['viewMode'] ?? 'month_view') === 'employee_history'): ?>
-                    Complete monthly history
-                <?php else: ?>
-                    <?= $currentMonthName ?> <?= htmlspecialchars($data['selectedYear']) ?>
-                <?php endif; ?>
+                <?= $currentMonthName ?> <?= htmlspecialchars($data['selectedYear']) ?>
             </p>
         </div>
         
         <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
             <!-- Filter -->
             <form method="GET" action="/payrollsystem/admin/payroll" class="flex gap-2">
-                <select name="month" class="rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-primary focus:border-primary shadow-sm text-sm">
-                    <?php foreach($monthNames as $m => $name): ?>
-                        <option value="<?= $m ?>" <?= $m == $data['selectedMonth'] ? 'selected' : '' ?>><?= $name ?></option>
-                    <?php endforeach; ?>
-                </select>
-                <select name="year" class="rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-primary focus:border-primary shadow-sm text-sm">
-                    <?php for($y = date('Y') - 2; $y <= date('Y'); $y++): ?>
-                        <option value="<?= $y ?>" <?= $y == $data['selectedYear'] ? 'selected' : '' ?>><?= $y ?></option>
-                    <?php endfor; ?>
-                </select>
-                <button type="submit" class="bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white px-4 py-2 rounded-xl shadow-sm transition-colors text-sm font-medium">Filter</button>
-            </form>
-            <!-- Employee History Filter -->
-            <form method="GET" action="/payrollsystem/admin/payroll" class="flex gap-2">
-                <select name="emp_id" class="rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-primary focus:border-primary shadow-sm text-sm">
-                    <option value="">Select Employee...</option>
+                <select name="emp_id" onchange="this.form.submit()" class="rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-primary focus:border-primary shadow-sm text-sm">
+                    <option value="">All Employees</option>
                     <?php foreach($data['employees'] as $emp): ?>
                         <option value="<?= $emp['EmpID'] ?>" <?= ($data['selectedEmpId'] ?? '') == $emp['EmpID'] ? 'selected' : '' ?>>
                             <?= htmlspecialchars($emp['FirstName'] . ' ' . $emp['LastName']) ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
-                <button type="submit" class="bg-teal-100 hover:bg-teal-200 dark:bg-teal-900/50 dark:hover:bg-teal-800 text-teal-800 dark:text-teal-300 px-4 py-2 rounded-xl shadow-sm transition-colors text-sm font-medium">History</button>
+                <select name="month" onchange="this.form.submit()" class="rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-primary focus:border-primary shadow-sm text-sm">
+                    <option value="all" <?= $data['selectedMonth'] === 'all' ? 'selected' : '' ?>>All Months</option>
+                    <option value="yearly" <?= $data['selectedMonth'] === 'yearly' ? 'selected' : '' ?>>Yearly Total</option>
+                    <?php foreach($monthNames as $m => $name): ?>
+                        <option value="<?= $m ?>" <?= $m == $data['selectedMonth'] ? 'selected' : '' ?>><?= $name ?></option>
+                    <?php endforeach; ?>
+                </select>
             </form>
             
             <!-- Generate -->
+            <?php if ($data['selectedMonth'] !== 'yearly' && $data['selectedMonth'] !== 'all'): ?>
             <form method="POST" action="/payrollsystem/admin/payroll" class="inline">
-    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
-
+                <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
                 <input type="hidden" name="action" value="generate">
                 <input type="hidden" name="month" value="<?= $data['selectedMonth'] ?>">
                 <input type="hidden" name="year" value="<?= $data['selectedYear'] ?>">
                 <button type="submit" class="w-full sm:w-auto bg-primary hover:bg-primary-dark text-white px-5 py-2 rounded-xl shadow-md transition-colors text-sm font-medium flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-gears"></i> Generate Payroll
+                    <i class="fa-solid fa-gears"></i> Calculate Salary
                 </button>
             </form>
+            <?php endif; ?>
         </div>
     </div>
-    
-    <!-- Search Bar -->
-    <?php if (($data['viewMode'] ?? 'month_view') !== 'employee_history'): ?>
-    <div class="relative w-full max-w-sm mb-4">
-        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-            <i class="fa-solid fa-search text-gray-400"></i>
-        </div>
-        <input type="text" x-model="searchQuery" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-primary focus:border-primary block w-full pl-10 p-2.5 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary dark:focus:border-primary shadow-sm" placeholder="Filter by employee name...">
-    </div>
-    <?php endif; ?>
 
     <!-- Data Table -->
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-gray-700 overflow-hidden" data-aos="fade-up" data-aos-delay="100">
@@ -92,13 +73,13 @@ $currentMonthName = $monthNames[(int)$data['selectedMonth']];
             <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400 whitespace-nowrap">
                 <thead class="text-xs text-gray-500 uppercase bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-700">
                     <tr>
-                        <?php if (($data['viewMode'] ?? 'month_view') === 'employee_history'): ?>
+                        <?php if ($data['selectedMonth'] === 'all'): ?>
                             <th class="px-4 py-3 font-semibold tracking-wider text-teal-700 dark:text-teal-400">Payroll Month</th>
-                        <?php else: ?>
-                            <th class="px-4 py-3 font-semibold tracking-wider">Employee</th>
-                            <th class="px-4 py-3">Department</th>
-                            <th class="px-4 py-3">Position</th>
                         <?php endif; ?>
+                        <th class="px-4 py-3 font-semibold tracking-wider">Employee</th>
+                        <th class="px-4 py-3 font-semibold tracking-wider">Emp Code</th>
+                        <th class="px-4 py-3">Department</th>
+                        <th class="px-4 py-3">Position</th>
                         <th class="px-4 py-3 bg-gray-100 dark:bg-gray-800/50">Basic Salary (MMK)</th>
                         <th class="px-4 py-3">Present</th>
                         <th class="px-4 py-3">Leave</th>
@@ -126,12 +107,12 @@ $currentMonthName = $monthNames[(int)$data['selectedMonth']];
                     </tr>
                     <?php else: ?>
                         <?php foreach($data['payrolls'] as $p): ?>
-                        <tr x-show="<?php if (($data['viewMode'] ?? 'month_view') === 'employee_history') echo 'true'; else echo "searchQuery === '' || '".strtolower(addslashes($p['FirstName'] . ' ' . $p['LastName']))."'.includes(searchQuery.toLowerCase())"; ?>" class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors group">
-                            <?php if (($data['viewMode'] ?? 'month_view') === 'employee_history'): ?>
+                        <tr x-show="searchQuery === '' || '<?= strtolower(addslashes($p['FirstName'] . ' ' . $p['LastName'])) ?>'.includes(searchQuery.toLowerCase())" class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors group">
+                            <?php if ($data['selectedMonth'] === 'all'): ?>
                                 <td class="px-4 py-3 font-bold text-gray-900 dark:text-white">
                                     <i class="fa-regular fa-calendar-alt text-teal-500 mr-2"></i><?= htmlspecialchars($p['PayrollMonth']) ?>
                                 </td>
-                            <?php else: ?>
+                            <?php endif; ?>
                             <td class="px-4 py-3">
                                 <div class="flex items-center gap-3">
                                     <div class="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-blue-500/20 text-primary dark:text-blue-400 flex items-center justify-center font-bold text-xs ring-2 ring-white dark:ring-gray-800 group-hover:ring-primary/20 transition-all shadow-sm">
@@ -139,13 +120,14 @@ $currentMonthName = $monthNames[(int)$data['selectedMonth']];
                                     </div>
                                     <div>
                                         <div class="font-bold text-gray-900 dark:text-white"><?= htmlspecialchars(($p['FirstName'] ?? '') . ' ' . ($p['LastName'] ?? '')) ?></div>
-                                        <div class="text-xs text-primary font-medium">EMP-<?= htmlspecialchars($p['employee_code'] ?? '0000') ?></div>
                                     </div>
                                 </div>
                             </td>
+                            <td class="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">
+                                EMP-<?= htmlspecialchars($p['employee_code'] ?? str_pad($p['EmpID'] ?? 0, 4, '0', STR_PAD_LEFT)) ?>
+                            </td>
                             <td class="px-4 py-3"><?= htmlspecialchars($p['DeptName'] ?? '') ?></td>
                             <td class="px-4 py-3"><?= htmlspecialchars($p['PositionName'] ?? 'N/A') ?></td>
-                            <?php endif; ?>
                             <td class="px-4 py-3 bg-gray-50 dark:bg-gray-800/30"><?= number_format($p['BasicSalary']) ?></td>
                             
                             <td class="px-4 py-3"><?= $p['present_days'] ?></td>
@@ -166,7 +148,9 @@ $currentMonthName = $monthNames[(int)$data['selectedMonth']];
                             <td class="px-4 py-3 bg-emerald-50 dark:bg-emerald-900/10 font-bold text-emerald-700 dark:text-emerald-400 text-lg"><?= number_format($p['NetSalary']) ?></td>
                             
                             <td class="px-4 py-3">
-                                <?php if($p['Status'] === 'Paid'): ?>
+                                <?php if($p['Status'] === 'N/A'): ?>
+                                    <span class="text-gray-400 italic">Aggregated</span>
+                                <?php elseif($p['Status'] === 'Paid'): ?>
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800/30 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span> Paid</span>
                                 <?php else: ?>
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800/30 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5"></span> Pending</span>
@@ -174,6 +158,7 @@ $currentMonthName = $monthNames[(int)$data['selectedMonth']];
                             </td>
                             
                             <td class="px-4 py-3 text-right">
+                                <?php if($p['Status'] !== 'N/A'): ?>
                                 <div class="flex justify-end gap-2">
                                     <a href="/payrollsystem/admin/payroll_slip/<?= $p['PayrollID'] ?>" target="_blank" class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors" title="Print Slip">
                                         <i class="fa-solid fa-print"></i>
@@ -184,6 +169,7 @@ $currentMonthName = $monthNames[(int)$data['selectedMonth']];
                                     </button>
                                     <?php endif; ?>
                                 </div>
+                                <?php endif; ?>
                             </td>
                         </tr>
                         <?php endforeach; ?>

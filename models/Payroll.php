@@ -21,12 +21,12 @@ class Payroll {
     }
 
     public function getAll() {
-        $query = "SELECT p.*, e.FirstName, e.LastName, d.DeptName 
+        $query = "SELECT p.*, e.FirstName, e.LastName, pos.PositionName, d.DeptName 
                   FROM " . $this->table . " p
                   LEFT JOIN Employee e ON p.EmpID = e.EmpID
                   LEFT JOIN Position pos ON e.PositionID = pos.PositionID
                   LEFT JOIN Department d ON pos.DeptID = d.DeptID
-                  ORDER BY p.PayrollID DESC";
+                  ORDER BY p.EmpID ASC";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

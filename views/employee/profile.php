@@ -73,7 +73,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-300 mb-1">Email</label>
-                            <input type="email" name="email" value="<?= htmlspecialchars($employee['Email']) ?>" required class="w-full px-4 py-2 bg-gray-800/50 border border-violet-500/20 rounded-xl focus:ring-2 focus:ring-violet-500 text-white outline-none">
+                            <input type="email" name="email" value="<?= htmlspecialchars($employee['Email']) ?>" readonly class="w-full px-4 py-2 bg-gray-800/80 border border-violet-500/20 rounded-xl text-gray-400 cursor-not-allowed outline-none">
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-300 mb-1">Address</label>

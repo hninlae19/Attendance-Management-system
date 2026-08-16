@@ -98,7 +98,17 @@
 
     <!-- Quick Stats -->
     <div class="lg:col-span-2">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex items-center">
+                <div class="p-3 rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400 mr-4">
+                    <i class="fa-solid fa-hashtag text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Emp Code</p>
+                    <p class="text-lg font-bold text-gray-900 dark:text-white">EMP-<?= str_pad($data['employee']['EmpID'], 4, '0', STR_PAD_LEFT) ?></p>
+                </div>
+            </div>
+            
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex items-center">
                 <div class="p-3 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 mr-4">
                     <i class="fa-solid fa-calendar-check text-xl"></i>
@@ -151,8 +161,8 @@
                             <?php foreach ($data['upcomingOvertime'] as $ot): ?>
                             <tr class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                 <td class="px-4 py-3 font-medium text-gray-900 dark:text-white"><?= date('D, M j, Y', strtotime($ot['OvertimeDate'])) ?></td>
-                                <td class="px-4 py-3"><?= date('h:i A', strtotime($ot['StartTime'])) ?></td>
-                                <td class="px-4 py-3"><?= date('h:i A', strtotime($ot['EndTime'])) ?></td>
+                                <td class="px-4 py-3"><?= $ot['StartTime'] ? date('h:i A', strtotime($ot['StartTime'])) : '<span class="text-gray-400">—</span>' ?></td>
+                                <td class="px-4 py-3"><?= $ot['EndTime'] ? date('h:i A', strtotime($ot['EndTime'])) : '<span class="text-gray-400">—</span>' ?></td>
                                 <td class="px-4 py-3 text-right font-bold text-orange-600 dark:text-orange-400">
                                     <?= $ot['OvertimeHours'] ?> <span class="text-xs text-gray-400">h</span>
                                 </td>
