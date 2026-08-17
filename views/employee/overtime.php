@@ -1,132 +1,150 @@
-<div class="mb-6" data-aos="fade-down">
-    <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Overtime Assign</h1>
-    <p class="text-gray-500 text-sm mt-1">View and respond to your overtime assignments.</p>
+<!-- ============ HEADER BANNER ============ -->
+<div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#180f33] via-[#241447] to-[#121c3b] border border-violet-500/25 p-6 lg:p-7 mb-8 shadow-2xl" data-aos="fade-down">
+    <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-2 mb-1.5">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-500/15 border border-violet-500/30 text-violet-300 text-xs font-bold uppercase tracking-wider">
+                    <i class="fa-solid fa-clock-rotate-left text-secondary"></i>
+                    <span>Overtime Schedule</span>
+                </span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-outfit">
+                My <span class="gradient-text">Overtime</span> Assignments
+            </h1>
+            <p class="text-gray-300 text-xs sm:text-sm mt-1">Review scheduled overtime sessions, accept or decline assignments, and clock in for OT shifts.</p>
+        </div>
+    </div>
 </div>
 
 <?php if (isset($_SESSION['flash_success'])): ?>
-    <div class="mb-4 p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl text-sm font-medium dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800/30 flex items-center" data-aos="fade-up">
-        <i class="fa-solid fa-circle-check mr-2"></i> <?= htmlspecialchars($_SESSION['flash_success']) ?>
+    <div class="mb-6 p-4 rounded-2xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-xs font-semibold flex items-center gap-3 backdrop-blur-sm animate-pulse" data-aos="fade-up">
+        <i class="fa-solid fa-circle-check text-base"></i>
+        <span><?= htmlspecialchars($_SESSION['flash_success']) ?></span>
     </div>
     <?php unset($_SESSION['flash_success']); ?>
 <?php endif; ?>
 
-<!-- Summary Stats -->
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6" data-aos="fade-up" data-aos-delay="50">
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
-        <div class="flex items-center gap-3">
-            <div class="p-3 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
-                <i class="fa-solid fa-calendar-clock text-lg"></i>
+<!-- ============ SUMMARY STATS ============ -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8" data-aos="fade-up" data-aos-delay="50">
+    <div class="card-glass rounded-3xl p-5 border border-violet-500/20 hover:-translate-y-1 transition-all">
+        <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 flex items-center justify-center text-lg flex-shrink-0">
+                <i class="fa-solid fa-calendar-check"></i>
             </div>
             <div>
-                <p class="text-2xl font-extrabold text-gray-900 dark:text-white"><?= $data['upcoming'] ?></p>
-                <p class="text-xs font-medium text-gray-500 dark:text-gray-400">Upcoming</p>
+                <p class="text-2xl font-extrabold text-white font-mono"><?= $data['upcoming'] ?></p>
+                <p class="text-[11px] font-bold uppercase tracking-wider text-cyan-300/80">Upcoming Shifts</p>
             </div>
         </div>
     </div>
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
-        <div class="flex items-center gap-3">
-            <div class="p-3 rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
-                <i class="fa-solid fa-clock text-lg"></i>
+
+    <div class="card-glass rounded-3xl p-5 border border-violet-500/20 hover:-translate-y-1 transition-all">
+        <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-2xl bg-violet-500/20 text-violet-300 border border-violet-500/30 flex items-center justify-center text-lg flex-shrink-0">
+                <i class="fa-solid fa-clock"></i>
             </div>
             <div>
-                <p class="text-2xl font-extrabold text-gray-900 dark:text-white"><?= $data['totalHours'] ?> <span class="text-xs font-medium text-gray-400">h</span></p>
-                <p class="text-xs font-medium text-gray-500 dark:text-gray-400">Total OT Hours</p>
+                <p class="text-2xl font-extrabold text-white font-mono"><?= $data['totalHours'] ?> <span class="text-xs font-normal text-gray-400">h</span></p>
+                <p class="text-[11px] font-bold uppercase tracking-wider text-violet-300/80">Total OT Hours</p>
             </div>
         </div>
     </div>
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
-        <div class="flex items-center gap-3">
-            <div class="p-3 rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
-                <i class="fa-solid fa-sack-dollar text-lg"></i>
+
+    <div class="card-glass rounded-3xl p-5 border border-violet-500/20 hover:-translate-y-1 transition-all">
+        <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center justify-center text-lg flex-shrink-0">
+                <i class="fa-solid fa-sack-dollar"></i>
             </div>
             <div>
-                <p class="text-2xl font-extrabold text-gray-900 dark:text-white"><?= number_format($data['totalEarnings']) ?></p>
-                <p class="text-xs font-medium text-gray-500 dark:text-gray-400">OT Earnings (MMK)</p>
+                <p class="text-xl font-extrabold text-emerald-400 font-mono"><?= number_format($data['totalEarnings']) ?></p>
+                <p class="text-[11px] font-bold uppercase tracking-wider text-emerald-300/80">Earnings (MMK)</p>
             </div>
         </div>
     </div>
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
-        <div class="flex items-center gap-3">
-            <div class="p-3 rounded-full bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
-                <i class="fa-solid fa-inbox text-lg"></i>
+
+    <div class="card-glass rounded-3xl p-5 border border-violet-500/20 hover:-translate-y-1 transition-all">
+        <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center justify-center text-lg flex-shrink-0">
+                <i class="fa-solid fa-inbox"></i>
             </div>
             <div>
-                <p class="text-2xl font-extrabold text-gray-900 dark:text-white"><?= $data['pending'] ?></p>
-                <p class="text-xs font-medium text-gray-500 dark:text-gray-400">Pending Action</p>
+                <p class="text-2xl font-extrabold text-white font-mono"><?= $data['pending'] ?></p>
+                <p class="text-[11px] font-bold uppercase tracking-wider text-amber-300/80">Pending Action</p>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Overtime Assignments Table -->
-<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden" data-aos="fade-up" data-aos-delay="100">
-    <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50">
-        <h3 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <i class="fa-solid fa-clipboard-list text-orange-500"></i> My Overtime Assignments
+<!-- ============ OVERTIME ASSIGNMENTS TABLE ============ -->
+<div class="card-glass rounded-3xl overflow-hidden border border-violet-500/20 mb-8" data-aos="fade-up" data-aos-delay="100">
+    <div class="p-4 px-6 border-b border-violet-900/40 flex justify-between items-center bg-surface/60">
+        <h3 class="font-bold text-white text-base flex items-center gap-2 font-outfit">
+            <i class="fa-solid fa-clipboard-list text-amber-400"></i> My Assigned Overtime Records
         </h3>
     </div>
     <div class="overflow-x-auto">
-        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-            <thead class="text-xs text-gray-500 uppercase bg-gray-50 dark:bg-gray-700/50">
+        <table class="w-full text-sm text-left text-gray-400">
+            <thead class="text-xs uppercase bg-surface/80 text-violet-300/80 border-b border-violet-900/40">
                 <tr>
-                    <th class="px-6 py-3">Date</th>
-                    <th class="px-6 py-3">Time</th>
-                    <th class="px-6 py-3">Hours</th>
-                    <th class="px-6 py-3">Rate/Hr</th>
-                    <th class="px-6 py-3">Total Amount</th>
-                    <th class="px-6 py-3">Actual Hrs</th>
-                    <th class="px-6 py-3">Status</th>
-                    <th class="px-6 py-3 text-right">Action</th>
+                    <th class="px-6 py-4">Date</th>
+                    <th class="px-6 py-4">Scheduled Time</th>
+                    <th class="px-6 py-4">Hours</th>
+                    <th class="px-6 py-4">Rate / Hr</th>
+                    <th class="px-6 py-4">Total Amount</th>
+                    <th class="px-6 py-4">Actual Log</th>
+                    <th class="px-6 py-4">Status</th>
+                    <th class="px-6 py-4 text-right">Action</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="divide-y divide-violet-900/30">
                 <?php if (empty($data['overtimes'])): ?>
                     <tr>
                         <td colspan="8" class="px-6 py-12 text-center text-gray-500">
-                            <div class="w-16 h-16 mx-auto bg-gray-50 dark:bg-gray-700 rounded-full flex items-center justify-center mb-3">
-                                <i class="fa-solid fa-mug-hot text-2xl text-gray-300 dark:text-gray-500"></i>
+                            <div class="w-12 h-12 mx-auto bg-surface rounded-2xl border border-violet-900/40 flex items-center justify-center mb-2 text-violet-400">
+                                <i class="fa-solid fa-mug-hot text-xl"></i>
                             </div>
-                            <p class="font-medium text-gray-900 dark:text-white">No overtime assignments found.</p>
+                            <p class="font-semibold text-gray-300">No overtime assignments found</p>
+                            <p class="text-xs text-gray-500 mt-0.5">Assigned overtime shifts from your supervisor will appear here.</p>
                         </td>
                     </tr>
                 <?php else: ?>
                     <?php foreach ($data['overtimes'] as $ot): ?>
-                    <tr class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                        <td class="px-6 py-4 font-medium text-gray-900 dark:text-white"><?= date('D, M j, Y', strtotime($ot['OvertimeDate'])) ?></td>
-                        <td class="px-6 py-4">
+                    <tr class="hover:bg-violet-950/20 transition-colors">
+                        <td class="px-6 py-4 font-bold text-white"><?= date('D, M j, Y', strtotime($ot['OvertimeDate'])) ?></td>
+                        <td class="px-6 py-4 text-xs text-gray-300 font-medium">
                             <?php if ($ot['StartTime'] && $ot['EndTime']): ?>
                                 <?= date('h:i A', strtotime($ot['StartTime'])) ?> - <?= date('h:i A', strtotime($ot['EndTime'])) ?>
                             <?php else: ?>
-                                <span class="text-gray-400 italic">N/A</span>
+                                <span class="text-gray-500 italic">Unspecified</span>
                             <?php endif; ?>
                         </td>
                         <td class="px-6 py-4">
-                            <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800/30">
-                                <?= $ot['OvertimeHours'] ?> Hrs
+                            <span class="font-extrabold text-amber-400 font-mono">
+                                <?= $ot['OvertimeHours'] ?> <span class="text-xs text-gray-500 font-normal">hrs</span>
                             </span>
                         </td>
-                        <td class="px-6 py-4 font-medium text-gray-900 dark:text-gray-300"><?= number_format($ot['OTRate'], 2) ?></td>
-                        <td class="px-6 py-4 font-bold text-emerald-600 dark:text-emerald-400"><?= number_format($ot['OTAmount'], 2) ?> MMK</td>
+                        <td class="px-6 py-4 text-gray-300 font-mono"><?= number_format($ot['OTRate'], 2) ?></td>
+                        <td class="px-6 py-4 font-extrabold text-emerald-400 font-mono"><?= number_format($ot['OTAmount'], 2) ?> <span class="text-xs text-gray-500 font-normal">MMK</span></td>
                         <td class="px-6 py-4">
-                            <span class="font-bold <?= ($ot['ActualOTHours'] > 0) ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400' ?>">
-                                <?= $ot['ActualOTHours'] > 0 ? $ot['ActualOTHours'] . ' Hrs' : '-' ?>
+                            <span class="font-mono text-xs <?= ($ot['ActualOTHours'] > 0) ? 'font-bold text-emerald-400' : 'text-gray-500' ?>">
+                                <?= $ot['ActualOTHours'] > 0 ? $ot['ActualOTHours'] . ' hrs' : '—' ?>
                             </span>
                         </td>
                         <td class="px-6 py-4">
                             <?php
                                 $statusColors = [
-                                    'Assigned' => 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800/30',
-                                    'Accepted' => 'bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800/30',
-                                    'Rejected' => 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800/30',
-                                    'In Progress' => 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800/30',
-                                    'Completed' => 'bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-900/30 dark:text-teal-400 dark:border-teal-800/30',
-                                    'Approved' => 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800/30',
-                                    'No Show' => 'bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-800/30 dark:text-gray-400 dark:border-gray-700/30',
-                                    'Cancelled' => 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800/30'
+                                    'Assigned' => 'bg-blue-500/15 text-blue-300 border border-blue-500/30',
+                                    'Accepted' => 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/30',
+                                    'Rejected' => 'bg-rose-500/15 text-rose-300 border border-rose-500/30',
+                                    'In Progress' => 'bg-amber-500/15 text-amber-300 border border-amber-500/30',
+                                    'Completed' => 'bg-teal-500/15 text-teal-300 border border-teal-500/30',
+                                    'Approved' => 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30',
+                                    'No Show' => 'bg-gray-500/15 text-gray-300 border border-gray-500/30',
+                                    'Cancelled' => 'bg-rose-500/15 text-rose-300 border border-rose-500/30'
                                 ];
                                 $colorClass = $statusColors[$ot['Status']] ?? $statusColors['Assigned'];
                             ?>
-                            <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold border <?= $colorClass ?>"><?= $ot['Status'] ?></span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold <?= $colorClass ?>"><?= $ot['Status'] ?></span>
                         </td>
                         <td class="px-6 py-4 text-right">
                             <?php if ($ot['Status'] === 'Assigned'): ?>
@@ -135,13 +153,13 @@
                                         <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
                                         <input type="hidden" name="ot_id" value="<?= $ot['OvertimeID'] ?>">
                                         <input type="hidden" name="action" value="accept">
-                                        <button type="submit" class="px-3 py-1 bg-emerald-500 text-white rounded-md hover:bg-emerald-600 text-xs font-medium transition-colors shadow-sm">Accept</button>
+                                        <button type="submit" class="px-3.5 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-gray-950 font-extrabold rounded-xl text-xs transition-all shadow-md hover:scale-105">Accept</button>
                                     </form>
-                                    <form method="POST" action="/payrollsystem/employee/ot_action" class="inline m-0 p-0" onsubmit="return confirm('Are you sure you want to reject this overtime?');">
+                                    <form method="POST" action="/payrollsystem/employee/ot_action" class="inline m-0 p-0" onsubmit="return confirm('Are you sure you want to reject this overtime assignment?');">
                                         <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
                                         <input type="hidden" name="ot_id" value="<?= $ot['OvertimeID'] ?>">
                                         <input type="hidden" name="action" value="reject">
-                                        <button type="submit" class="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 text-xs font-medium transition-colors shadow-sm">Reject</button>
+                                        <button type="submit" class="px-3.5 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 font-bold rounded-xl text-xs transition-colors">Reject</button>
                                     </form>
                                 </div>
                             <?php elseif ($ot['Status'] === 'Accepted'): ?>
@@ -158,26 +176,26 @@
                                         <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
                                         <input type="hidden" name="ot_id" value="<?= $ot['OvertimeID'] ?>">
                                         <input type="hidden" name="action" value="check_in">
-                                        <button type="submit" class="px-4 py-1.5 bg-gradient-to-r from-[#D4AF37] to-[#C5A017] text-white rounded-md hover:from-[#C5A017] hover:to-[#B49006] text-xs font-bold transition-colors shadow-md">
-                                            <i class="fa-solid fa-fingerprint mr-1"></i> Check In
+                                        <button type="submit" class="px-4 py-1.5 bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-gray-950 rounded-xl text-xs font-extrabold transition-all shadow-md hover:scale-105">
+                                            <i class="fa-solid fa-fingerprint mr-1"></i> OT Check-In
                                         </button>
                                     </form>
                                 <?php else: ?>
-                                    <span class="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">Wait for schedule</span>
+                                    <span class="text-[11px] text-gray-500 bg-surface px-2.5 py-1 rounded-lg border border-violet-900/30">Pending Shift</span>
                                 <?php endif; ?>
                             <?php elseif ($ot['Status'] === 'In Progress'): ?>
                                 <form method="POST" action="/payrollsystem/employee/ot_attendance" class="inline m-0 p-0">
                                     <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
                                     <input type="hidden" name="ot_id" value="<?= $ot['OvertimeID'] ?>">
                                     <input type="hidden" name="action" value="check_out">
-                                    <button type="submit" class="px-4 py-1.5 bg-gradient-to-r from-[#FF6B6B] to-[#E63946] text-white rounded-md hover:from-[#E63946] hover:to-[#D62828] text-xs font-bold transition-colors shadow-md">
-                                        <i class="fa-solid fa-right-from-bracket mr-1"></i> Check Out
+                                    <button type="submit" class="px-4 py-1.5 bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-400 hover:to-red-500 text-white rounded-xl text-xs font-extrabold transition-all shadow-md hover:scale-105">
+                                        <i class="fa-solid fa-right-from-bracket mr-1"></i> OT Check-Out
                                     </button>
                                 </form>
                             <?php elseif ($ot['Status'] === 'Rejected' && !empty($ot['EmployeeResponse'])): ?>
-                                <span class="text-xs text-gray-500 dark:text-gray-400 italic truncate max-w-[180px]" title="<?= htmlspecialchars($ot['EmployeeResponse']) ?>"><?= htmlspecialchars($ot['EmployeeResponse']) ?></span>
+                                <span class="text-xs text-gray-400 italic truncate max-w-[180px]" title="<?= htmlspecialchars($ot['EmployeeResponse']) ?>"><?= htmlspecialchars($ot['EmployeeResponse']) ?></span>
                             <?php else: ?>
-                                <span class="text-gray-400 text-xs">—</span>
+                                <span class="text-gray-500 text-xs">—</span>
                             <?php endif; ?>
                         </td>
                     </tr>

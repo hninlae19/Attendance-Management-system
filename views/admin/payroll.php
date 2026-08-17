@@ -17,154 +17,184 @@ else $currentMonthName = $monthNames[(int)$data['selectedMonth']];
         this.paymentModal = true;
     }
 }">
-    <!-- Header & Controls -->
-    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6" data-aos="fade-down">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
-                <?php if ($data['selectedEmpName']): ?>
-                    Salary for <?= htmlspecialchars($data['selectedEmpName']) ?>
-                <?php else: ?>
-                    Monthly Payroll Summary
-                <?php endif; ?>
-            </h1>
-            <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">
-                <?= $currentMonthName ?> <?= htmlspecialchars($data['selectedYear']) ?>
-            </p>
-        </div>
-        
-        <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-            <!-- Filter -->
-            <form method="GET" action="/payrollsystem/admin/payroll" class="flex gap-2">
-                <select name="emp_id" onchange="this.form.submit()" class="rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-primary focus:border-primary shadow-sm text-sm">
-                    <option value="">All Employees</option>
-                    <?php foreach($data['employees'] as $emp): ?>
-                        <option value="<?= $emp['EmpID'] ?>" <?= ($data['selectedEmpId'] ?? '') == $emp['EmpID'] ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($emp['FirstName'] . ' ' . $emp['LastName']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <select name="month" onchange="this.form.submit()" class="rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-primary focus:border-primary shadow-sm text-sm">
-                    <option value="all" <?= $data['selectedMonth'] === 'all' ? 'selected' : '' ?>>All Months</option>
-                    <option value="yearly" <?= $data['selectedMonth'] === 'yearly' ? 'selected' : '' ?>>Yearly Total</option>
-                    <?php foreach($monthNames as $m => $name): ?>
-                        <option value="<?= $m ?>" <?= $m == $data['selectedMonth'] ? 'selected' : '' ?>><?= $name ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </form>
+    <!-- ============ HEADER BANNER ============ -->
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#180f33] via-[#241447] to-[#121c3b] border border-violet-500/25 p-6 lg:p-7 mb-8 shadow-2xl" data-aos="fade-down">
+        <div class="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5">
+            <div>
+                <div class="flex items-center gap-2 mb-1.5">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-500/15 border border-violet-500/30 text-violet-300 text-xs font-bold uppercase tracking-wider">
+                        <i class="fa-solid fa-file-invoice-dollar text-emerald-400"></i>
+                        <span>Payroll Operations</span>
+                    </span>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-xs font-bold uppercase tracking-wider font-mono">
+                        <?= $currentMonthName ?> <?= htmlspecialchars($data['selectedYear']) ?>
+                    </span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-outfit">
+                    <?php if ($data['selectedEmpName']): ?>
+                        Salary Breakdown for <span class="gradient-text"><?= htmlspecialchars($data['selectedEmpName']) ?></span>
+                    <?php else: ?>
+                        Monthly <span class="gradient-text">Payroll</span> Summary
+                    <?php endif; ?>
+                </h1>
+                <p class="text-gray-300 text-xs sm:text-sm mt-1">Review basic salary, calculate proration by join date, disburse bonuses, and manage payment settlements.</p>
+            </div>
             
-            <!-- Generate -->
-            <?php if ($data['selectedMonth'] !== 'yearly' && $data['selectedMonth'] !== 'all'): ?>
-            <form method="POST" action="/payrollsystem/admin/payroll" class="inline">
-                <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
-                <input type="hidden" name="action" value="generate">
-                <input type="hidden" name="month" value="<?= $data['selectedMonth'] ?>">
-                <input type="hidden" name="year" value="<?= $data['selectedYear'] ?>">
-                <button type="submit" class="w-full sm:w-auto bg-primary hover:bg-primary-dark text-white px-5 py-2 rounded-xl shadow-md transition-colors text-sm font-medium flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-gears"></i> Calculate Salary
-                </button>
-            </form>
-            <?php endif; ?>
+            <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                <!-- Filters Form -->
+                <form method="GET" action="/payrollsystem/admin/payroll" class="flex flex-wrap items-center gap-2">
+                    <select name="emp_id" onchange="this.form.submit()" class="rounded-xl bg-darker/70 border border-violet-700/30 text-white text-xs py-2.5 px-3 focus:ring-2 focus:ring-violet-500 cursor-pointer shadow-inner">
+                        <option value="">All Employees</option>
+                        <?php foreach($data['employees'] as $emp): ?>
+                            <option value="<?= $emp['EmpID'] ?>" <?= ($data['selectedEmpId'] ?? '') == $emp['EmpID'] ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($emp['FirstName'] . ' ' . $emp['LastName']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <select name="month" onchange="this.form.submit()" class="rounded-xl bg-darker/70 border border-violet-700/30 text-white text-xs py-2.5 px-3 focus:ring-2 focus:ring-violet-500 cursor-pointer shadow-inner">
+                        <option value="all" <?= $data['selectedMonth'] === 'all' ? 'selected' : '' ?>>All Months</option>
+                        <option value="yearly" <?= $data['selectedMonth'] === 'yearly' ? 'selected' : '' ?>>Yearly Total</option>
+                        <?php foreach($monthNames as $m => $name): ?>
+                            <option value="<?= $m ?>" <?= $m == $data['selectedMonth'] ? 'selected' : '' ?>><?= $name ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </form>
+                
+                <!-- Calculate Button -->
+                <?php if ($data['selectedMonth'] !== 'yearly' && $data['selectedMonth'] !== 'all'): ?>
+                <form method="POST" action="/payrollsystem/admin/payroll" class="inline m-0 p-0">
+                    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+                    <input type="hidden" name="action" value="generate">
+                    <input type="hidden" name="month" value="<?= $data['selectedMonth'] ?>">
+                    <input type="hidden" name="year" value="<?= $data['selectedYear'] ?>">
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-gray-950 text-xs font-extrabold shadow-lg shadow-emerald-500/25 hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-calculator"></i>
+                        <span>Calculate Salary</span>
+                    </button>
+                </form>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Toolbar -->
+    <div class="card-glass rounded-2xl p-4 border border-violet-500/20 flex items-center justify-between shadow-lg" data-aos="fade-up">
+        <div class="relative w-full md:w-80">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-violet-400">
+                <i class="fa-solid fa-magnifying-glass text-xs"></i>
+            </div>
+            <input type="text" x-model="searchQuery" 
+                   class="bg-darker/60 border border-violet-700/30 text-white text-xs rounded-xl focus:ring-2 focus:ring-violet-500 block w-full pl-9 p-2.5 placeholder-gray-500 shadow-inner" 
+                   placeholder="Quick search employee name in table...">
+        </div>
+        <div class="text-xs text-gray-400 font-mono hidden sm:block">
+            Found <span class="text-emerald-400 font-bold"><?= count($data['payrolls'] ?? []) ?></span> records
         </div>
     </div>
 
     <!-- Data Table -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-gray-700 overflow-hidden" data-aos="fade-up" data-aos-delay="100">
+    <div class="card-glass rounded-3xl overflow-hidden border border-violet-500/20 mb-8 shadow-xl" data-aos="fade-up" data-aos-delay="100">
         <div class="overflow-x-auto">
-            <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                <thead class="text-xs text-gray-500 uppercase bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-700">
+            <table class="w-full text-sm text-left text-gray-400 whitespace-nowrap">
+                <thead class="text-xs uppercase bg-surface/80 text-violet-300/80 border-b border-violet-900/40">
                     <tr>
                         <?php if ($data['selectedMonth'] === 'all'): ?>
-                            <th class="px-4 py-3 font-semibold tracking-wider text-teal-700 dark:text-teal-400">Payroll Month</th>
+                            <th class="px-4 py-4 font-bold text-cyan-300">Payroll Month</th>
                         <?php endif; ?>
-                        <th class="px-4 py-3 font-semibold tracking-wider">Employee</th>
-                        <th class="px-4 py-3 font-semibold tracking-wider">Emp Code</th>
-                        <th class="px-4 py-3">Department</th>
-                        <th class="px-4 py-3">Position</th>
-                        <th class="px-4 py-3 bg-gray-100 dark:bg-gray-800/50">Basic Salary (MMK)</th>
-                        <th class="px-4 py-3">Present</th>
-                        <th class="px-4 py-3">Leave</th>
-                        <th class="px-4 py-3 text-rose-500 font-semibold">FD Absent</th>
-                        <th class="px-4 py-3 text-orange-500 font-semibold">HD Absent</th>
-                        <th class="px-4 py-3">Late</th>
-                        <th class="px-4 py-3">OT Hrs</th>
-                        <th class="px-4 py-3 text-orange-600 dark:text-orange-400 font-semibold">OT Pay (MMK)</th>
-                        <th class="px-4 py-3 text-teal-600 dark:text-teal-400 font-semibold">Bonus (MMK)</th>
-                        <th class="px-4 py-3 text-rose-600 dark:text-rose-400 font-semibold">Leave Ded (MMK)</th>
-                        <th class="px-4 py-3 text-rose-600 dark:text-rose-400 font-semibold">Late Ded (MMK)</th>
-                        <th class="px-4 py-3 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 font-bold">Gross (MMK)</th>
-                        <th class="px-4 py-3 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 font-bold">Net (MMK)</th>
-                        <th class="px-4 py-3">Status</th>
-                        <th class="px-4 py-3 text-right">Actions</th>
+                        <th class="px-4 py-4 font-semibold tracking-wider">Employee</th>
+                        <th class="px-4 py-4 font-semibold tracking-wider">Emp Code</th>
+                        <th class="px-4 py-4">Department</th>
+                        <th class="px-4 py-4">Position</th>
+                        <th class="px-4 py-4 bg-violet-950/40 text-violet-200">Basic Salary</th>
+                        <th class="px-4 py-4 text-center">Present</th>
+                        <th class="px-4 py-4 text-center">Leave</th>
+                        <th class="px-4 py-4 text-rose-400 text-center font-bold">FD Absent</th>
+                        <th class="px-4 py-4 text-amber-400 text-center font-bold">HD Absent</th>
+                        <th class="px-4 py-4 text-center">Late</th>
+                        <th class="px-4 py-4 text-center">OT Hrs</th>
+                        <th class="px-4 py-4 text-amber-400 font-bold">OT Pay</th>
+                        <th class="px-4 py-4 text-emerald-400 font-bold">Bonus</th>
+                        <th class="px-4 py-4 text-rose-400 font-bold">Leave Ded</th>
+                        <th class="px-4 py-4 text-rose-400 font-bold">Late Ded</th>
+                        <th class="px-4 py-4 bg-violet-950/50 text-violet-300 font-bold">Gross (MMK)</th>
+                        <th class="px-4 py-4 bg-emerald-950/30 text-emerald-400 font-extrabold text-base">Net Salary (MMK)</th>
+                        <th class="px-4 py-4 text-center">Status</th>
+                        <th class="px-4 py-4 text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-violet-900/30">
                     <?php if(empty($data['payrolls'])): ?>
                     <tr>
-                        <td colspan="18" class="px-4 py-8 text-center text-gray-500">
-                            <i class="fa-solid fa-folder-open text-4xl mb-3 text-gray-300 dark:text-gray-600"></i>
-                            <p>No payroll generated for this month yet.</p>
+                        <td colspan="20" class="px-4 py-12 text-center text-gray-500">
+                            <div class="w-12 h-12 mx-auto bg-surface rounded-2xl border border-violet-900/40 flex items-center justify-center mb-2 text-violet-400">
+                                <i class="fa-solid fa-folder-open text-2xl"></i>
+                            </div>
+                            <p class="font-semibold text-gray-300">No payroll generated for this period</p>
+                            <p class="text-xs text-gray-500 mt-0.5">Click "Calculate Salary" above to process attendance and generate monthly payroll.</p>
                         </td>
                     </tr>
                     <?php else: ?>
                         <?php foreach($data['payrolls'] as $p): ?>
-                        <tr x-show="searchQuery === '' || '<?= strtolower(addslashes($p['FirstName'] . ' ' . $p['LastName'])) ?>'.includes(searchQuery.toLowerCase())" class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors group">
+                        <tr x-show="searchQuery === '' || '<?= strtolower(addslashes($p['FirstName'] . ' ' . $p['LastName'])) ?>'.includes(searchQuery.toLowerCase())" class="hover:bg-violet-950/20 transition-colors group">
                             <?php if ($data['selectedMonth'] === 'all'): ?>
-                                <td class="px-4 py-3 font-bold text-gray-900 dark:text-white">
-                                    <i class="fa-regular fa-calendar-alt text-teal-500 mr-2"></i><?= htmlspecialchars($p['PayrollMonth']) ?>
+                                <td class="px-4 py-3.5 font-bold text-white">
+                                    <i class="fa-regular fa-calendar-alt text-cyan-400 mr-1.5"></i><?= htmlspecialchars($p['PayrollMonth']) ?>
                                 </td>
                             <?php endif; ?>
-                            <td class="px-4 py-3">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-blue-500/20 text-primary dark:text-blue-400 flex items-center justify-center font-bold text-xs ring-2 ring-white dark:ring-gray-800 group-hover:ring-primary/20 transition-all shadow-sm">
+                            <td class="px-4 py-3.5">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-600/30 to-cyan-500/30 text-cyan-300 border border-violet-500/30 flex items-center justify-center font-extrabold text-xs shadow-inner">
                                         <?= strtoupper(substr($p['FirstName'] ?? 'A',0,1) . substr($p['LastName'] ?? 'B',0,1)) ?>
                                     </div>
                                     <div>
-                                        <div class="font-bold text-gray-900 dark:text-white"><?= htmlspecialchars(($p['FirstName'] ?? '') . ' ' . ($p['LastName'] ?? '')) ?></div>
+                                        <div class="font-bold text-white group-hover:text-violet-300 transition-colors"><?= htmlspecialchars(($p['FirstName'] ?? '') . ' ' . ($p['LastName'] ?? '')) ?></div>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">
+                            <td class="px-4 py-3.5 font-mono text-xs text-gray-400">
                                 EMP-<?= htmlspecialchars($p['employee_code'] ?? str_pad($p['EmpID'] ?? 0, 4, '0', STR_PAD_LEFT)) ?>
                             </td>
-                            <td class="px-4 py-3"><?= htmlspecialchars($p['DeptName'] ?? '') ?></td>
-                            <td class="px-4 py-3"><?= htmlspecialchars($p['PositionName'] ?? 'N/A') ?></td>
-                            <td class="px-4 py-3 bg-gray-50 dark:bg-gray-800/30"><?= number_format($p['BasicSalary']) ?></td>
+                            <td class="px-4 py-3.5 text-xs text-gray-300"><?= htmlspecialchars($p['DeptName'] ?? '—') ?></td>
+                            <td class="px-4 py-3.5 text-xs text-violet-400"><?= htmlspecialchars($p['PositionName'] ?? '—') ?></td>
+                            <td class="px-4 py-3.5 bg-darker/40 font-mono text-gray-200"><?= number_format($p['BasicSalary']) ?></td>
                             
-                            <td class="px-4 py-3"><?= $p['present_days'] ?></td>
-                            <td class="px-4 py-3"><?= $p['leave_days'] ?></td>
-                            <td class="px-4 py-3 text-rose-600 font-bold"><?= $p['absent_days'] ?></td>
-                            <td class="px-4 py-3 text-orange-600 font-bold"><?= $p['half_days'] ?></td>
-                            <td class="px-4 py-3"><?= $p['late_days'] ?></td>
-                            <td class="px-4 py-3"><?= number_format($p['ot_hours'] ?? 0, 1) ?></td>
+                            <td class="px-4 py-3.5 text-center font-mono text-xs text-gray-300"><?= $p['present_days'] ?></td>
+                            <td class="px-4 py-3.5 text-center font-mono text-xs text-gray-300"><?= $p['leave_days'] ?></td>
+                            <td class="px-4 py-3.5 text-center font-mono text-xs text-rose-400 font-bold"><?= $p['absent_days'] ?></td>
+                            <td class="px-4 py-3.5 text-center font-mono text-xs text-amber-400 font-bold"><?= $p['half_days'] ?></td>
+                            <td class="px-4 py-3.5 text-center font-mono text-xs text-gray-300"><?= $p['late_days'] ?></td>
+                            <td class="px-4 py-3.5 text-center font-mono text-xs text-gray-300"><?= number_format($p['ot_hours'] ?? 0, 1) ?></td>
                             
-                            <td class="px-4 py-3 text-orange-600 dark:text-orange-400"><?= number_format($p['OvertimeAmount']) ?></td>
-                            <td class="px-4 py-3 text-teal-600 dark:text-teal-400"><?= number_format($p['BonousAmount']) ?></td>
+                            <td class="px-4 py-3.5 font-mono text-amber-400 font-bold">+<?= number_format($p['OvertimeAmount']) ?></td>
+                            <td class="px-4 py-3.5 font-mono text-emerald-400 font-bold">+<?= number_format($p['BonousAmount']) ?></td>
                             
-                            <td class="px-4 py-3 text-rose-600 dark:text-rose-400"><?= number_format($p['LeaveDeductionAmount'] ?? 0) ?></td>
-                            <td class="px-4 py-3 text-rose-600 dark:text-rose-400"><?= number_format($p['late_deduction_amount'] ?? 0) ?></td>
+                            <td class="px-4 py-3.5 font-mono text-rose-400 font-bold">-<?= number_format($p['LeaveDeductionAmount'] ?? 0) ?></td>
+                            <td class="px-4 py-3.5 font-mono text-rose-400 font-bold">-<?= number_format($p['late_deduction_amount'] ?? 0) ?></td>
                             
                             <?php $grossSalary = $p['BasicSalary'] + $p['OvertimeAmount'] + $p['BonousAmount']; ?>
-                            <td class="px-4 py-3 bg-indigo-50 dark:bg-indigo-900/10 font-bold text-indigo-700 dark:text-indigo-400"><?= number_format($grossSalary) ?></td>
-                            <td class="px-4 py-3 bg-emerald-50 dark:bg-emerald-900/10 font-bold text-emerald-700 dark:text-emerald-400 text-lg"><?= number_format($p['NetSalary']) ?></td>
+                            <td class="px-4 py-3.5 bg-darker/50 font-mono font-bold text-violet-300"><?= number_format($grossSalary) ?></td>
+                            <td class="px-4 py-3.5 bg-emerald-950/20 font-mono font-extrabold text-emerald-400 text-sm"><?= number_format($p['NetSalary']) ?></td>
                             
-                            <td class="px-4 py-3">
+                            <td class="px-4 py-3.5 text-center">
                                 <?php if($p['Status'] === 'N/A'): ?>
-                                    <span class="text-gray-400 italic">Aggregated</span>
+                                    <span class="text-gray-500 italic text-xs">Aggregated</span>
                                 <?php elseif($p['Status'] === 'Paid'): ?>
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800/30 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span> Paid</span>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5"></span> Paid</span>
                                 <?php else: ?>
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800/30 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5"></span> Pending</span>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 mr-1.5"></span> Pending</span>
                                 <?php endif; ?>
                             </td>
                             
-                            <td class="px-4 py-3 text-right">
+                            <td class="px-4 py-3.5 text-right">
                                 <?php if($p['Status'] !== 'N/A'): ?>
-                                <div class="flex justify-end gap-2">
-                                    <a href="/payrollsystem/admin/payroll_slip/<?= $p['PayrollID'] ?>" target="_blank" class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors" title="Print Slip">
+                                <div class="flex justify-end items-center gap-1.5">
+                                    <a href="/payrollsystem/admin/payroll_slip/<?= $p['PayrollID'] ?>" target="_blank" 
+                                       class="w-7 h-7 rounded-lg bg-violet-600/20 text-violet-300 border border-violet-500/30 flex items-center justify-center hover:bg-violet-600/40 hover:scale-105 transition-all text-xs" title="Print Slip">
                                         <i class="fa-solid fa-print"></i>
                                     </a>
                                     <?php if($p['Status'] !== 'Paid'): ?>
-                                    <button @click="openPaymentModal(<?= $p['PayrollID'] ?>, '<?= addslashes(htmlspecialchars($p['FirstName'] . ' ' . $p['LastName'])) ?>', <?= $p['NetSalary'] ?>)" class="text-emerald-600 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-300 font-medium ml-2 transition-colors">
+                                    <button @click="openPaymentModal(<?= $p['PayrollID'] ?>, '<?= addslashes(htmlspecialchars($p['FirstName'] . ' ' . $p['LastName'])) ?>', <?= $p['NetSalary'] ?>)" 
+                                            class="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 font-bold text-xs transition-all hover:scale-105">
                                         Pay
                                     </button>
                                     <?php endif; ?>
@@ -180,51 +210,49 @@ else $currentMonthName = $monthNames[(int)$data['selectedMonth']];
     </div>
 
     <!-- Payment Modal -->
-    <div x-show="paymentModal" class="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto overflow-x-hidden bg-gray-900/50 dark:bg-gray-900/80 backdrop-blur-sm" x-cloak>
-        <div @click.away="paymentModal = false" class="relative w-full max-w-md p-4 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
-            <div class="flex items-center justify-between p-4 border-b dark:border-gray-700">
-                <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-wallet text-emerald-500"></i> Make Payment
+    <div x-show="paymentModal" class="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto overflow-x-hidden bg-gray-950/80 backdrop-blur-md p-4" x-cloak>
+        <div @click.away="paymentModal = false" class="relative w-full max-w-md card-glass rounded-3xl shadow-2xl border border-violet-500/30 overflow-hidden" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
+            <div class="flex items-center justify-between p-5 border-b border-violet-900/40 bg-surface/80">
+                <h3 class="text-lg font-extrabold text-white flex items-center gap-2 font-outfit">
+                    <i class="fa-solid fa-wallet text-emerald-400"></i> Settle Salary Payment
                 </h3>
-                <button @click="paymentModal = false" type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
-                    <i class="fa-solid fa-xmark"></i>
+                <button @click="paymentModal = false" type="button" class="w-8 h-8 rounded-xl bg-surface text-gray-400 hover:text-white border border-violet-900/40 flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-xmark text-xs"></i>
                 </button>
             </div>
-            <form method="POST" action="/payrollsystem/admin/payroll" class="p-4 md:p-5">
-    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
-
+            <form method="POST" action="/payrollsystem/admin/payroll" class="p-6">
+                <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
                 <input type="hidden" name="action" value="pay">
                 <input type="hidden" name="payroll_id" :value="selectedPayrollId">
                 <input type="hidden" name="month" value="<?= $data['selectedMonth'] ?>">
                 <input type="hidden" name="year" value="<?= $data['selectedYear'] ?>">
                 
-                <div class="mb-5 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl border border-gray-100 dark:border-gray-600">
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Paying Salary for:</p>
-                    <p class="text-lg font-bold text-gray-900 dark:text-white" x-text="empName"></p>
-                    <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600 flex justify-between items-center">
-                        <span class="text-sm text-gray-500 dark:text-gray-400">Net Amount:</span>
-                        <span class="text-2xl font-black text-emerald-600 dark:text-emerald-400"><span x-text="new Intl.NumberFormat().format(netSalary)"></span> MMK</span>
+                <div class="mb-5 bg-darker/60 p-4 rounded-2xl border border-violet-700/30 shadow-inner">
+                    <p class="text-[11px] font-bold uppercase tracking-wider text-violet-300 mb-1">Paying Salary For</p>
+                    <p class="text-base font-extrabold text-white" x-text="empName"></p>
+                    <div class="mt-3 pt-3 border-t border-violet-900/40 flex justify-between items-center">
+                        <span class="text-xs text-gray-400">Net Amount:</span>
+                        <span class="text-xl font-extrabold text-emerald-400 font-mono"><span x-text="new Intl.NumberFormat().format(netSalary)"></span> MMK</span>
                     </div>
                 </div>
 
-                <div class="grid gap-4 mb-5">
-                    <div class="col-span-2">
-                        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Payment Method</label>
-                        <select name="payment_method" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-primary focus:border-primary block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary dark:focus:border-primary">
-                            <option value="">Select Method</option>
-                            <option value="Cash">Cash</option>
-                            <option value="KBZ Bank">KBZ Bank</option>
-                            <option value="AYA Bank">AYA Bank</option>
-                            <option value="CB Bank">CB Bank</option>
-                            <option value="UAB Bank">UAB Bank</option>
-                            <option value="Wave Pay">Wave Pay</option>
-                            <option value="KBZ Pay">KBZ Pay</option>
-                        </select>
-                    </div>
+                <div class="mb-5">
+                    <label class="block mb-2 text-xs font-bold uppercase tracking-wider text-violet-300">Disbursement Method</label>
+                    <select name="payment_method" required class="bg-darker/80 border border-violet-700/30 text-white text-xs rounded-xl focus:ring-2 focus:ring-violet-500 block w-full p-3 shadow-inner cursor-pointer">
+                        <option value="">Select Payment Method</option>
+                        <option value="Cash">Cash</option>
+                        <option value="KBZ Bank">KBZ Bank</option>
+                        <option value="AYA Bank">AYA Bank</option>
+                        <option value="CB Bank">CB Bank</option>
+                        <option value="UAB Bank">UAB Bank</option>
+                        <option value="Wave Pay">Wave Pay</option>
+                        <option value="KBZ Pay">KBZ Pay</option>
+                    </select>
                 </div>
                 
-                <button type="submit" class="text-white inline-flex w-full justify-center items-center bg-emerald-600 hover:bg-emerald-700 focus:ring-4 focus:outline-none focus:ring-emerald-300 font-medium rounded-xl text-sm px-5 py-3 text-center dark:bg-emerald-600 dark:hover:bg-emerald-700 dark:focus:ring-emerald-800 transition-colors">
-                    <i class="fa-solid fa-check-circle mr-2"></i> Confirm Payment
+                <button type="submit" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-gray-950 font-extrabold rounded-xl text-xs transition-all shadow-lg shadow-emerald-500/25 hover:scale-105 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>Confirm & Mark as Paid</span>
                 </button>
             </form>
         </div>

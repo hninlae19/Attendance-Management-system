@@ -1,76 +1,117 @@
-<div class="mb-6 flex justify-between items-center">
-    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Positions</h1>
-    <button onclick="document.getElementById('addModal').classList.remove('hidden')" class="bg-primary hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg flex items-center transition-colors">
-        <i class="fa-solid fa-plus mr-2"></i> Add Position
-    </button>
+<!-- ============ HEADER BANNER ============ -->
+<div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#180f33] via-[#241447] to-[#121c3b] border border-violet-500/25 p-6 lg:p-7 mb-8 shadow-2xl" data-aos="fade-down">
+    <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-2 mb-1.5">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-500/15 border border-violet-500/30 text-violet-300 text-xs font-bold uppercase tracking-wider">
+                    <i class="fa-solid fa-id-badge text-secondary"></i>
+                    <span>Role Architecture</span>
+                </span>
+                <span class="inline-flex items-center px-3 py-1 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-xs font-bold uppercase tracking-wider font-mono">
+                    <?= count($data['positions'] ?? []) ?> Job Roles
+                </span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-outfit">
+                Position & <span class="gradient-text">Role</span> Profiles
+            </h1>
+            <p class="text-gray-300 text-xs sm:text-sm mt-1">Configure job positions, associate department designations, and assign baseline salary standards.</p>
+        </div>
+        <button onclick="document.getElementById('addModal').classList.remove('hidden')" 
+                class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-extrabold shadow-lg shadow-violet-600/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
+            <i class="fa-solid fa-plus"></i>
+            <span>Add Position</span>
+        </button>
+    </div>
 </div>
 
 <?php if(isset($_GET['error']) && $_GET['error'] === 'duplicate'): ?>
-<div class="mb-6 p-4 rounded-lg bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 flex items-start">
-    <i class="fa-solid fa-circle-exclamation text-red-500 mt-0.5 mr-3"></i>
+<div class="mb-6 p-4 rounded-2xl bg-rose-950/60 border border-rose-500/40 text-rose-300 text-xs font-semibold flex items-center gap-3 backdrop-blur-sm animate-pulse" data-aos="fade-up">
+    <i class="fa-solid fa-circle-exclamation text-base"></i>
     <div>
-        <h4 class="text-sm font-bold text-red-800 dark:text-red-400">Save Failed</h4>
-        <p class="text-sm text-red-600 dark:text-red-300 mt-1">A position with this name already exists. Please choose a unique name.</p>
+        <span class="font-bold">Save Failed:</span> A position with this name already exists. Please choose a unique name.
     </div>
 </div>
 <?php endif; ?>
 
-<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-            <tr>
-                <th scope="col" class="px-6 py-4">ID</th>
-                <th scope="col" class="px-6 py-4">Department</th>
-                <th scope="col" class="px-6 py-4">Position Name</th>
-                <th scope="col" class="px-6 py-4">Basic Salary</th>
-                <th scope="col" class="px-6 py-4 text-right">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php if(empty($data['positions'])): ?>
-                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                    <td colspan="4" class="px-6 py-4 text-center">No positions found.</td>
+<!-- Table -->
+<div class="card-glass rounded-3xl overflow-hidden border border-violet-500/20 mb-8 shadow-xl" data-aos="fade-up" data-aos-delay="100">
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left text-gray-400">
+            <thead class="text-xs uppercase bg-surface/80 text-violet-300/80 border-b border-violet-900/40">
+                <tr>
+                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider">#</th>
+                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Department</th>
+                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Position Name</th>
+                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Baseline Salary</th>
+                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider text-right">Actions</th>
                 </tr>
-            <?php else: ?>
-                <?php foreach($data['positions'] as $pos): ?>
-                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
-                    <td class="px-6 py-4"><?= $pos['PositionID'] ?></td>
-                    <td class="px-6 py-4"><?= htmlspecialchars($pos['DeptName']) ?></td>
-                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white"><?= htmlspecialchars($pos['PositionName']) ?></td>
-                    <td class="px-6 py-4"><?= number_format($pos['BasicSalary'] ?? 0, 2) ?> MMK</td>
-                    <td class="px-6 py-4 text-right space-x-2">
-                        <button onclick="editPosition(<?= $pos['PositionID'] ?>, '<?= htmlspecialchars(addslashes($pos['PositionName'])) ?>', <?= $pos['DeptID'] ?>, <?= $pos['BasicSalary'] ?? 0 ?>)" class="font-medium text-blue-600 dark:text-blue-500 hover:underline"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
-                        <form action="/payrollsystem/admin/positions" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this position?');">
-    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
-
-                            <input type="hidden" name="action" value="delete">
-                            <input type="hidden" name="id" value="<?= $pos['PositionID'] ?>">
-                            <button type="submit" class="font-medium text-red-600 dark:text-red-500 hover:underline"><i class="fa-solid fa-trash"></i> Delete</button>
-                        </form>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            <?php endif; ?>
-        </tbody>
-    </table>
+            </thead>
+            <tbody class="divide-y divide-violet-900/30">
+                <?php if(empty($data['positions'])): ?>
+                    <tr>
+                        <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                            <div class="w-12 h-12 mx-auto bg-surface rounded-2xl border border-violet-900/40 flex items-center justify-center mb-2 text-violet-400">
+                                <i class="fa-solid fa-id-badge text-2xl"></i>
+                            </div>
+                            <p class="font-semibold text-gray-300">No positions found</p>
+                        </td>
+                    </tr>
+                <?php else: ?>
+                    <?php foreach($data['positions'] as $pos): ?>
+                    <tr class="hover:bg-violet-950/20 transition-colors group">
+                        <td class="px-6 py-4 font-mono text-xs text-gray-500"><?= $pos['PositionID'] ?></td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-violet-500/15 text-violet-300 border border-violet-500/30">
+                                <?= htmlspecialchars($pos['DeptName']) ?>
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 font-bold text-white group-hover:text-violet-300 transition-colors">
+                            <?= htmlspecialchars($pos['PositionName']) ?>
+                        </td>
+                        <td class="px-6 py-4 font-extrabold text-emerald-400 font-mono">
+                            <?= number_format($pos['BasicSalary'] ?? 0, 2) ?> <span class="text-xs text-gray-500 font-normal">MMK</span>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <div class="flex items-center justify-end gap-2">
+                                <button onclick="editPosition(<?= $pos['PositionID'] ?>, '<?= htmlspecialchars(addslashes($pos['PositionName'])) ?>', <?= $pos['DeptID'] ?>, <?= $pos['BasicSalary'] ?? 0 ?>)" 
+                                        class="px-3 py-1.5 rounded-xl bg-violet-600/20 hover:bg-violet-600/40 text-violet-300 border border-violet-500/30 font-bold text-xs transition-all hover:scale-105">
+                                    <i class="fa-solid fa-pen-to-square mr-1"></i> Edit
+                                </button>
+                                <form action="/payrollsystem/admin/positions" method="POST" class="inline m-0 p-0" onsubmit="return confirm('Are you sure you want to delete this position?');">
+                                    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="id" value="<?= $pos['PositionID'] ?>">
+                                    <button type="submit" class="px-3 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 font-bold text-xs transition-all hover:scale-105">
+                                        <i class="fa-solid fa-trash mr-1"></i> Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <!-- Add Modal -->
-<div id="addModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full shadow-2xl overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
-            <h3 class="text-lg font-bold text-gray-900 dark:text-white">Add Position</h3>
-            <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-500">
-                <i class="fa-solid fa-xmark"></i>
+<div id="addModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="card-glass rounded-3xl max-w-md w-full shadow-2xl border border-violet-500/30 overflow-hidden">
+        <div class="px-6 py-4 border-b border-violet-900/40 flex justify-between items-center bg-surface/80">
+            <h3 class="text-base font-extrabold text-white flex items-center gap-2 font-outfit">
+                <i class="fa-solid fa-plus text-secondary"></i> Add Position
+            </h3>
+            <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')" class="w-8 h-8 rounded-xl bg-surface text-gray-400 hover:text-white border border-violet-900/40 flex items-center justify-center transition-colors">
+                <i class="fa-solid fa-xmark text-xs"></i>
             </button>
         </div>
         <form action="/payrollsystem/admin/positions" method="POST" class="p-6 space-y-4">
-    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
-
+            <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
             <input type="hidden" name="action" value="add">
             <div>
-                <label for="department_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Department</label>
-                <select name="department_id" id="department_id" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
+                <label for="department_id" class="block text-xs font-bold uppercase tracking-wider text-violet-300 mb-1.5">Department</label>
+                <select name="department_id" id="department_id" required class="w-full px-3.5 py-2.5 bg-darker/70 border border-violet-700/30 text-white rounded-xl focus:ring-2 focus:ring-violet-500 text-xs shadow-inner cursor-pointer">
                     <option value="">Select Department</option>
                     <?php foreach($data['departments'] as $dept): ?>
                         <option value="<?= $dept['DeptID'] ?>"><?= htmlspecialchars($dept['DeptName']) ?></option>
@@ -78,54 +119,55 @@
                 </select>
             </div>
             <div>
-                <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Position Name</label>
-                <input type="text" name="name" id="name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
+                <label for="name" class="block text-xs font-bold uppercase tracking-wider text-violet-300 mb-1.5">Position Name</label>
+                <input type="text" name="name" id="name" required class="w-full px-3.5 py-2.5 bg-darker/70 border border-violet-700/30 text-white rounded-xl focus:ring-2 focus:ring-violet-500 text-xs shadow-inner" placeholder="e.g. Lead Software Engineer">
             </div>
             <div>
-                <label for="basic_salary" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Basic Salary (MMK)</label>
-                <input type="number" step="0.01" min="0" name="basic_salary" id="basic_salary" value="0.00" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
+                <label for="basic_salary" class="block text-xs font-bold uppercase tracking-wider text-violet-300 mb-1.5">Baseline Salary (MMK)</label>
+                <input type="number" step="0.01" min="0" name="basic_salary" id="basic_salary" value="0.00" required class="w-full px-3.5 py-2.5 bg-darker/70 border border-violet-700/30 text-white rounded-xl focus:ring-2 focus:ring-violet-500 text-xs shadow-inner font-mono">
             </div>
             <div class="flex justify-end gap-3 mt-6">
-                <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">Cancel</button>
-                <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-indigo-700">Save</button>
+                <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')" class="px-4 py-2 text-xs font-bold text-gray-400 bg-surface border border-violet-900/40 rounded-xl hover:text-white transition-colors">Cancel</button>
+                <button type="submit" class="px-5 py-2 text-xs font-extrabold text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 rounded-xl shadow-lg shadow-violet-600/30 transition-all">Save Position</button>
             </div>
         </form>
     </div>
 </div>
 
 <!-- Edit Modal -->
-<div id="editModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full shadow-2xl overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
-            <h3 class="text-lg font-bold text-gray-900 dark:text-white">Edit Position</h3>
-            <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-500">
-                <i class="fa-solid fa-xmark"></i>
+<div id="editModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="card-glass rounded-3xl max-w-md w-full shadow-2xl border border-violet-500/30 overflow-hidden">
+        <div class="px-6 py-4 border-b border-violet-900/40 flex justify-between items-center bg-surface/80">
+            <h3 class="text-base font-extrabold text-white flex items-center gap-2 font-outfit">
+                <i class="fa-solid fa-pen-to-square text-secondary"></i> Edit Position
+            </h3>
+            <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="w-8 h-8 rounded-xl bg-surface text-gray-400 hover:text-white border border-violet-900/40 flex items-center justify-center transition-colors">
+                <i class="fa-solid fa-xmark text-xs"></i>
             </button>
         </div>
         <form action="/payrollsystem/admin/positions" method="POST" class="p-6 space-y-4">
-    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
-
+            <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
             <input type="hidden" name="action" value="edit">
             <input type="hidden" name="id" id="edit_id">
             <div>
-                <label for="edit_department_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Department</label>
-                <select name="department_id" id="edit_department_id" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
+                <label for="edit_department_id" class="block text-xs font-bold uppercase tracking-wider text-violet-300 mb-1.5">Department</label>
+                <select name="department_id" id="edit_department_id" required class="w-full px-3.5 py-2.5 bg-darker/70 border border-violet-700/30 text-white rounded-xl focus:ring-2 focus:ring-violet-500 text-xs shadow-inner cursor-pointer">
                     <?php foreach($data['departments'] as $dept): ?>
                         <option value="<?= $dept['DeptID'] ?>"><?= htmlspecialchars($dept['DeptName']) ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
             <div>
-                <label for="edit_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Position Name</label>
-                <input type="text" name="name" id="edit_name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
+                <label for="edit_name" class="block text-xs font-bold uppercase tracking-wider text-violet-300 mb-1.5">Position Name</label>
+                <input type="text" name="name" id="edit_name" required class="w-full px-3.5 py-2.5 bg-darker/70 border border-violet-700/30 text-white rounded-xl focus:ring-2 focus:ring-violet-500 text-xs shadow-inner">
             </div>
             <div>
-                <label for="edit_basic_salary" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Basic Salary (MMK)</label>
-                <input type="number" step="0.01" min="0" name="basic_salary" id="edit_basic_salary" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
+                <label for="edit_basic_salary" class="block text-xs font-bold uppercase tracking-wider text-violet-300 mb-1.5">Baseline Salary (MMK)</label>
+                <input type="number" step="0.01" min="0" name="basic_salary" id="edit_basic_salary" required class="w-full px-3.5 py-2.5 bg-darker/70 border border-violet-700/30 text-white rounded-xl focus:ring-2 focus:ring-violet-500 text-xs shadow-inner font-mono">
             </div>
             <div class="flex justify-end gap-3 mt-6">
-                <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">Cancel</button>
-                <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-indigo-700">Update</button>
+                <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="px-4 py-2 text-xs font-bold text-gray-400 bg-surface border border-violet-900/40 rounded-xl hover:text-white transition-colors">Cancel</button>
+                <button type="submit" class="px-5 py-2 text-xs font-extrabold text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 rounded-xl shadow-lg shadow-violet-600/30 transition-all">Update Position</button>
             </div>
         </form>
     </div>

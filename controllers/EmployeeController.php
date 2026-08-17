@@ -81,7 +81,10 @@ class EmployeeController extends Controller {
             $time = date('H:i:s');
             
             if ($_POST['action'] === 'check_in') {
-                if (!HolidayHelper::isWorkingDay($today)) {
+                $leaveRequestModel = $this->model('LeaveRequest');
+                if ($leaveRequestModel->isOnApprovedLeave($emp_id, $today)) {
+                    $_SESSION['att_error'] = 'You cannot check in while on an approved leave.';
+                } elseif (!HolidayHelper::isWorkingDay($today)) {
                     $_SESSION['att_error'] = 'Attendance recording is disabled on non-working days.';
                 } elseif ($time < '08:30:00' || $time > '17:00:00') {
                     $_SESSION['att_error'] = 'Check-in is only allowed between 8:30 AM and 5:00 PM.';

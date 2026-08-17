@@ -32,10 +32,12 @@ class LeaveRequest {
     }
 
     public function getAll() {
-        $query = "SELECT lr.*, lt.LeaveType, lt.IsPaid, e.FirstName, e.LastName, DATEDIFF(lr.EndDate, lr.StartDate) + 1 as days
+        $query = "SELECT lr.*, lt.LeaveType, lt.IsPaid, e.FirstName, e.LastName, p.DeptID, d.DeptName, DATEDIFF(lr.EndDate, lr.StartDate) + 1 as days
                   FROM " . $this->table . " lr
                   LEFT JOIN LeaveTypes lt ON lr.LeaveTypeID = lt.LeaveTypeID
                   LEFT JOIN Employee e ON lr.EmpID = e.EmpID
+                  LEFT JOIN Position p ON e.PositionID = p.PositionID
+                  LEFT JOIN Department d ON p.DeptID = d.DeptID
                   ORDER BY lr.RequestID DESC";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
@@ -84,5 +86,17 @@ class LeaveRequest {
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result['used'] ? (int)$result['used'] : 0;
+    }
+
+    public function isOnApprovedLeave($emp_id, $date) {
+        $query = "SELECT RequestID FROM " . $this->table . " 
+                  WHERE EmpID = :emp_id 
+                  AND Status = 'Approved' 
+                  AND :date BETWEEN StartDate AND EndDate";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':emp_id', $emp_id);
+        $stmt->bindParam(':date', $date);
+        $stmt->execute();
+        return $stmt->rowCount() > 0;
     }
 }

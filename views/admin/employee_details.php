@@ -104,6 +104,59 @@
                 </div>
             </div>
         </div>
+
+        <!-- Employee Data Links -->
+        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center border-b border-gray-100 dark:border-gray-700 pb-3">
+                <i class="fa-solid fa-link text-violet-500 mr-2"></i> Employee Data Links
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <a href="/payrollsystem/admin/attendance?search=EMP-<?= str_pad($data['employee']['EmpID'], 4, '0', STR_PAD_LEFT) ?>" class="flex items-center p-3 rounded-xl bg-gray-50 hover:bg-violet-50 border border-gray-100 hover:border-violet-200 transition-colors group dark:bg-gray-700/50 dark:border-gray-600 dark:hover:bg-gray-700">
+                    <div class="w-10 h-10 rounded-lg bg-cyan-100 text-cyan-600 flex items-center justify-center mr-3 dark:bg-cyan-900/50 dark:text-cyan-400 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                    <div>
+                        <p class="font-bold text-sm text-gray-900 dark:text-white group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">Attendance Record</p>
+                    </div>
+                </a>
+
+                <a href="/payrollsystem/admin/leaves?search=EMP-<?= str_pad($data['employee']['EmpID'], 4, '0', STR_PAD_LEFT) ?>" class="flex items-center p-3 rounded-xl bg-gray-50 hover:bg-violet-50 border border-gray-100 hover:border-violet-200 transition-colors group dark:bg-gray-700/50 dark:border-gray-600 dark:hover:bg-gray-700">
+                    <div class="w-10 h-10 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center mr-3 dark:bg-amber-900/50 dark:text-amber-400 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-calendar-minus"></i>
+                    </div>
+                    <div>
+                        <p class="font-bold text-sm text-gray-900 dark:text-white group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">Leave Records</p>
+                    </div>
+                </a>
+
+                <a href="/payrollsystem/admin/overtime_assignments?search=EMP-<?= str_pad($data['employee']['EmpID'], 4, '0', STR_PAD_LEFT) ?>" class="flex items-center p-3 rounded-xl bg-gray-50 hover:bg-violet-50 border border-gray-100 hover:border-violet-200 transition-colors group dark:bg-gray-700/50 dark:border-gray-600 dark:hover:bg-gray-700">
+                    <div class="w-10 h-10 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center mr-3 dark:bg-purple-900/50 dark:text-purple-400 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <div>
+                        <p class="font-bold text-sm text-gray-900 dark:text-white group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">Overtime</p>
+                    </div>
+                </a>
+
+                <button type="button" onclick="document.getElementById('editModal').classList.remove('hidden'); setTimeout(() => document.getElementById('password').focus(), 100);" class="flex items-center p-3 rounded-xl bg-gray-50 hover:bg-violet-50 border border-gray-100 hover:border-violet-200 transition-colors group dark:bg-gray-700/50 dark:border-gray-600 dark:hover:bg-gray-700 text-left w-full">
+                    <div class="w-10 h-10 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center mr-3 dark:bg-rose-900/50 dark:text-rose-400 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-key"></i>
+                    </div>
+                    <div>
+                        <p class="font-bold text-sm text-gray-900 dark:text-white group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">Password Reset</p>
+                    </div>
+                </button>
+
+                <a href="/payrollsystem/admin/employee_salary_history/<?= $data['employee']['EmpID'] ?>" class="flex items-center p-3 rounded-xl bg-gray-50 hover:bg-violet-50 border border-gray-100 hover:border-violet-200 transition-colors group dark:bg-gray-700/50 dark:border-gray-600 dark:hover:bg-gray-700">
+                    <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center mr-3 dark:bg-emerald-900/50 dark:text-emerald-400 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                    </div>
+                    <div>
+                        <p class="font-bold text-sm text-gray-900 dark:text-white group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">Calculate Salary</p>
+                    </div>
+                </a>
+            </div>
+        </div>
     </div>
 </div>
 

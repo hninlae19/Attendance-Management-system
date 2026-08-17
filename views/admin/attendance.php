@@ -67,8 +67,8 @@
                     <option value="">All Statuses</option>
                     <option value="Present">Present</option>
                     <option value="Late">Late</option>
-                    <option value="Half Day">Half Day</option>
-                    <option value="Absent">Absent</option>
+                    <option value="Half-Day Absence">Half-Day Absence</option>
+                    <option value="Full-Day Absence">Full-Day Absence</option>
                 </select>
             </div>
 
@@ -177,14 +177,14 @@
                                       :class="{
                                           'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800/30': record.status === 'Present',
                                           'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800/30': record.status === 'Late',
-                                          'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800/30': record.status === 'Half Day',
-                                          'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800/30': record.status === 'Absent'
+                                          'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800/30': record.status === 'Half-Day Absence',
+                                          'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800/30': record.status === 'Full-Day Absence'
                                       }">
                                       <span class="w-1.5 h-1.5 rounded-full mr-1.5" :class="{
                                           'bg-emerald-500': record.status === 'Present',
                                           'bg-amber-500': record.status === 'Late',
-                                          'bg-orange-500': record.status === 'Half Day',
-                                          'bg-rose-500': record.status === 'Absent'
+                                          'bg-orange-500': record.status === 'Half-Day Absence',
+                                          'bg-rose-500': record.status === 'Full-Day Absence'
                                       }"></span>
                                       <span x-text="record.status"></span>
                                 </span>

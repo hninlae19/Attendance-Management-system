@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $data['title'] ?? 'HRMS Admin Dashboard' ?> — PayrollPro</title>
+    <title><?= $data['title'] ?? 'Dashboard' ?> — Attendance & Payroll Management System</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -15,38 +15,47 @@
             darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+                    fontFamily: { 
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif']
+                    },
                     colors: {
                         primary:   '#7c3aed', // violet-700
                         'primary-light': '#8b5cf6', // violet-500
                         'primary-dark':  '#5b21b6', // violet-800
                         secondary: '#06b6d4', // cyan-500
+                        accent:    '#f59e0b', // amber-500
                         dark:      '#0f0a1e',
                         darker:    '#070512',
-                        surface:   '#1a1030',
+                        surface:   '#160e29',
                     },
                     backgroundImage: {
                         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
                     },
                     keyframes: {
                         float:    { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
+                        floatSlow: { '0%,100%': { transform: 'translateY(0) scale(1)' }, '50%': { transform: 'translateY(-6px) scale(1.02)' } },
                         shimmer:  { '0%': { backgroundPosition: '-200% 0' }, '100%': { backgroundPosition: '200% 0' } },
-                        pulse2:   { '0%,100%': { opacity: 1 },                 '50%':  { opacity: 0.6 } },
+                        pulse2:   { '0%,100%': { opacity: 1 }, '50%': { opacity: 0.5 } },
+                        pulseGlow: { '0%,100%': { filter: 'drop-shadow(0 0 15px rgba(124,58,237,0.6))' }, '50%': { filter: 'drop-shadow(0 0 25px rgba(6,182,212,0.8))' } },
                         slideIn:  { '0%': { transform: 'translateX(-100%)', opacity: 0 }, '100%': { transform: 'translateX(0)', opacity: 1 } },
                         fadeUp:   { '0%': { transform: 'translateY(20px)',  opacity: 0 }, '100%': { transform: 'translateY(0)',  opacity: 1 } },
                         spinSlow: { '0%': { transform: 'rotate(0deg)' }, '100%': { transform: 'rotate(360deg)' } },
+                        spinReverse: { '0%': { transform: 'rotate(360deg)' }, '100%': { transform: 'rotate(0deg)' } },
                         bounceSoft: { '0%,100%': { transform: 'scale(1)' }, '50%': { transform: 'scale(1.05)' } },
-                        shrink:   { 'from': { width: '100%' }, 'to': { width: '0%' } },
+                        loaderProgress: { '0%': { width: '0%' }, '50%': { width: '70%' }, '100%': { width: '100%' } }
                     },
                     animation: {
                         'float':      'float 3s ease-in-out infinite',
-                        'float-slow': 'float 5s ease-in-out infinite',
-                        'shimmer':    'shimmer 3s linear infinite',
+                        'float-slow': 'floatSlow 4s ease-in-out infinite',
+                        'shimmer':    'shimmer 2.5s linear infinite',
                         'slide-in':   'slideIn 0.4s ease-out',
                         'fade-up':    'fadeUp 0.5s ease-out',
-                        'spin-slow':  'spinSlow 8s linear infinite',
+                        'spin-slow':  'spinSlow 10s linear infinite',
+                        'spin-reverse': 'spinReverse 14s linear infinite',
                         'bounce-soft':'bounceSoft 2s ease-in-out infinite',
-                        'shrink-bar': 'shrink 5s linear forwards',
+                        'pulse-glow': 'pulseGlow 3s ease-in-out infinite',
+                        'loader-bar': 'loaderProgress 1.2s ease-in-out forwards',
                     }
                 }
             }
@@ -62,75 +71,85 @@
 
     <style>
         [x-cloak] { display: none !important; }
-
         * { box-sizing: border-box; }
-
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background: #070512;
         }
 
         /* === SCROLLBAR === */
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
-        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(7,5,18,0.5); }
         ::-webkit-scrollbar-thumb { background: #5b21b6; border-radius: 99px; }
         ::-webkit-scrollbar-thumb:hover { background: #7c3aed; }
 
         /* === TOPBAR GLASS === */
         .topbar-glass {
-            background: rgba(7, 5, 18, 0.75);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+            background: rgba(11, 7, 26, 0.85);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-bottom: 1px solid rgba(124, 58, 237, 0.25);
         }
 
         /* === SIDEBAR === */
         .sidebar-glass {
-            background: rgba(15, 10, 30, 0.92);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-right: 1px solid rgba(124, 58, 237, 0.15);
+            background: rgba(15, 10, 32, 0.95);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-right: 1px solid rgba(124, 58, 237, 0.18);
         }
 
-        /* === GLOW === */
-        .glow-violet { box-shadow: 0 0 20px rgba(124, 58, 237, 0.35); }
-        .glow-violet-sm { box-shadow: 0 0 10px rgba(124, 58, 237, 0.25); }
-        .text-glow { text-shadow: 0 0 12px rgba(167, 139, 250, 0.6); }
+        /* === GLOW EFFECTS === */
+        .glow-violet { box-shadow: 0 0 25px rgba(124, 58, 237, 0.4); }
+        .glow-violet-sm { box-shadow: 0 0 12px rgba(124, 58, 237, 0.3); }
+        .glow-cyan { box-shadow: 0 0 25px rgba(6, 182, 212, 0.4); }
+        .glow-amber { box-shadow: 0 0 25px rgba(245, 158, 11, 0.35); }
+        .text-glow { text-shadow: 0 0 14px rgba(167, 139, 250, 0.7); }
 
         /* === CARD GLASS === */
         .card-glass {
-            background: rgba(26, 16, 48, 0.75);
-            border: 1px solid rgba(124, 58, 237, 0.2);
-            backdrop-filter: blur(12px);
+            background: rgba(22, 14, 41, 0.8);
+            border: 1px solid rgba(124, 58, 237, 0.22);
+            backdrop-filter: blur(16px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .card-glass:hover {
-            border-color: rgba(124, 58, 237, 0.5);
-            box-shadow: 0 0 24px rgba(124, 58, 237, 0.15);
+            border-color: rgba(124, 58, 237, 0.55);
+            box-shadow: 0 12px 30px -10px rgba(124, 58, 237, 0.25);
         }
 
         /* === NAV ITEM === */
         .nav-item {
             position: relative;
-            transition: all 0.25s ease;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .nav-item::before {
             content: '';
             position: absolute;
             left: 0;
-            top: 0;
-            height: 100%;
-            width: 3px;
-            background: #7c3aed;
-            border-radius: 0 3px 3px 0;
+            top: 15%;
+            height: 70%;
+            width: 3.5px;
+            background: linear-gradient(to bottom, #a78bfa, #7c3aed);
+            border-radius: 0 4px 4px 0;
             opacity: 0;
             transition: all 0.25s ease;
         }
         .nav-item.active::before { opacity: 1; }
-        .nav-item.active { background: rgba(124, 58, 237, 0.12); }
+        .nav-item.active { 
+            background: linear-gradient(90deg, rgba(124, 58, 237, 0.22), rgba(124, 58, 237, 0.05));
+            border-left: 1px solid rgba(167, 139, 250, 0.3);
+        }
 
         /* === GRADIENT TEXT === */
         .gradient-text {
-            background: linear-gradient(135deg, #a78bfa, #c4b5fd, #7c3aed);
+            background: linear-gradient(135deg, #c4b5fd 0%, #a78bfa 50%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .gradient-gold {
+            background: linear-gradient(135deg, #fef08a 0%, #f59e0b 50%, #d97706 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -140,42 +159,19 @@
         .orb {
             position: fixed;
             border-radius: 50%;
-            filter: blur(80px);
+            filter: blur(90px);
             pointer-events: none;
             z-index: 0;
         }
-        .orb-1 { width: 400px; height: 400px; background: rgba(124,58,237,0.12); top: -100px; right: -100px; }
-        .orb-2 { width: 300px; height: 300px; background: rgba(6,182,212,0.07); bottom: 0; left: 0; }
+        .orb-1 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(124,58,237,0.18) 0%, transparent 70%); top: -120px; right: -120px; }
+        .orb-2 { width: 450px; height: 450px; background: radial-gradient(circle, rgba(6,182,212,0.12) 0%, transparent 70%); bottom: -80px; left: -80px; }
+        .orb-3 { width: 350px; height: 350px; background: radial-gradient(circle, rgba(245,158,11,0.08) 0%, transparent 70%); top: 40%; left: 30%; }
 
         /* === SHIMMER GRADIENT === */
         .shimmer-bg {
-            background: linear-gradient(90deg, rgba(124,58,237,0) 0%, rgba(167,139,250,0.15) 50%, rgba(124,58,237,0) 100%);
+            background: linear-gradient(90deg, rgba(124,58,237,0) 0%, rgba(167,139,250,0.2) 50%, rgba(124,58,237,0) 100%);
             background-size: 200% 100%;
         }
-
-        /* === STAT CARD === */
-        .stat-card {
-            position: relative;
-            overflow: hidden;
-            border-radius: 20px;
-            padding: 1.5rem;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .stat-card:hover { transform: translateY(-4px); }
-        .stat-card::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
-            background-size: 200% 100%;
-            animation: shimmer 3s linear infinite;
-        }
-
-        /* === PROGRESS BAR === */
-        .progress-fill { transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1); }
-
-        /* === BADGE === */
-        .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
 
         /* === NOTIFICATION DOT PULSE === */
         .notif-pulse { animation: pulse2 1.5s ease-in-out infinite; }
@@ -184,22 +180,19 @@
         .logo-ring {
             position: absolute;
             inset: -3px;
-            border-radius: 12px;
-            background: conic-gradient(from 0deg, #7c3aed, #06b6d4, #a78bfa, #7c3aed);
-            animation: spinSlow 4s linear infinite;
+            border-radius: 14px;
+            background: conic-gradient(from 0deg, #7c3aed, #06b6d4, #f59e0b, #7c3aed);
+            animation: spinSlow 5s linear infinite;
             z-index: -1;
         }
-
-        /* === SHRINK BAR (toast) === */
-        @keyframes shrinkBar { from { width: 100%; } to { width: 0; } }
-        .animate-shrink-bar { animation: shrinkBar 5s linear forwards; }
 
         /* === MOBILE OVERLAY === */
         .sidebar-overlay {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(4px);
             z-index: 39;
         }
         .sidebar-overlay.show { display: block; }
@@ -214,50 +207,84 @@
         darkMode = true;
         document.documentElement.classList.add('dark');
     "
-    class="bg-darker text-gray-100 min-h-screen"
+    class="bg-darker text-gray-100 min-h-screen selection:bg-primary selection:text-white"
 >
 
-<!-- Background Orbs -->
+<!-- Background Ambient Lighting -->
 <div class="orb orb-1"></div>
 <div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
 
-<!-- Global Loader -->
-<div id="global-loader" class="fixed inset-0 z-[100] bg-darker flex flex-col items-center justify-center transition-opacity duration-700">
-    <div class="relative">
-        <div class="w-16 h-16 rounded-full border-2 border-violet-900 flex items-center justify-center">
-            <div class="absolute inset-0 rounded-full border-t-2 border-violet-400 animate-spin"></div>
-            <i class="fa-solid fa-building-user text-violet-400 text-xl relative z-10"></i>
+<!-- ============ ADVANCED ANIMATED LOADER ============ -->
+<div id="global-loader" class="fixed inset-0 z-[100] bg-[#070512] flex flex-col items-center justify-center transition-all duration-700">
+    <div class="relative flex flex-col items-center">
+        <!-- 3D Brand Badge in Rotating Rings -->
+        <div class="relative w-28 h-28 flex items-center justify-center mb-6">
+            <!-- Glowing Orbit Rings -->
+            <div class="absolute inset-0 rounded-full border-2 border-violet-500/20 animate-spin-slow"></div>
+            <div class="absolute -inset-3 rounded-full border-2 border-dashed border-cyan-400/30 animate-spin-reverse"></div>
+            <div class="absolute inset-0 rounded-3xl bg-gradient-to-tr from-violet-600 to-cyan-500 blur-xl opacity-50 animate-pulse-glow"></div>
+            
+            <!-- Logo Image -->
+            <div class="relative w-24 h-24 rounded-2xl overflow-hidden shadow-2xl border border-violet-400/40 bg-surface/90 p-1 animate-float">
+                <img src="/payrollsystem/assets/img/system_brand_badge.jpg" 
+                     alt="Attendance & Payroll Management System Logo" 
+                     class="w-full h-full object-cover rounded-xl shadow-inner">
+            </div>
+        </div>
+
+        <!-- System Title and Loading Status -->
+        <div class="text-center space-y-2">
+            <h1 class="text-xl md:text-2xl font-extrabold tracking-tight gradient-text font-outfit">
+                Attendance & Payroll
+            </h1>
+            <p class="text-xs uppercase tracking-[0.25em] text-cyan-400/90 font-bold">
+                Management System
+            </p>
+            
+            <!-- Animated Progress Bar -->
+            <div class="w-48 h-1.5 bg-violet-950/60 rounded-full overflow-hidden mx-auto mt-4 border border-violet-800/40 relative">
+                <div class="h-full bg-gradient-to-r from-violet-500 via-cyan-400 to-amber-400 animate-loader-bar rounded-full"></div>
+            </div>
+            <p class="text-[11px] text-gray-400 font-medium tracking-wider pt-1 animate-pulse">Initializing workspace...</p>
         </div>
     </div>
-    <p class="mt-4 text-violet-300 text-sm font-semibold tracking-widest uppercase animate-pulse">Loading PayrollPro...</p>
 </div>
 
 <!-- ============ TOPBAR ============ -->
-<nav class="fixed top-0 z-50 w-full topbar-glass h-16">
+<nav class="fixed top-0 z-50 w-full topbar-glass h-16 shadow-lg shadow-black/20">
     <div class="h-full px-4 lg:px-6 flex items-center justify-between">
 
-        <!-- Left: Logo + Hamburger -->
+        <!-- Left: Brand Logo & Title -->
         <div class="flex items-center gap-3">
             <button @click="sidebarOpen = !sidebarOpen"
-                    class="sm:hidden text-gray-400 hover:text-violet-400 w-9 h-9 flex items-center justify-center rounded-lg hover:bg-violet-500/10 transition-all">
+                    class="sm:hidden text-gray-400 hover:text-violet-400 w-9 h-9 flex items-center justify-center rounded-xl hover:bg-violet-500/10 transition-all border border-transparent hover:border-violet-500/20">
                 <i class="fa-solid fa-bars text-lg"></i>
             </button>
-            <a href="/payrollsystem/admin" class="flex items-center gap-3 group">
-                <div class="relative w-9 h-9">
-                    <div class="logo-ring rounded-xl opacity-70 group-hover:opacity-100 transition-opacity"></div>
-                    <div class="w-9 h-9 bg-gradient-to-br from-violet-600 to-purple-900 rounded-xl flex items-center justify-center relative z-10">
-                        <i class="fa-solid fa-building-user text-white text-sm"></i>
+            <a href="<?= ($_SESSION['role'] ?? '') === 'Employee' ? '/payrollsystem/employee' : '/payrollsystem/admin' ?>" class="flex items-center gap-3 group">
+                <div class="relative w-10 h-10 flex-shrink-0">
+                    <div class="logo-ring rounded-2xl opacity-80 group-hover:opacity-100 transition-opacity"></div>
+                    <div class="w-10 h-10 rounded-xl overflow-hidden border border-violet-400/40 bg-surface flex items-center justify-center relative z-10 shadow-lg group-hover:scale-105 transition-transform">
+                        <img src="/payrollsystem/assets/img/system_brand_badge.jpg" 
+                             alt="APMS Logo" 
+                             class="w-full h-full object-cover">
                     </div>
                 </div>
                 <div class="hidden sm:block">
-                    <span class="font-extrabold text-lg gradient-text">PayrollPro</span>
-                    <div class="text-[10px] text-violet-400/70 font-medium tracking-widest uppercase -mt-1">Admin Panel</div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-extrabold text-base lg:text-lg gradient-text font-outfit leading-tight tracking-tight">Attendance & Payroll</span>
+                        <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-md bg-gradient-to-r from-violet-600/30 to-cyan-500/30 text-violet-300 border border-violet-400/30 shadow-sm">APMS</span>
+                    </div>
+                    <div class="text-[10px] text-cyan-400/90 font-semibold tracking-wider uppercase -mt-0.5 flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span>Management System • <?= htmlspecialchars($_SESSION['role'] ?? 'Portal') ?></span>
+                    </div>
                 </div>
             </a>
         </div>
 
-        <!-- Right: Notifications + User -->
-        <div class="flex items-center gap-2">
+        <!-- Right: Notifications + User Profile -->
+        <div class="flex items-center gap-2.5">
 
             <!-- Notifications -->
             <div class="relative" x-data="{
@@ -299,10 +326,10 @@
                 window.addEventListener('notifications-read', fetchNotifs);
             ">
                 <button @click="notifOpen = !notifOpen"
-                        class="relative w-9 h-9 flex items-center justify-center rounded-xl text-gray-400 hover:text-violet-400 hover:bg-violet-500/10 transition-all">
-                    <i class="fa-solid fa-bell text-base"></i>
+                        class="relative w-10 h-10 flex items-center justify-center rounded-xl bg-surface/80 text-gray-300 hover:text-violet-300 hover:bg-violet-500/20 border border-violet-500/20 hover:border-violet-500/40 transition-all shadow-md">
+                    <i class="fa-solid fa-bell text-sm"></i>
                     <span x-show="unreadCount > 0" x-text="unreadCount"
-                          class="absolute -top-0.5 -right-0.5 bg-violet-500 text-white text-[9px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full px-1 notif-pulse"></span>
+                          class="absolute -top-1 -right-1 bg-gradient-to-r from-rose-500 to-red-600 text-white text-[9px] font-extrabold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1 shadow-lg shadow-rose-500/50 notif-pulse"></span>
                 </button>
 
                 <!-- Toast -->
@@ -310,103 +337,115 @@
                     <div x-show="toastNotif"
                          @click="if(toastNotif && toastNotif.link && toastNotif.link !== '#') window.location.href = '/payrollsystem' + toastNotif.link"
                          x-transition:enter="transition ease-out duration-300"
-                         x-transition:enter-start="opacity-0 translate-y-10"
-                         x-transition:enter-end="opacity-100 translate-y-0"
+                         x-transition:enter-start="opacity-0 translate-y-10 scale-95"
+                         x-transition:enter-end="opacity-100 translate-y-0 scale-100"
                          x-transition:leave="transition ease-in duration-300"
-                         x-transition:leave-start="opacity-100 translate-y-0"
-                         x-transition:leave-end="opacity-0 translate-y-10"
-                         class="fixed bottom-5 right-5 z-[100] w-80 card-glass rounded-2xl overflow-hidden cursor-pointer hover:border-violet-400/50 hover:scale-105 transition-all shadow-2xl"
+                         x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                         x-transition:leave-end="opacity-0 translate-y-10 scale-95"
+                         class="fixed bottom-5 right-5 z-[100] w-84 card-glass rounded-2xl overflow-hidden cursor-pointer border border-violet-400/50 hover:scale-105 transition-all shadow-2xl"
                          x-cloak>
-                        <div class="p-4 flex gap-3 relative">
-                            <button @click.stop="toastNotif=null" class="absolute top-3 right-3 text-gray-500 hover:text-gray-300 transition-colors"><i class="fa-solid fa-xmark text-xs"></i></button>
-                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-purple-800 flex items-center justify-center flex-shrink-0 glow-violet-sm">
+                        <div class="p-4 flex gap-3.5 relative bg-gradient-to-br from-surface to-darker">
+                            <button @click.stop="toastNotif=null" class="absolute top-3 right-3 text-gray-400 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-xs"></i></button>
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-cyan-600 flex items-center justify-center flex-shrink-0 glow-violet-sm shadow-md">
                                 <i class="fa-solid fa-bell text-white text-sm animate-bounce-soft"></i>
                             </div>
-                            <div>
-                                <p class="text-sm font-bold text-white pr-4" x-text="toastNotif?.title || 'New Notification'"></p>
-                                <p class="text-xs text-gray-400 line-clamp-2 mt-0.5" x-text="toastNotif?.message"></p>
+                            <div class="flex-1 pr-4">
+                                <p class="text-xs font-bold text-white uppercase tracking-wider text-cyan-300" x-text="toastNotif?.title || 'System Alert'"></p>
+                                <p class="text-xs text-gray-300 mt-0.5 line-clamp-2" x-text="toastNotif?.message"></p>
                             </div>
                         </div>
-                        <div class="h-0.5 bg-violet-900 w-full"><div class="h-full bg-gradient-to-r from-violet-500 to-cyan-500 animate-shrink-bar"></div></div>
                     </div>
                 </template>
 
-                <!-- Dropdown -->
+                <!-- Dropdown Menu -->
                 <div x-show="notifOpen" @click.away="notifOpen=false"
                      x-transition:enter="transition ease-out duration-200"
-                     x-transition:enter-start="opacity-0 scale-95 -translate-y-2"
+                     x-transition:enter-start="opacity-0 scale-95 translate-y-2"
                      x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                     class="absolute right-0 top-12 w-80 card-glass rounded-2xl overflow-hidden shadow-2xl z-50"
+                     class="absolute right-0 top-13 w-84 card-glass rounded-2xl overflow-hidden shadow-2xl z-50 border border-violet-500/30"
                      x-cloak>
-                    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
-                        <span class="font-bold text-white text-sm">Active Alerts</span>
+                    <div class="flex items-center justify-between px-4 py-3 border-b border-violet-900/40 bg-surface/90">
+                        <span class="font-bold text-white text-xs uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-bolt text-secondary"></i> Active Alerts
+                        </span>
+                        <span class="text-[10px] text-gray-400 bg-darker/60 px-2 py-0.5 rounded-full border border-violet-900/40" x-text="notifications.length + ' Live'"></span>
                     </div>
-                    <div class="max-h-72 overflow-y-auto">
+                    <div class="max-h-72 overflow-y-auto divide-y divide-violet-900/20">
                         <template x-if="notifications.length === 0">
-                            <div class="py-10 text-center">
-                                <i class="fa-regular fa-bell-slash text-3xl text-violet-900 mb-2"></i>
-                                <p class="text-xs text-gray-500">No notifications yet</p>
+                            <div class="p-6 text-center text-gray-400">
+                                <div class="w-10 h-10 mx-auto rounded-xl bg-surface flex items-center justify-center mb-2 text-violet-400 border border-violet-800/30">
+                                    <i class="fa-solid fa-circle-check text-lg"></i>
+                                </div>
+                                <p class="text-xs font-semibold text-gray-300">All caught up!</p>
+                                <p class="text-[10px] text-gray-500 mt-0.5">No pending alerts at this time.</p>
                             </div>
                         </template>
                         <template x-for="notif in notifications" :key="notif.id">
                             <a :href="'/payrollsystem' + notif.link"
-                               class="flex items-start gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-b border-gray-50 dark:border-gray-700/50 last:border-0 group relative overflow-hidden"
-                               :class="!notif.is_read ? 'bg-indigo-50/50 dark:bg-indigo-900/10' : ''">
-                                <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center text-white text-xs mt-0.5"
+                               class="flex items-start gap-3.5 p-3.5 hover:bg-violet-600/10 transition-colors group relative">
+                                <div class="w-8 h-8 rounded-xl flex-shrink-0 flex items-center justify-center text-white text-xs mt-0.5 shadow-inner"
                                      :class="{
-                                         'bg-blue-500/80':    notif.type === 'attendance',
-                                         'bg-emerald-500/80': notif.type === 'leave',
-                                         'bg-orange-500/80':  notif.type === 'overtime',
-                                         'bg-violet-500/80':  notif.type === 'payroll',
-                                         'bg-red-500/80':     notif.type === 'error',
-                                         'bg-gray-500/80':    !['attendance','leave','overtime','payroll','error'].includes(notif.type)
+                                         'bg-gradient-to-br from-blue-500 to-indigo-600': notif.type === 'attendance' || notif.type === 'info',
+                                         'bg-gradient-to-br from-emerald-500 to-teal-600': notif.type === 'success' || notif.type === 'leave',
+                                         'bg-gradient-to-br from-amber-500 to-orange-600': notif.type === 'warning' || notif.type === 'overtime',
+                                         'bg-gradient-to-br from-rose-500 to-red-600':    notif.type === 'error',
                                      }">
                                     <i class="fa-solid" :class="{
-                                        'fa-clock-rotate-left': notif.type==='attendance',
-                                        'fa-plane':             notif.type==='leave',
-                                        'fa-bolt':              notif.type==='overtime',
-                                        'fa-money-check-dollar':notif.type==='payroll',
-                                        'fa-triangle-exclamation': notif.type==='error',
-                                        'fa-bell':              !['attendance','leave','overtime','payroll','error'].includes(notif.type)
+                                        'fa-clock-rotate-left': notif.type === 'attendance',
+                                        'fa-calendar-check':    notif.type === 'leave',
+                                        'fa-bolt':              notif.type === 'overtime',
+                                        'fa-money-bill-wave':   notif.type === 'payroll' || notif.type === 'warning',
+                                        'fa-triangle-exclamation': notif.type === 'error',
+                                        'fa-bell':              !['attendance','leave','overtime','error'].includes(notif.type)
                                     }"></i>
                                 </div>
                                 <div class="flex-1 min-w-0">
-                                    <p class="text-xs font-bold text-white truncate" x-text="notif.title || 'System Notification'"></p>
-                                    <p class="text-[11px] text-gray-400 line-clamp-1 mt-0.5" x-text="notif.message"></p>
-                                    <p class="text-[10px] text-violet-400 mt-1" x-text="new Date(notif.created_at).toLocaleString([],{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})"></p>
+                                    <p class="text-xs font-bold text-white truncate group-hover:text-violet-300 transition-colors" x-text="notif.title || 'Notification'"></p>
+                                    <p class="text-[11px] text-gray-400 line-clamp-2 mt-0.5" x-text="notif.message"></p>
                                 </div>
-                                <div x-show="notif.is_read == 0" class="absolute right-4 top-4 w-2 h-2 bg-violet-400 rounded-full notif-pulse"></div>
+                                <i class="fa-solid fa-chevron-right text-[9px] text-gray-500 group-hover:text-violet-400 group-hover:translate-x-0.5 transition-all mt-2"></i>
                             </a>
                         </template>
                     </div>
                 </div>
             </div>
 
-            <!-- User Avatar -->
+            <!-- User Avatar & Profile Pill -->
             <div class="relative" x-data="{ userOpen: false }">
                 <button @click="userOpen = !userOpen"
-                        class="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-xl hover:bg-violet-500/10 transition-all group">
-                    <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-purple-700 flex items-center justify-center font-bold text-white text-sm glow-violet-sm">
-                        <?= htmlspecialchars(strtoupper(substr($_SESSION['Email'] ?? 'A', 0, 1))) ?>
+                        class="flex items-center gap-2.5 p-1.5 sm:px-3 sm:py-1.5 rounded-2xl bg-surface/80 hover:bg-violet-900/30 border border-violet-500/20 hover:border-violet-500/40 transition-all group shadow-md">
+                    <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-600 via-purple-600 to-cyan-600 flex items-center justify-center font-extrabold text-white text-xs shadow-md glow-violet-sm group-hover:scale-105 transition-transform">
+                        <?= htmlspecialchars(strtoupper(substr($_SESSION['Email'] ?? ($_SESSION['first_name'] ?? 'U'), 0, 1))) ?>
                     </div>
                     <div class="hidden sm:block text-left">
-                        <div class="text-xs font-bold text-white leading-none"><?= htmlspecialchars($_SESSION['role'] ?? 'User') ?></div>
-                        <div class="text-[10px] text-gray-500 leading-none mt-0.5 truncate max-w-[100px]"><?= htmlspecialchars($_SESSION['Email'] ?? '') ?></div>
+                        <div class="text-xs font-bold text-white leading-tight flex items-center gap-1">
+                            <span><?= htmlspecialchars($_SESSION['first_name'] ?? ($_SESSION['role'] ?? 'User')) ?></span>
+                        </div>
+                        <div class="text-[10px] text-cyan-400/80 font-medium leading-none mt-0.5 capitalize"><?= htmlspecialchars($_SESSION['role'] ?? 'Staff') ?></div>
                     </div>
-                    <i class="fa-solid fa-chevron-down text-[10px] text-gray-500 group-hover:text-violet-400 transition-colors"></i>
+                    <i class="fa-solid fa-chevron-down text-[9px] text-gray-400 group-hover:text-violet-300 transition-colors ml-1"></i>
                 </button>
                 <div x-show="userOpen" @click.away="userOpen=false"
                      x-transition:enter="transition ease-out duration-150"
-                     x-transition:enter-start="opacity-0 scale-95"
-                     x-transition:enter-end="opacity-100 scale-100"
-                     class="absolute right-0 top-12 w-52 card-glass rounded-2xl overflow-hidden shadow-2xl z-50"
+                     x-transition:enter-start="opacity-0 scale-95 translate-y-2"
+                     x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                     class="absolute right-0 top-13 w-56 card-glass rounded-2xl overflow-hidden shadow-2xl z-50 border border-violet-500/30"
                      x-cloak>
-                    <div class="px-4 py-3 border-b border-violet-900/50">
-                        <p class="text-xs text-gray-400">Signed in as</p>
-                        <p class="text-sm font-bold text-white truncate"><?= htmlspecialchars($_SESSION['Email'] ?? '') ?></p>
+                    <div class="px-4 py-3.5 border-b border-violet-900/40 bg-surface/90">
+                        <p class="text-[10px] uppercase font-bold tracking-wider text-violet-400">Authenticated As</p>
+                        <p class="text-xs font-bold text-white truncate mt-0.5"><?= htmlspecialchars($_SESSION['Email'] ?? '') ?></p>
+                        <span class="inline-block mt-1 text-[9px] font-bold px-2 py-0.5 rounded-md bg-violet-500/20 text-violet-300 border border-violet-500/30"><?= htmlspecialchars($_SESSION['role'] ?? 'User') ?></span>
                     </div>
-                    <div class="p-2">
-                        <a href="/payrollsystem/auth/logout" class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-red-400 hover:bg-red-500/10 transition-colors">
+                    <div class="p-2 space-y-1">
+                        <?php if (($_SESSION['role'] ?? '') === 'Employee'): ?>
+                        <a href="/payrollsystem/employee/profile" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-gray-300 hover:text-white hover:bg-violet-600/20 transition-all">
+                            <i class="fa-solid fa-user-pen text-violet-400 w-4 text-center"></i> My Profile
+                        </a>
+                        <a href="/payrollsystem/employee/salary_history" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-gray-300 hover:text-white hover:bg-violet-600/20 transition-all">
+                            <i class="fa-solid fa-file-invoice-dollar text-emerald-400 w-4 text-center"></i> My Salary Slip
+                        </a>
+                        <?php endif; ?>
+                        <a href="/payrollsystem/auth/logout" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-400 hover:bg-rose-500/15 transition-all">
                             <i class="fa-solid fa-right-from-bracket w-4 text-center"></i> Sign Out
                         </a>
                     </div>
@@ -430,45 +469,50 @@ $isActive = function($path) use ($currentPath) {
 <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
        class="fixed top-0 left-0 z-40 w-64 h-screen pt-16 transition-transform duration-300 sm:translate-x-0 sidebar-glass"
        aria-label="Sidebar">
-    <div class="h-full py-4 px-3 overflow-y-auto flex flex-col">
+    <div class="h-full py-4 px-3.5 overflow-y-auto flex flex-col justify-between">
 
-        <!-- Admin Profile Card -->
-        <div class="mx-1 mb-5 p-3 rounded-2xl bg-gradient-to-br from-violet-900/40 to-purple-900/20 border border-violet-700/20 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-700 flex items-center justify-center font-extrabold text-white text-base flex-shrink-0">
-                <?= htmlspecialchars(strtoupper(substr($_SESSION['Email'] ?? 'A', 0, 1))) ?>
+        <div>
+            <!-- User Role Banner in Sidebar -->
+            <div class="mx-0.5 mb-5 p-3.5 rounded-2xl bg-gradient-to-br from-violet-900/30 via-surface to-cyan-950/20 border border-violet-500/25 flex items-center gap-3 shadow-lg">
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-600 to-cyan-600 flex items-center justify-center font-extrabold text-white text-base flex-shrink-0 shadow-md border border-violet-400/30">
+                    <?= htmlspecialchars(strtoupper(substr($_SESSION['Email'] ?? ($_SESSION['first_name'] ?? 'U'), 0, 1))) ?>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <div class="text-xs font-extrabold text-white truncate flex items-center gap-1.5">
+                        <span><?= htmlspecialchars($_SESSION['first_name'] ?? ($_SESSION['role'] ?? 'User')) ?></span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                    </div>
+                    <div class="text-[10px] text-cyan-400/90 font-medium truncate"><?= htmlspecialchars($_SESSION['Email'] ?? '') ?></div>
+                </div>
             </div>
-            <div class="min-w-0">
-                <div class="text-sm font-bold text-white"><?= htmlspecialchars($_SESSION['role'] ?? 'User') ?></div>
-                <div class="text-[10px] text-violet-400/80 truncate"><?= htmlspecialchars($_SESSION['Email'] ?? '') ?></div>
-            </div>
-        </div>
 
-        <nav class="flex-1 space-y-0.5">
+            <!-- Navigation Links -->
+            <nav class="space-y-1">
             <?php
             if (($_SESSION['role'] ?? '') === 'Employee') {
                 $navSections = [
                     [
-                        'label' => 'Main',
+                        'label' => 'Main Portal',
                         'items' => [
                             ['href' => '/payrollsystem/employee', 'icon' => 'fa-chart-pie', 'label' => 'Dashboard', 'exact' => true],
                             ['href' => '/payrollsystem/employee/attendance', 'icon' => 'fa-clock-rotate-left', 'label' => 'My Attendance', 'match' => '/attendance'],
                         ]
                     ],
                     [
-                        'label' => 'Requests',
+                        'label' => 'Requests & OT',
                         'items' => [
                             ['href' => '/payrollsystem/employee/leaves', 'icon' => 'fa-calendar-minus', 'label' => 'My Leaves', 'match' => '/leaves'],
                             ['href' => '/payrollsystem/employee/overtime', 'icon' => 'fa-clipboard-list', 'label' => 'Overtime Assign', 'match' => '/overtime'],
                         ]
                     ],
                     [
-                        'label' => 'Payroll',
+                        'label' => 'Compensation',
                         'items' => [
                             ['href' => '/payrollsystem/employee/salary_history', 'icon' => 'fa-file-invoice-dollar', 'label' => 'My Salary History', 'match' => '/salary_history'],
                         ]
                     ],
                     [
-                        'label' => 'Settings',
+                        'label' => 'Account',
                         'items' => [
                             ['href' => '/payrollsystem/employee/profile', 'icon' => 'fa-user-pen', 'label' => 'My Profile', 'match' => '/profile'],
                         ]
@@ -477,47 +521,47 @@ $isActive = function($path) use ($currentPath) {
             } else {
                 $navSections = [
                     [
-                        'label' => 'Main',
+                        'label' => 'Main Console',
                         'items' => [
                             ['href' => '/payrollsystem/admin', 'icon' => 'fa-chart-pie', 'label' => 'Dashboard', 'exact' => true],
                         ]
                     ],
                     [
-                        'label' => 'Management',
+                        'label' => 'Workforce & Teams',
                         'items' => [
-                            ['href' => '/payrollsystem/admin/employees', 'icon' => 'fa-users', 'label' => 'Employees',    'match' => '/employees'],
+                            ['href' => '/payrollsystem/admin/employees', 'icon' => 'fa-users', 'label' => 'Employees Directory', 'match' => '/employees'],
                             ['href' => '/payrollsystem/admin/departments','icon' => 'fa-sitemap', 'label' => 'Departments', 'match' => '/departments'],
                             ['href' => '/payrollsystem/admin/positions',  'icon' => 'fa-id-badge','label' => 'Positions',   'match' => '/positions'],
                         ]
                     ],
                     [
-                        'label' => 'Attendance',
+                        'label' => 'Time & Attendance',
                         'items' => [
-                            ['href' => '/payrollsystem/admin/attendance', 'icon' => 'fa-clock-rotate-left', 'label' => 'Attendance', 'match' => '/attendance'],
+                            ['href' => '/payrollsystem/admin/attendance', 'icon' => 'fa-clock-rotate-left', 'label' => 'Attendance Logs', 'match' => '/attendance'],
                         ]
                     ],
                     [
-                        'label' => 'Leave Management',
+                        'label' => 'Leaves & Time Off',
                         'items' => [
                             ['href' => '/payrollsystem/admin/leaves',      'icon' => 'fa-calendar-minus',  'label' => 'Leave Requests', 'match' => '/leaves'],
-                            ['href' => '/payrollsystem/admin/leave_types', 'icon' => 'fa-list-check',       'label' => 'Leave Types',    'match' => '/leave_types'],
+                            ['href' => '/payrollsystem/admin/leave_types', 'icon' => 'fa-list-check',       'label' => 'Leave Policies', 'match' => '/leave_types'],
                         ]
                     ],
                     [
-                        'label' => 'Overtime Assign',
+                        'label' => 'Overtime Operations',
                         'items' => [
                             ['href' => '/payrollsystem/admin/overtime_assignments','icon' => 'fa-clipboard-list','label' => 'OT Assignments','match' => '/overtime_assignments'],
                         ]
                     ],
                     [
-                        'label' => 'Payroll',
+                        'label' => 'Payroll & Compensation',
                         'items' => [
-                            ['href' => '/payrollsystem/admin/payroll',     'icon' => 'fa-file-invoice-dollar','label' => 'Payroll List',   'match' => '/payroll'],
-                            ['href' => '/payrollsystem/admin/bonuses',     'icon' => 'fa-gift',               'label' => 'Bonuses',        'match' => '/bonuses'],
+                            ['href' => '/payrollsystem/admin/payroll',     'icon' => 'fa-file-invoice-dollar','label' => 'Monthly Payroll',   'match' => '/payroll'],
+                            ['href' => '/payrollsystem/admin/bonuses',     'icon' => 'fa-gift',               'label' => 'Bonuses & Incentives', 'match' => '/bonuses'],
                         ]
                     ],
                     [
-                        'label' => 'Security',
+                        'label' => 'Security & Access',
                         'items' => [
                             ['href' => '/payrollsystem/admin/password_resets', 'icon' => 'fa-key', 'label' => 'Password Resets', 'match' => '/password_resets'],
                         ]
@@ -527,37 +571,41 @@ $isActive = function($path) use ($currentPath) {
             foreach ($navSections as $section):
             ?>
                 <div class="pt-3 pb-1">
-                    <p class="px-3 text-[9px] font-bold uppercase tracking-[0.12em] text-violet-600/60 mb-1"><?= $section['label'] ?></p>
+                    <p class="px-3 text-[10px] font-extrabold uppercase tracking-[0.15em] text-violet-400/80 mb-1.5 flex items-center gap-1.5">
+                        <span class="w-1 h-1 rounded-full bg-violet-400"></span>
+                        <span><?= $section['label'] ?></span>
+                    </p>
                     <?php foreach ($section['items'] as $item):
                         $active = !empty($item['exact'])
                             ? ($currentPath === $item['href'])
                             : (!empty($item['match']) && strpos($currentPath . ($_SERVER['QUERY_STRING'] ?? ''), ltrim($item['match'], '/')) !== false);
                     ?>
                     <a href="<?= $item['href'] ?>"
-                       class="nav-item <?= $active ? 'active' : '' ?> flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group
-                              <?= $active ? 'text-violet-300' : 'text-gray-400 hover:text-violet-300 hover:bg-violet-500/8' ?>">
-                        <div class="w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-200
-                                    <?= $active ? 'bg-violet-500/25 text-violet-300' : 'text-gray-500 group-hover:text-violet-400' ?>">
+                       class="nav-item <?= $active ? 'active' : '' ?> flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all duration-300 group
+                              <?= $active ? 'bg-gradient-to-r from-violet-600/35 via-violet-600/20 to-cyan-500/10 text-white border border-violet-500/40 shadow-lg shadow-violet-950/50' : 'text-gray-400 hover:text-violet-200 hover:bg-violet-600/10 border border-transparent' ?>">
+                        <div class="w-7 h-7 rounded-xl flex items-center justify-center transition-all duration-300
+                                    <?= $active ? 'bg-gradient-to-br from-violet-500 to-cyan-500 text-white shadow-md glow-violet-sm' : 'bg-surface/80 text-gray-400 group-hover:text-violet-300 group-hover:scale-110' ?>">
                             <i class="fa-solid <?= $item['icon'] ?> text-xs"></i>
                         </div>
-                        <span><?= $item['label'] ?></span>
+                        <span class="tracking-wide"><?= $item['label'] ?></span>
                         <?php if ($active): ?>
-                        <div class="ml-auto w-1.5 h-1.5 rounded-full bg-violet-400"></div>
+                        <div class="ml-auto w-2 h-2 rounded-full bg-cyan-400 shadow-md shadow-cyan-400/80 animate-pulse"></div>
                         <?php endif; ?>
                     </a>
                     <?php endforeach; ?>
                 </div>
             <?php endforeach; ?>
-        </nav>
+            </nav>
+        </div>
 
         <!-- Bottom Sign Out -->
-        <div class="mt-4 pt-4 border-t border-violet-900/40">
+        <div class="mt-4 pt-3 border-t border-violet-900/30">
             <a href="/payrollsystem/auth/logout"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-red-400/80 hover:text-red-400 hover:bg-red-500/8 transition-all">
-                <div class="w-7 h-7 rounded-lg flex items-center justify-center">
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-rose-400/90 hover:text-rose-200 hover:bg-rose-500/15 border border-transparent hover:border-rose-500/30 transition-all duration-300 group shadow-sm">
+                <div class="w-7 h-7 rounded-xl bg-rose-950/40 border border-rose-800/40 flex items-center justify-center text-rose-400 group-hover:scale-110 transition-transform">
                     <i class="fa-solid fa-right-from-bracket text-xs"></i>
                 </div>
-                Sign Out
+                <span>Sign Out Workspace</span>
             </a>
         </div>
     </div>

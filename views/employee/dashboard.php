@@ -1,201 +1,302 @@
-<!-- Employee Dashboard Redesign -->
-<div class="mb-6 flex flex-col items-center sm:items-start text-center sm:text-left">
-    <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">Hello, <?= htmlspecialchars($data['employee']['FirstName']) ?>! 👋</h1>
-    <p class="text-gray-500 dark:text-gray-400 mt-2 font-medium">Today is <?= date('l, F j, Y') ?></p>
-</div>
+<!-- ============ EMPLOYEE HERO BANNER WITH 3D MASCOT ============ -->
+<div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#180f33] via-[#241447] to-[#121c3b] border border-violet-500/25 p-6 lg:p-8 mb-8 shadow-2xl" data-aos="fade-down">
+    <!-- Ambient Glows -->
+    <div class="absolute -right-20 -top-20 w-80 h-80 bg-violet-600/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute right-1/3 -bottom-20 w-72 h-72 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute left-10 top-0 w-48 h-48 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
 
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <!-- Clock In/Out Widget (Navy/Gold Theme) -->
-    <div class="lg:col-span-1">
-        <div class="bg-gradient-to-br from-[#0B132B] to-[#1C2541] rounded-3xl shadow-xl overflow-hidden text-center p-8 border border-gray-800 relative">
-            <!-- Subtle background decoration -->
-            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-5 rounded-full blur-xl"></div>
-            <div class="absolute bottom-0 left-0 w-32 h-32 bg-[#D4AF37] opacity-10 rounded-full blur-2xl"></div>
-            
-            <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-2">Time Clock</h2>
-            
-            <div class="text-5xl font-mono font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] to-[#F3E5AB] mb-8 tracking-wider drop-shadow-md" id="realTimeClock">
-                <?= date('H:i:s') ?>
+    <div class="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-6">
+        <!-- Left Greeting & Badges -->
+        <div class="max-w-2xl text-center lg:text-left space-y-3">
+            <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-500/15 border border-violet-500/30 text-violet-300 text-xs font-bold uppercase tracking-wider backdrop-blur-md">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span>Employee Portal</span>
+                </span>
+                <span class="inline-flex items-center px-3 py-1 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-xs font-bold uppercase tracking-wider backdrop-blur-md font-mono">
+                    EMP-<?= str_pad($data['employee']['EmpID'], 4, '0', STR_PAD_LEFT) ?>
+                </span>
             </div>
 
-            <?php if (isset($_SESSION['att_error'])): ?>
-                <div class="mb-6 p-4 bg-red-900/50 border border-red-500/50 text-red-300 rounded-xl text-sm font-medium backdrop-blur-sm animate-pulse">
-                    <?= htmlspecialchars($_SESSION['att_error']) ?>
-                </div>
-                <?php unset($_SESSION['att_error']); ?>
-            <?php endif; ?>
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight font-outfit">
+                Hello, <span class="gradient-text"><?= htmlspecialchars($data['employee']['FirstName']) ?> <?= htmlspecialchars($data['employee']['LastName'] ?? '') ?></span>! 👋
+            </h1>
 
-            <?php if (isset($_SESSION['att_success'])): ?>
-                <div class="mb-6 p-4 bg-green-900/50 border border-green-500/50 text-green-300 rounded-xl text-sm font-medium backdrop-blur-sm animate-pulse">
-                    <?= htmlspecialchars($_SESSION['att_success']) ?>
-                </div>
-                <?php unset($_SESSION['att_success']); ?>
-            <?php endif; ?>
+            <p class="text-gray-300 text-sm md:text-base leading-relaxed">
+                Welcome to your self-service portal. Track your daily attendance, submit leave requests, monitor your overtime schedules, and download your monthly salary slips.
+            </p>
 
-            <?php if (!$data['is_working_day']): ?>
-                <!-- Non-working day -->
-                <div class="mb-6 p-4 bg-gray-800/80 border border-gray-700 rounded-2xl relative z-10 text-center">
-                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-700/50 text-gray-400 mb-4">
-                        <i class="fa-solid fa-calendar-xmark text-3xl"></i>
-                    </div>
-                    <p class="font-bold text-white text-lg mb-2">Non-Working Day</p>
-                    <p class="text-sm text-gray-400">Attendance recording is disabled on weekends and public holidays.</p>
+            <!-- Department & Position Tags -->
+            <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2 pt-1 text-xs">
+                <span class="px-3 py-1.5 rounded-xl bg-surface/90 border border-violet-700/30 text-gray-300 flex items-center gap-2">
+                    <i class="fa-solid fa-building-user text-primary-light"></i>
+                    <span>Dept: <strong class="text-white"><?= htmlspecialchars($data['employee']['DeptName'] ?? 'General') ?></strong></span>
+                </span>
+                <span class="px-3 py-1.5 rounded-xl bg-surface/90 border border-violet-700/30 text-gray-300 flex items-center gap-2">
+                    <i class="fa-solid fa-id-badge text-secondary"></i>
+                    <span>Role: <strong class="text-white"><?= htmlspecialchars($data['employee']['PositionName'] ?? 'Staff') ?></strong></span>
+                </span>
+            </div>
+        </div>
+
+        <!-- Right 3D Cartoon Employee Mascot -->
+        <div class="flex flex-col sm:flex-row lg:flex-col items-center gap-4 flex-shrink-0">
+            <div class="relative group">
+                <div class="absolute -inset-1 rounded-3xl bg-gradient-to-r from-violet-600 via-cyan-500 to-amber-500 opacity-60 blur-lg group-hover:opacity-100 transition-opacity animate-pulse-glow"></div>
+                <div class="relative w-40 h-40 sm:w-44 sm:h-44 rounded-3xl overflow-hidden border-2 border-violet-400/40 shadow-2xl bg-surface/80">
+                    <img src="/payrollsystem/assets/img/employee_hero_mascot.jpg" 
+                         alt="Employee Mascot" 
+                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
                 </div>
-            <?php elseif(!$data['todayRecord']): ?>
-                <!-- Not Clocked In Yet -->
-                <div class="mb-4 p-4 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-start">
-                    <i class="fa-solid fa-triangle-exclamation text-orange-400 mt-1 mr-3"></i>
-                    <div>
-                        <h4 class="text-sm font-bold text-orange-400">Attendance Required</h4>
-                        <p class="text-xs text-orange-300 mt-0.5">You have not checked in for today yet. Please check in to record your attendance.</p>
+            </div>
+
+            <!-- Date Status Pill -->
+            <div class="px-4 py-2 rounded-2xl bg-surface/90 border border-violet-500/30 text-center shadow-lg backdrop-blur-md">
+                <div class="text-[11px] uppercase tracking-widest text-violet-300 font-bold flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-calendar-day text-secondary"></i>
+                    <span><?= date('l, F j, Y') ?></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============ MAIN CONTENT GRID ============ -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    
+    <!-- Time Clock Biometric Widget -->
+    <div class="lg:col-span-1" data-aos="fade-up" data-aos-delay="100">
+        <div class="card-glass rounded-3xl p-6 lg:p-7 relative overflow-hidden text-center flex flex-col justify-between h-full">
+            <!-- Background Glow -->
+            <div class="absolute -right-10 -top-10 w-40 h-40 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-violet-600/10 rounded-full blur-2xl pointer-events-none"></div>
+
+            <div>
+                <!-- Card Header -->
+                <div class="flex items-center justify-between pb-4 border-b border-violet-900/40 mb-6">
+                    <span class="text-xs uppercase font-extrabold tracking-widest text-violet-300/80 flex items-center gap-2">
+                        <i class="fa-solid fa-fingerprint text-secondary text-sm"></i>
+                        Biometric Time Clock
+                    </span>
+                    <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Live Terminal</span>
+                </div>
+
+                <!-- Digital Real-Time Clock -->
+                <div class="p-5 rounded-2xl bg-surface/90 border border-violet-700/30 mb-6 shadow-inner relative group">
+                    <div class="text-xs uppercase font-bold tracking-wider text-gray-400 mb-1">Current Server Time</div>
+                    <div class="text-4xl sm:text-5xl font-mono font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-200 tracking-wider drop-shadow-lg" id="realTimeClock">
+                        <?= date('H:i:s') ?>
                     </div>
                 </div>
-                
-                <form action="/payrollsystem/employee/attendance" method="POST" class="relative z-10">
-                    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
-                    <input type="hidden" name="action" value="check_in">
+
+                <!-- Session Notifications -->
+                <?php if (isset($_SESSION['att_error'])): ?>
+                    <div class="mb-5 p-3.5 bg-rose-950/60 border border-rose-500/40 text-rose-300 rounded-xl text-xs font-semibold backdrop-blur-sm animate-pulse flex items-center gap-2">
+                        <i class="fa-solid fa-circle-exclamation text-base"></i>
+                        <span><?= htmlspecialchars($_SESSION['att_error']) ?></span>
+                    </div>
+                    <?php unset($_SESSION['att_error']); ?>
+                <?php endif; ?>
+
+                <?php if (isset($_SESSION['att_success'])): ?>
+                    <div class="mb-5 p-3.5 bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 rounded-xl text-xs font-semibold backdrop-blur-sm animate-pulse flex items-center gap-2">
+                        <i class="fa-solid fa-circle-check text-base"></i>
+                        <span><?= htmlspecialchars($_SESSION['att_success']) ?></span>
+                    </div>
+                    <?php unset($_SESSION['att_success']); ?>
+                <?php endif; ?>
+
+                <!-- Dynamic Attendance State -->
+                <?php if (!$data['is_working_day']): ?>
+                    <!-- Non-working day -->
+                    <div class="p-6 bg-surface/90 border border-violet-800/40 rounded-2xl text-center">
+                        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-violet-900/30 text-gray-400 mb-3 border border-violet-700/30">
+                            <i class="fa-solid fa-calendar-xmark text-2xl"></i>
+                        </div>
+                        <p class="font-bold text-white text-base mb-1">Non-Working Day</p>
+                        <p class="text-xs text-gray-400">Attendance recording is currently disabled for weekends / official holidays.</p>
+                    </div>
+                <?php elseif(!$data['todayRecord']): ?>
+                    <!-- Not Clocked In Yet -->
+                    <div class="mb-5 p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start text-left gap-3">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-400 mt-0.5 text-base flex-shrink-0"></i>
+                        <div>
+                            <h4 class="text-xs font-bold text-amber-300 uppercase tracking-wider">Attendance Required</h4>
+                            <p class="text-[11px] text-amber-200/80 mt-0.5">You have not clocked in for today yet. Tap the biometric button below to record your start time.</p>
+                        </div>
+                    </div>
                     
-                    <button type="submit" class="w-full bg-gradient-to-r from-[#D4AF37] to-[#C5A017] hover:from-[#C5A017] hover:to-[#B49006] text-gray-900 font-extrabold text-lg py-4 px-6 rounded-2xl shadow-[0_10px_25px_-5px_rgba(212,175,55,0.4)] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center">
-                        <i class="fa-solid fa-fingerprint text-2xl mr-3 opacity-90"></i>
-                        CHECK-IN
-                    </button>
-                </form>
-            <?php elseif($data['todayRecord'] && !$data['todayRecord']['CheckOutTime']): ?>
-                <!-- Clocked In, waiting for Clock Out -->
-                <div class="mb-6 p-4 bg-[#1A2A4A] border border-[#2A3A5A] rounded-2xl relative z-10">
-                    <div class="text-xs uppercase font-bold tracking-wider text-gray-400 mb-1">Active Shift Started</div>
-                    <div class="text-xl font-bold text-[#D4AF37]"><?= date('h:i A', strtotime($data['todayRecord']['CheckInTime'])) ?></div>
-                </div>
-                
-                <form action="/payrollsystem/employee/attendance" method="POST" class="relative z-10">
-                    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
-                    <input type="hidden" name="action" value="check_out">
-                    <button type="submit" class="w-full bg-gradient-to-r from-[#FF6B6B] to-[#E63946] hover:from-[#E63946] hover:to-[#D62828] text-white font-extrabold text-lg py-4 px-6 rounded-2xl shadow-[0_10px_25px_-5px_rgba(230,57,70,0.4)] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center">
-                        <i class="fa-solid fa-right-from-bracket mr-3 opacity-90"></i>
-                        CHECK-OUT
-                    </button>
-                </form>
-            <?php else: ?>
-                <!-- Clocked Out -->
-                <div class="p-6 bg-[#1A2A4A] border border-[#2A3A5A] rounded-2xl relative z-10">
-                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-500/20 text-green-400 mb-4">
-                        <i class="fa-solid fa-check text-3xl"></i>
+                    <form action="/payrollsystem/employee/attendance" method="POST" class="relative z-10">
+                        <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+                        <input type="hidden" name="action" value="check_in">
+                        
+                        <button type="submit" class="w-full bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-500 hover:from-amber-300 hover:to-yellow-400 text-gray-950 font-extrabold text-base py-4 px-6 rounded-2xl shadow-xl shadow-amber-500/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-3">
+                            <i class="fa-solid fa-fingerprint text-2xl animate-pulse"></i>
+                            <span class="tracking-wide font-outfit">CLOCK IN NOW</span>
+                        </button>
+                    </form>
+                <?php elseif($data['todayRecord'] && !$data['todayRecord']['CheckOutTime']): ?>
+                    <!-- Clocked In, Shift Active -->
+                    <div class="mb-5 p-4 bg-surface/90 border border-cyan-500/40 rounded-2xl relative z-10 text-left flex items-center justify-between">
+                        <div>
+                            <div class="text-[11px] uppercase font-extrabold tracking-wider text-cyan-400 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                                Active Shift Started
+                            </div>
+                            <div class="text-2xl font-extrabold text-white font-mono mt-1">
+                                <?= date('h:i A', strtotime($data['todayRecord']['CheckInTime'])) ?>
+                            </div>
+                        </div>
+                        <div class="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-300 flex items-center justify-center text-lg border border-cyan-500/30">
+                            <i class="fa-solid fa-user-clock"></i>
+                        </div>
                     </div>
-                    <p class="font-bold text-white text-lg mb-4">Shift Completed</p>
-                    <div class="flex justify-between items-center text-sm px-4 py-2 bg-black/20 rounded-lg">
-                        <span class="text-gray-400">IN: <strong class="text-white"><?= date('h:i A', strtotime($data['todayRecord']['CheckInTime'])) ?></strong></span>
-                        <span class="text-gray-500">|</span>
-                        <span class="text-gray-400">OUT: <strong class="text-white"><?= date('h:i A', strtotime($data['todayRecord']['CheckOutTime'])) ?></strong>
-                            <?php if(isset($data['todayRecord']['is_auto_checkout']) && $data['todayRecord']['is_auto_checkout'] == 1): ?>
-                                <span class="ml-1 text-[10px] bg-red-900/50 text-red-300 px-1.5 py-0.5 rounded-full border border-red-800/50" title="System Auto Check-Out">Auto</span>
-                            <?php endif; ?>
-                        </span>
+                    
+                    <form action="/payrollsystem/employee/attendance" method="POST" class="relative z-10">
+                        <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+                        <input type="hidden" name="action" value="check_out">
+                        <button type="submit" class="w-full bg-gradient-to-r from-rose-500 via-red-600 to-rose-600 hover:from-rose-400 hover:to-red-500 text-white font-extrabold text-base py-4 px-6 rounded-2xl shadow-xl shadow-rose-600/30 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-3">
+                            <i class="fa-solid fa-right-from-bracket text-xl"></i>
+                            <span class="tracking-wide font-outfit">CLOCK OUT SHIFT</span>
+                        </button>
+                    </form>
+                <?php else: ?>
+                    <!-- Shift Completed -->
+                    <div class="p-6 bg-surface/90 border border-emerald-500/30 rounded-2xl relative z-10 text-center">
+                        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-emerald-500/20 text-emerald-400 mb-3 border border-emerald-500/30">
+                            <i class="fa-solid fa-circle-check text-2xl"></i>
+                        </div>
+                        <p class="font-extrabold text-white text-base mb-1 font-outfit">Shift Completed Today</p>
+                        <p class="text-xs text-gray-400 mb-4">Your working hours have been logged successfully.</p>
+                        
+                        <div class="flex justify-between items-center text-xs px-4 py-2.5 bg-darker/60 rounded-xl border border-violet-900/30">
+                            <span class="text-gray-400">IN: <strong class="text-emerald-300"><?= date('h:i A', strtotime($data['todayRecord']['CheckInTime'])) ?></strong></span>
+                            <span class="text-gray-600">|</span>
+                            <span class="text-gray-400">OUT: <strong class="text-cyan-300"><?= date('h:i A', strtotime($data['todayRecord']['CheckOutTime'])) ?></strong>
+                                <?php if(isset($data['todayRecord']['is_auto_checkout']) && $data['todayRecord']['is_auto_checkout'] == 1): ?>
+                                    <span class="ml-1 text-[9px] bg-rose-900/50 text-rose-300 px-1.5 py-0.5 rounded-full border border-rose-800/50" title="System Auto Check-Out">Auto</span>
+                                <?php endif; ?>
+                            </span>
+                        </div>
                     </div>
-                </div>
-            <?php endif; ?>
+                <?php endif; ?>
+            </div>
+
+            <!-- Footer Badge -->
+            <div class="mt-6 pt-4 border-t border-violet-900/40 flex items-center justify-center gap-2 text-gray-400 text-xs">
+                <i class="fa-solid fa-shield-halved text-primary-light"></i>
+                <span>Secure Biometric Timekeeping</span>
+            </div>
         </div>
     </div>
 
-    <!-- Quick Stats -->
-    <div class="lg:col-span-2">
+    <!-- Quick Navigation & Tables -->
+    <div class="lg:col-span-2 space-y-6" data-aos="fade-up" data-aos-delay="200">
+        
+        <!-- Quick Stat Pills -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex items-center">
-                <div class="p-3 rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400 mr-4">
-                    <i class="fa-solid fa-hashtag text-xl"></i>
+            <div class="card-glass rounded-2xl p-5 flex items-center group hover:-translate-y-1 transition-all">
+                <div class="w-12 h-12 rounded-2xl bg-violet-600/20 text-violet-300 border border-violet-500/30 flex items-center justify-center text-xl mr-4 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-fingerprint"></i>
                 </div>
                 <div>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Emp Code</p>
-                    <p class="text-lg font-bold text-gray-900 dark:text-white">EMP-<?= str_pad($data['employee']['EmpID'], 4, '0', STR_PAD_LEFT) ?></p>
+                    <p class="text-xs font-bold uppercase tracking-wider text-violet-300/80">Employee ID</p>
+                    <p class="text-lg font-extrabold text-white font-mono">EMP-<?= str_pad($data['employee']['EmpID'], 4, '0', STR_PAD_LEFT) ?></p>
                 </div>
             </div>
             
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex items-center">
-                <div class="p-3 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 mr-4">
-                    <i class="fa-solid fa-calendar-check text-xl"></i>
+            <div class="card-glass rounded-2xl p-5 flex items-center group hover:-translate-y-1 transition-all">
+                <div class="w-12 h-12 rounded-2xl bg-cyan-600/20 text-cyan-300 border border-cyan-500/30 flex items-center justify-center text-xl mr-4 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-building-user"></i>
                 </div>
                 <div>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Department</p>
-                    <p class="text-lg font-bold text-gray-900 dark:text-white"><?= htmlspecialchars($data['employee']['DeptName']) ?></p>
+                    <p class="text-xs font-bold uppercase tracking-wider text-cyan-300/80">Department</p>
+                    <p class="text-base font-bold text-white truncate max-w-[140px]"><?= htmlspecialchars($data['employee']['DeptName'] ?? 'General') ?></p>
                 </div>
             </div>
             
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex items-center">
-                <div class="p-3 rounded-full bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400 mr-4">
-                    <i class="fa-solid fa-briefcase text-xl"></i>
+            <div class="card-glass rounded-2xl p-5 flex items-center group hover:-translate-y-1 transition-all">
+                <div class="w-12 h-12 rounded-2xl bg-amber-600/20 text-amber-300 border border-amber-500/30 flex items-center justify-center text-xl mr-4 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-briefcase"></i>
                 </div>
                 <div>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Position</p>
-                    <p class="text-lg font-bold text-gray-900 dark:text-white"><?= htmlspecialchars($data['employee']['PositionName']) ?></p>
+                    <p class="text-xs font-bold uppercase tracking-wider text-amber-300/80">Position</p>
+                    <p class="text-base font-bold text-white truncate max-w-[140px]"><?= htmlspecialchars($data['employee']['PositionName'] ?? 'Staff') ?></p>
                 </div>
             </div>
         </div>
 
-        <!-- Upcoming Overtime -->
-        <div class="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-            <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50">
-                <h3 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-clock text-orange-500"></i> My Upcoming Overtime
+        <!-- Upcoming Overtime Schedule -->
+        <div class="card-glass rounded-2xl overflow-hidden">
+            <div class="p-4 px-6 border-b border-violet-900/40 flex justify-between items-center bg-surface/60">
+                <h3 class="font-bold text-white text-base flex items-center gap-2 font-outfit">
+                    <i class="fa-solid fa-clock text-amber-400"></i> My Scheduled Overtime
                 </h3>
+                <a href="/payrollsystem/employee/overtime" class="text-xs font-bold text-violet-300 hover:text-white transition-colors">View All</a>
             </div>
             <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                    <thead class="text-xs text-gray-500 uppercase bg-gray-50 dark:bg-gray-700/50">
+                <table class="w-full text-sm text-left text-gray-400">
+                    <thead class="text-xs uppercase bg-surface/80 text-violet-300/80 border-b border-violet-900/40">
                         <tr>
-                            <th class="px-4 py-3">Date</th>
-                            <th class="px-4 py-3">Start Time</th>
-                            <th class="px-4 py-3">End Time</th>
-                            <th class="px-4 py-3">Hours</th>
-                            <th class="px-4 py-3">Status</th>
-                            <th class="px-4 py-3 text-right">Action</th>
+                            <th class="px-5 py-3.5">Date</th>
+                            <th class="px-4 py-3.5">Schedule</th>
+                            <th class="px-4 py-3.5">Hours</th>
+                            <th class="px-4 py-3.5">Status</th>
+                            <th class="px-5 py-3.5 text-right">Action</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="divide-y divide-violet-900/30">
                         <?php if (empty($data['upcomingOvertime'])): ?>
                             <tr>
-                                <td colspan="6" class="px-4 py-8 text-center text-gray-500">
-                                    <i class="fa-solid fa-mug-hot text-3xl mb-2 text-gray-300 dark:text-gray-600"></i>
-                                    <p>No upcoming overtime scheduled.</p>
+                                <td colspan="5" class="px-6 py-10 text-center text-gray-500">
+                                    <div class="w-12 h-12 mx-auto bg-surface rounded-xl border border-violet-900/40 flex items-center justify-center mb-2 text-violet-400">
+                                        <i class="fa-solid fa-mug-hot text-xl"></i>
+                                    </div>
+                                    <p class="font-semibold text-gray-300">No overtime scheduled</p>
+                                    <p class="text-xs text-gray-500 mt-0.5">Approved overtime assignments will show here.</p>
                                 </td>
                             </tr>
                         <?php else: ?>
                             <?php foreach ($data['upcomingOvertime'] as $ot): ?>
-                            <tr class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                                <td class="px-4 py-3 font-medium text-gray-900 dark:text-white"><?= date('D, M j, Y', strtotime($ot['OvertimeDate'])) ?></td>
-                                <td class="px-4 py-3"><?= $ot['StartTime'] ? date('h:i A', strtotime($ot['StartTime'])) : '<span class="text-gray-400">—</span>' ?></td>
-                                <td class="px-4 py-3"><?= $ot['EndTime'] ? date('h:i A', strtotime($ot['EndTime'])) : '<span class="text-gray-400">—</span>' ?></td>
-                                <td class="px-4 py-3 text-right font-bold text-orange-600 dark:text-orange-400">
-                                    <?= $ot['OvertimeHours'] ?> <span class="text-xs text-gray-400">h</span>
+                            <tr class="hover:bg-violet-950/20 transition-colors">
+                                <td class="px-5 py-3.5 font-bold text-white"><?= date('D, M j, Y', strtotime($ot['OvertimeDate'])) ?></td>
+                                <td class="px-4 py-3.5 text-xs text-gray-300 font-medium">
+                                    <?= $ot['StartTime'] ? date('h:i A', strtotime($ot['StartTime'])) : '—' ?> - 
+                                    <?= $ot['EndTime'] ? date('h:i A', strtotime($ot['EndTime'])) : '—' ?>
                                 </td>
-                                <td class="px-4 py-3">
+                                <td class="px-4 py-3.5 font-extrabold text-amber-400">
+                                    <?= $ot['OvertimeHours'] ?> <span class="text-xs text-gray-500">hrs</span>
+                                </td>
+                                <td class="px-4 py-3.5">
                                     <?php 
                                         $statusColors = [
-                                            'Assigned' => 'bg-blue-50 text-blue-700',
-                                            'Accepted' => 'bg-indigo-50 text-indigo-700',
-                                            'Rejected' => 'bg-red-50 text-red-700',
-                                            'In Progress' => 'bg-yellow-50 text-yellow-700',
-                                            'Completed' => 'bg-teal-50 text-teal-700',
-                                            'Approved' => 'bg-emerald-50 text-emerald-700',
-                                            'No Show' => 'bg-gray-50 text-gray-700',
-                                            'Cancelled' => 'bg-rose-50 text-rose-700'
+                                            'Assigned' => 'bg-blue-500/15 text-blue-300 border border-blue-500/30',
+                                            'Accepted' => 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/30',
+                                            'Rejected' => 'bg-red-500/15 text-red-300 border border-red-500/30',
+                                            'In Progress' => 'bg-amber-500/15 text-amber-300 border border-amber-500/30',
+                                            'Completed' => 'bg-teal-500/15 text-teal-300 border border-teal-500/30',
+                                            'Approved' => 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30',
+                                            'No Show' => 'bg-gray-500/15 text-gray-300 border border-gray-500/30',
+                                            'Cancelled' => 'bg-rose-500/15 text-rose-300 border border-rose-500/30'
                                         ];
-                                        $color = $statusColors[$ot['Status']] ?? 'bg-blue-50 text-blue-700';
+                                        $color = $statusColors[$ot['Status']] ?? 'bg-blue-500/15 text-blue-300 border border-blue-500/30';
                                     ?>
-                                    <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-bold <?= $color ?>"><?= $ot['Status'] ?></span>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold <?= $color ?>"><?= $ot['Status'] ?></span>
                                 </td>
-                                <td class="px-4 py-3 text-right">
+                                <td class="px-5 py-3.5 text-right">
                                     <?php if ($ot['Status'] === 'Assigned'): ?>
                                         <div class="flex gap-2 justify-end">
                                             <form method="POST" action="/payrollsystem/employee/ot_action" class="inline m-0 p-0">
                                                 <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
                                                 <input type="hidden" name="ot_id" value="<?= $ot['OvertimeID'] ?>">
                                                 <input type="hidden" name="action" value="accept">
-                                                <button type="submit" class="px-3 py-1 bg-emerald-500 text-white rounded-md hover:bg-emerald-600 text-xs font-medium transition-colors shadow-sm">Accept</button>
+                                                <button type="submit" class="px-3 py-1 bg-emerald-500 hover:bg-emerald-400 text-gray-950 rounded-lg text-xs font-bold transition-colors shadow-sm">Accept</button>
                                             </form>
                                             <form method="POST" action="/payrollsystem/employee/ot_action" class="inline m-0 p-0" onsubmit="return confirm('Are you sure you want to reject this overtime?');">
                                                 <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
                                                 <input type="hidden" name="ot_id" value="<?= $ot['OvertimeID'] ?>">
                                                 <input type="hidden" name="action" value="reject">
-                                                <button type="submit" class="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 text-xs font-medium transition-colors shadow-sm">Reject</button>
+                                                <button type="submit" class="px-3 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 rounded-lg text-xs font-bold transition-colors">Reject</button>
                                             </form>
                                         </div>
                                     <?php elseif ($ot['Status'] === 'Accepted'): ?>
@@ -204,29 +305,27 @@
                                             $now = time();
                                             $start = strtotime($ot['OvertimeDate'] . ' ' . $ot['StartTime']);
                                             $end = strtotime($ot['OvertimeDate'] . ' ' . $ot['EndTime']);
-                                            if ($end < $start) $end += 86400; // overnight shift
-                                            
-                                            // Allow check in 15 mins before start, until the end time
+                                            if ($end < $start) $end += 86400;
                                             if ($ot['OvertimeDate'] === $today && $now >= ($start - 900) && $now <= $end):
                                         ?>
                                             <form method="POST" action="/payrollsystem/employee/ot_attendance" class="inline m-0 p-0">
                                                 <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
                                                 <input type="hidden" name="ot_id" value="<?= $ot['OvertimeID'] ?>">
                                                 <input type="hidden" name="action" value="check_in">
-                                                <button type="submit" class="px-4 py-1.5 bg-gradient-to-r from-[#D4AF37] to-[#C5A017] text-white rounded-md hover:from-[#C5A017] hover:to-[#B49006] text-xs font-bold transition-colors shadow-md">
-                                                    <i class="fa-solid fa-fingerprint mr-1"></i> Check In
+                                                <button type="submit" class="px-4 py-1.5 bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-gray-950 rounded-xl text-xs font-extrabold transition-colors shadow-md">
+                                                    <i class="fa-solid fa-fingerprint mr-1"></i> OT Check-In
                                                 </button>
                                             </form>
                                         <?php else: ?>
-                                            <span class="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">Wait for schedule</span>
+                                            <span class="text-[11px] text-gray-500 bg-surface px-2.5 py-1 rounded-lg border border-violet-900/30">Pending Time</span>
                                         <?php endif; ?>
                                     <?php elseif ($ot['Status'] === 'In Progress'): ?>
                                         <form method="POST" action="/payrollsystem/employee/ot_attendance" class="inline m-0 p-0">
                                             <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
                                             <input type="hidden" name="ot_id" value="<?= $ot['OvertimeID'] ?>">
                                             <input type="hidden" name="action" value="check_out">
-                                            <button type="submit" class="px-4 py-1.5 bg-gradient-to-r from-[#FF6B6B] to-[#E63946] text-white rounded-md hover:from-[#E63946] hover:to-[#D62828] text-xs font-bold transition-colors shadow-md">
-                                                <i class="fa-solid fa-right-from-bracket mr-1"></i> Check Out
+                                            <button type="submit" class="px-4 py-1.5 bg-gradient-to-r from-rose-500 to-red-600 text-white rounded-xl text-xs font-bold transition-colors shadow-md">
+                                                <i class="fa-solid fa-right-from-bracket mr-1"></i> OT Check-Out
                                             </button>
                                         </form>
                                     <?php endif; ?>
@@ -239,47 +338,51 @@
             </div>
         </div>
 
-        <!-- Recent Payslips -->
-        <div class="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-            <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50">
-                <h3 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-money-check-dollar text-emerald-500"></i> My Recent Payslips
+        <!-- Recent Payslips Table -->
+        <div class="card-glass rounded-2xl overflow-hidden">
+            <div class="p-4 px-6 border-b border-violet-900/40 flex justify-between items-center bg-surface/60">
+                <h3 class="font-bold text-white text-base flex items-center gap-2 font-outfit">
+                    <i class="fa-solid fa-money-check-dollar text-emerald-400"></i> My Recent Payslips
                 </h3>
+                <a href="/payrollsystem/employee/salary_history" class="text-xs font-bold text-violet-300 hover:text-white transition-colors">Salary History</a>
             </div>
             <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                    <thead class="text-xs text-gray-500 uppercase bg-gray-50 dark:bg-gray-700/50">
+                <table class="w-full text-sm text-left text-gray-400">
+                    <thead class="text-xs uppercase bg-surface/80 text-violet-300/80 border-b border-violet-900/40">
                         <tr>
-                            <th class="px-4 py-3">Month</th>
-                            <th class="px-4 py-3">Status</th>
-                            <th class="px-4 py-3 text-right">Net Salary</th>
-                            <th class="px-4 py-3 text-center">Action</th>
+                            <th class="px-5 py-3.5">Payroll Month</th>
+                            <th class="px-4 py-3.5">Status</th>
+                            <th class="px-4 py-3.5 text-right">Net Salary</th>
+                            <th class="px-5 py-3.5 text-center">Action</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="divide-y divide-violet-900/30">
                         <?php if (empty($data['recentPayrolls'])): ?>
                             <tr>
-                                <td colspan="4" class="px-4 py-8 text-center text-gray-500">
-                                    <i class="fa-solid fa-folder-open text-3xl mb-2 text-gray-300 dark:text-gray-600"></i>
-                                    <p>No payroll records available yet.</p>
+                                <td colspan="4" class="px-6 py-10 text-center text-gray-500">
+                                    <div class="w-12 h-12 mx-auto bg-surface rounded-xl border border-violet-900/40 flex items-center justify-center mb-2 text-violet-400">
+                                        <i class="fa-solid fa-folder-open text-xl"></i>
+                                    </div>
+                                    <p class="font-semibold text-gray-300">No payroll records yet</p>
+                                    <p class="text-xs text-gray-500 mt-0.5">Your monthly salary slips will appear here once processed.</p>
                                 </td>
                             </tr>
                         <?php else: ?>
                             <?php foreach ($data['recentPayrolls'] as $pr): ?>
-                            <tr class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                                <td class="px-4 py-3 font-medium text-gray-900 dark:text-white"><?= htmlspecialchars($pr['PayrollMonth']) ?></td>
-                                <td class="px-4 py-3">
+                            <tr class="hover:bg-violet-950/20 transition-colors">
+                                <td class="px-5 py-3.5 font-bold text-white"><?= htmlspecialchars($pr['PayrollMonth']) ?></td>
+                                <td class="px-4 py-3.5">
                                     <?php if($pr['Status'] === 'Paid'): ?>
-                                        <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800/30"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span> Paid</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5"></span> Paid</span>
                                     <?php else: ?>
-                                        <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800/30"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5"></span> Pending</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 mr-1.5"></span> Pending</span>
                                     <?php endif; ?>
                                 </td>
-                                <td class="px-4 py-3 text-right font-bold text-emerald-600 dark:text-emerald-400">
-                                    <?= number_format($pr['NetSalary']) ?> <span class="text-xs">MMK</span>
+                                <td class="px-4 py-3.5 text-right font-extrabold text-emerald-400">
+                                    <?= number_format($pr['NetSalary']) ?> <span class="text-xs font-normal text-gray-400">MMK</span>
                                 </td>
-                                <td class="px-4 py-3 text-center">
-                                    <a href="/payrollsystem/employee/payroll_slip/<?= $pr['PayrollID'] ?>" target="_blank" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 flex items-center justify-center gap-1 font-medium transition-colors">
+                                <td class="px-5 py-3.5 text-center">
+                                    <a href="/payrollsystem/employee/payroll_slip/<?= $pr['PayrollID'] ?>" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-violet-600/20 hover:bg-violet-600/40 text-violet-300 border border-violet-500/30 text-xs font-bold transition-all hover:scale-105">
                                         <i class="fa-solid fa-file-invoice"></i> View Slip
                                     </a>
                                 </td>
@@ -297,7 +400,10 @@
     function updateClock() {
         const now = new Date();
         const timeString = now.toLocaleTimeString('en-US', { hour12: false });
-        document.getElementById('realTimeClock').innerText = timeString;
+        const clockEl = document.getElementById('realTimeClock');
+        if (clockEl) {
+            clockEl.innerText = timeString;
+        }
     }
     setInterval(updateClock, 1000);
     updateClock();

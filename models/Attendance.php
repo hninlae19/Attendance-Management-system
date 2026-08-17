@@ -49,7 +49,7 @@ class Attendance {
 
     public function calculateStatus($checkInTime, $checkOutTime) {
         if (empty($checkInTime) || empty($checkOutTime)) {
-            return 'Absent';
+            return 'Full-Day Absence';
         }
 
         $in = strtotime($checkInTime);

@@ -6,6 +6,59 @@ class AdminController extends Controller {
         }
     }
 
+    public function dashboardApi() {
+        // Same data as index but output as JSON for AJAX
+        $employeeModel = $this->model('Employee');
+        $attendanceModel = $this->model('Attendance');
+        $employees = $employeeModel->getAll();
+        $totalEmployees = count($employees);
+        $activeEmployees = count(array_filter($employees, fn($e) => $e['Status'] === 'Active'));
+        $attendance = $attendanceModel->getAllRecords();
+        $today = date('Y-m-d');
+        $presentToday = count(array_filter($attendance, fn($a) => $a['AttendanceDate'] === $today && $a['Status'] === 'Present'));
+        $lateToday = count(array_filter($attendance, fn($a) => $a['AttendanceDate'] === $today && $a['Status'] === 'Late'));
+        $absentToday = count(array_filter($attendance, fn($a) => $a['AttendanceDate'] === $today && ($a['Status'] === 'Full-Day Absence' || $a['Status'] === 'Half-Day Absence')));
+        // Employees on approved leave today
+        $db = new Database();
+        $conn = $db->getConnection();
+        $onLeaveStmt = $conn->prepare("SELECT COUNT(DISTINCT EmpID) FROM LeaveRequest WHERE ? BETWEEN StartDate AND EndDate AND Status = 'Approved'");
+        $onLeaveStmt->execute([$today]);
+        $employeesOnLeave = (int)($onLeaveStmt->fetchColumn() ?: 0);
+        // Pending leaves
+        $pendingLeaveStmt = $conn->prepare("SELECT COUNT(*) FROM LeaveRequest WHERE Status = 'Pending'");
+        $pendingLeaveStmt->execute();
+        $pendingLeaves = (int)($pendingLeaveStmt->fetchColumn() ?: 0);
+        // Pending overtime assignments
+        $pendingOvertime = $this->model('OvertimeAssign')->getPendingCount();
+        // Password reset requests
+        $pendingResetsCount = (int)($conn->query("SELECT COUNT(*) FROM employee WHERE PasswordResetRequest = 1")->fetchColumn() ?: 0);
+        // Monthly payroll
+        $payrollMonthStr = date('F Y');
+        $payrollStmt = $conn->prepare("SELECT SUM(NetSalary) FROM Payroll WHERE PayrollMonth = ?");
+        $payrollStmt->execute([$payrollMonthStr]);
+        $monthlyPayroll = (float)($payrollStmt->fetchColumn() ?: 0);
+        // Monthly bonuses
+        $bonusStmt = $conn->prepare("SELECT SUM(Amount) FROM EmpBonous WHERE MONTH(BonusDate) = ? AND YEAR(BonusDate) = ?");
+        $bonusStmt->execute([date('n'), date('Y')]);
+        $monthlyBonus = (float)($bonusStmt->fetchColumn() ?: 0);
+        $recentAttendance = array_slice($attendance, 0, 5);
+        header('Content-Type: application/json');
+        echo json_encode([
+            'totalEmployees' => $totalEmployees,
+            'activeEmployees' => $activeEmployees,
+            'presentToday' => $presentToday,
+            'lateToday' => $lateToday,
+            'absentToday' => $absentToday,
+            'employeesOnLeave' => $employeesOnLeave,
+            'monthlyPayroll' => $monthlyPayroll,
+            'monthlyBonus' => $monthlyBonus,
+            'pendingLeaves' => $pendingLeaves,
+            'pendingOvertime' => $pendingOvertime,
+            'pendingResets' => $pendingResetsCount,
+            'recentAttendance' => $recentAttendance
+        ]);
+    }
+
     public function index() {
         $employeeModel = $this->model('Employee');
         $attendanceModel = $this->model('Attendance');
@@ -443,8 +496,50 @@ class AdminController extends Controller {
             'date' => $_GET['date'] ?? ''
         ];
 
-        // Currently we just pass filters to view, the model filtering can be implemented later
+        // Filter the fetched records
         $leaveRequests = $leaveRequestModel->getAll();
+        if (!empty($filters['search']) || !empty($filters['DeptID']) || !empty($filters['date']) || !empty($filters['status']) || !empty($filters['leave_type'])) {
+            $leaveRequests = array_filter($leaveRequests, function($lr) use ($filters) {
+                $match = true;
+                if (!empty($filters['search'])) {
+                    $search = strtolower($filters['search']);
+                    $name = strtolower($lr['FirstName'] . ' ' . $lr['LastName']);
+                    $empCode = strtolower('EMP-' . str_pad($lr['EmpID'], 4, '0', STR_PAD_LEFT));
+                    if (strpos($name, $search) === false && strpos($empCode, $search) === false) {
+                        $match = false;
+                    }
+                }
+                
+                if ($match && !empty($filters['DeptID'])) {
+                    if ($lr['DeptID'] != $filters['DeptID']) {
+                        $match = false;
+                    }
+                }
+
+                if ($match && !empty($filters['status'])) {
+                    if ($lr['Status'] != $filters['status']) {
+                        $match = false;
+                    }
+                }
+
+                if ($match && !empty($filters['leave_type'])) {
+                    if ($lr['LeaveTypeID'] != $filters['leave_type']) {
+                        $match = false;
+                    }
+                }
+                
+                if ($match && !empty($filters['date'])) {
+                    $filterDate = $filters['date'];
+                    if ($filterDate < $lr['StartDate'] || $filterDate > $lr['EndDate']) {
+                        $match = false;
+                    }
+                }
+                
+                return $match;
+            });
+            $leaveRequests = array_values($leaveRequests);
+        }
+
         $departments = $departmentModel->getAll();
 
         $this->view('layouts/main', [
