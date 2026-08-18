@@ -242,7 +242,6 @@
                             <th class="px-4 py-3.5">Schedule</th>
                             <th class="px-4 py-3.5">Hours</th>
                             <th class="px-4 py-3.5">Status</th>
-                            <th class="px-5 py-3.5 text-right">Action</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-violet-900/30">
@@ -265,7 +264,7 @@
                                     <?= $ot['EndTime'] ? date('h:i A', strtotime($ot['EndTime'])) : '—' ?>
                                 </td>
                                 <td class="px-4 py-3.5 font-extrabold text-amber-400">
-                                    <?= $ot['OvertimeHours'] ?> <span class="text-xs text-gray-500">hrs</span>
+                                    <?= $ot['TotalHours'] ?> <span class="text-xs text-gray-500">hrs</span>
                                 </td>
                                 <td class="px-4 py-3.5">
                                     <?php 
@@ -282,53 +281,6 @@
                                         $color = $statusColors[$ot['Status']] ?? 'bg-blue-500/15 text-blue-300 border border-blue-500/30';
                                     ?>
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold <?= $color ?>"><?= $ot['Status'] ?></span>
-                                </td>
-                                <td class="px-5 py-3.5 text-right">
-                                    <?php if ($ot['Status'] === 'Assigned'): ?>
-                                        <div class="flex gap-2 justify-end">
-                                            <form method="POST" action="/payrollsystem/employee/ot_action" class="inline m-0 p-0">
-                                                <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
-                                                <input type="hidden" name="ot_id" value="<?= $ot['OvertimeID'] ?>">
-                                                <input type="hidden" name="action" value="accept">
-                                                <button type="submit" class="px-3 py-1 bg-emerald-500 hover:bg-emerald-400 text-gray-950 rounded-lg text-xs font-bold transition-colors shadow-sm">Accept</button>
-                                            </form>
-                                            <form method="POST" action="/payrollsystem/employee/ot_action" class="inline m-0 p-0" onsubmit="return confirm('Are you sure you want to reject this overtime?');">
-                                                <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
-                                                <input type="hidden" name="ot_id" value="<?= $ot['OvertimeID'] ?>">
-                                                <input type="hidden" name="action" value="reject">
-                                                <button type="submit" class="px-3 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 rounded-lg text-xs font-bold transition-colors">Reject</button>
-                                            </form>
-                                        </div>
-                                    <?php elseif ($ot['Status'] === 'Accepted'): ?>
-                                        <?php 
-                                            $today = date('Y-m-d');
-                                            $now = time();
-                                            $start = strtotime($ot['OvertimeDate'] . ' ' . $ot['StartTime']);
-                                            $end = strtotime($ot['OvertimeDate'] . ' ' . $ot['EndTime']);
-                                            if ($end < $start) $end += 86400;
-                                            if ($ot['OvertimeDate'] === $today && $now >= ($start - 900) && $now <= $end):
-                                        ?>
-                                            <form method="POST" action="/payrollsystem/employee/ot_attendance" class="inline m-0 p-0">
-                                                <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
-                                                <input type="hidden" name="ot_id" value="<?= $ot['OvertimeID'] ?>">
-                                                <input type="hidden" name="action" value="check_in">
-                                                <button type="submit" class="px-4 py-1.5 bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-gray-950 rounded-xl text-xs font-extrabold transition-colors shadow-md">
-                                                    <i class="fa-solid fa-fingerprint mr-1"></i> OT Check-In
-                                                </button>
-                                            </form>
-                                        <?php else: ?>
-                                            <span class="text-[11px] text-gray-500 bg-surface px-2.5 py-1 rounded-lg border border-violet-900/30">Pending Time</span>
-                                        <?php endif; ?>
-                                    <?php elseif ($ot['Status'] === 'In Progress'): ?>
-                                        <form method="POST" action="/payrollsystem/employee/ot_attendance" class="inline m-0 p-0">
-                                            <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
-                                            <input type="hidden" name="ot_id" value="<?= $ot['OvertimeID'] ?>">
-                                            <input type="hidden" name="action" value="check_out">
-                                            <button type="submit" class="px-4 py-1.5 bg-gradient-to-r from-rose-500 to-red-600 text-white rounded-xl text-xs font-bold transition-colors shadow-md">
-                                                <i class="fa-solid fa-right-from-bracket mr-1"></i> OT Check-Out
-                                            </button>
-                                        </form>
-                                    <?php endif; ?>
                                 </td>
                             </tr>
                             <?php endforeach; ?>

@@ -89,11 +89,9 @@
                     <th class="px-6 py-4">Date</th>
                     <th class="px-6 py-4">Scheduled Time</th>
                     <th class="px-6 py-4">Hours</th>
-                    <th class="px-6 py-4">Rate / Hr</th>
+                    <th class="px-6 py-4">Multiplier</th>
                     <th class="px-6 py-4">Total Amount</th>
-                    <th class="px-6 py-4">Actual Log</th>
                     <th class="px-6 py-4">Status</th>
-                    <th class="px-6 py-4 text-right">Action</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-violet-900/30">
@@ -120,16 +118,11 @@
                         </td>
                         <td class="px-6 py-4">
                             <span class="font-extrabold text-amber-400 font-mono">
-                                <?= $ot['OvertimeHours'] ?> <span class="text-xs text-gray-500 font-normal">hrs</span>
+                                <?= $ot['TotalHours'] ?> <span class="text-xs text-gray-500 font-normal">hrs</span>
                             </span>
                         </td>
-                        <td class="px-6 py-4 text-gray-300 font-mono"><?= number_format($ot['OTRate'], 2) ?></td>
+                        <td class="px-6 py-4 text-gray-300 font-mono"><?= number_format($ot['RateMultiplier'], 1) ?>x</td>
                         <td class="px-6 py-4 font-extrabold text-emerald-400 font-mono"><?= number_format($ot['OTAmount'], 2) ?> <span class="text-xs text-gray-500 font-normal">MMK</span></td>
-                        <td class="px-6 py-4">
-                            <span class="font-mono text-xs <?= ($ot['ActualOTHours'] > 0) ? 'font-bold text-emerald-400' : 'text-gray-500' ?>">
-                                <?= $ot['ActualOTHours'] > 0 ? $ot['ActualOTHours'] . ' hrs' : '—' ?>
-                            </span>
-                        </td>
                         <td class="px-6 py-4">
                             <?php
                                 $statusColors = [
@@ -146,58 +139,7 @@
                             ?>
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold <?= $colorClass ?>"><?= $ot['Status'] ?></span>
                         </td>
-                        <td class="px-6 py-4 text-right">
-                            <?php if ($ot['Status'] === 'Assigned'): ?>
-                                <div class="flex gap-2 justify-end">
-                                    <form method="POST" action="/payrollsystem/employee/ot_action" class="inline m-0 p-0">
-                                        <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
-                                        <input type="hidden" name="ot_id" value="<?= $ot['OvertimeID'] ?>">
-                                        <input type="hidden" name="action" value="accept">
-                                        <button type="submit" class="px-3.5 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-gray-950 font-extrabold rounded-xl text-xs transition-all shadow-md hover:scale-105">Accept</button>
-                                    </form>
-                                    <form method="POST" action="/payrollsystem/employee/ot_action" class="inline m-0 p-0" onsubmit="return confirm('Are you sure you want to reject this overtime assignment?');">
-                                        <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
-                                        <input type="hidden" name="ot_id" value="<?= $ot['OvertimeID'] ?>">
-                                        <input type="hidden" name="action" value="reject">
-                                        <button type="submit" class="px-3.5 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 font-bold rounded-xl text-xs transition-colors">Reject</button>
-                                    </form>
-                                </div>
-                            <?php elseif ($ot['Status'] === 'Accepted'): ?>
-                                <?php
-                                    $today = date('Y-m-d');
-                                    $now = time();
-                                    $start = strtotime($ot['OvertimeDate'] . ' ' . $ot['StartTime']);
-                                    $end = strtotime($ot['OvertimeDate'] . ' ' . $ot['EndTime']);
-                                    if ($end < $start) $end += 86400;
 
-                                    if ($ot['OvertimeDate'] === $today && $now >= ($start - 900) && $now <= $end):
-                                ?>
-                                    <form method="POST" action="/payrollsystem/employee/ot_attendance" class="inline m-0 p-0">
-                                        <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
-                                        <input type="hidden" name="ot_id" value="<?= $ot['OvertimeID'] ?>">
-                                        <input type="hidden" name="action" value="check_in">
-                                        <button type="submit" class="px-4 py-1.5 bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-gray-950 rounded-xl text-xs font-extrabold transition-all shadow-md hover:scale-105">
-                                            <i class="fa-solid fa-fingerprint mr-1"></i> OT Check-In
-                                        </button>
-                                    </form>
-                                <?php else: ?>
-                                    <span class="text-[11px] text-gray-500 bg-surface px-2.5 py-1 rounded-lg border border-violet-900/30">Pending Shift</span>
-                                <?php endif; ?>
-                            <?php elseif ($ot['Status'] === 'In Progress'): ?>
-                                <form method="POST" action="/payrollsystem/employee/ot_attendance" class="inline m-0 p-0">
-                                    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
-                                    <input type="hidden" name="ot_id" value="<?= $ot['OvertimeID'] ?>">
-                                    <input type="hidden" name="action" value="check_out">
-                                    <button type="submit" class="px-4 py-1.5 bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-400 hover:to-red-500 text-white rounded-xl text-xs font-extrabold transition-all shadow-md hover:scale-105">
-                                        <i class="fa-solid fa-right-from-bracket mr-1"></i> OT Check-Out
-                                    </button>
-                                </form>
-                            <?php elseif ($ot['Status'] === 'Rejected' && !empty($ot['EmployeeResponse'])): ?>
-                                <span class="text-xs text-gray-400 italic truncate max-w-[180px]" title="<?= htmlspecialchars($ot['EmployeeResponse']) ?>"><?= htmlspecialchars($ot['EmployeeResponse']) ?></span>
-                            <?php else: ?>
-                                <span class="text-gray-500 text-xs">—</span>
-                            <?php endif; ?>
-                        </td>
                     </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>

@@ -17,7 +17,4 @@ $attendanceModel = new Attendance();
 $attendanceModel->processAutoCheckouts();
 $attendanceModel->processFullDayAbsences();
 
-require_once __DIR__ . '/models/OvertimeAssign.php';
-$overtimeModel = new OvertimeAssign();
-$overtimeModel->processNoShows();
-$overtimeModel->processAutoCheckouts();
+

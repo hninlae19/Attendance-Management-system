@@ -57,14 +57,14 @@ class EmployeeController extends Controller {
         $today = date('Y-m-d');
 
         foreach ($overtimes as $ot) {
-            if ($ot['OvertimeDate'] >= $today && in_array($ot['Status'], ['Assigned', 'Accepted'])) {
+            if ($ot['OvertimeDate'] >= $today && $ot['Status'] === 'Approved') {
                 $upcoming++;
             }
-            if ($ot['Status'] === 'Assigned') {
+            if ($ot['Status'] === 'Pending') {
                 $pending++;
             }
-            if (in_array($ot['Status'], ['Accepted', 'In Progress', 'Completed', 'Approved'])) {
-                $totalHours += (float)($ot['ActualOTHours'] > 0 ? $ot['ActualOTHours'] : $ot['OvertimeHours']);
+            if ($ot['Status'] === 'Approved') {
+                $totalHours += (float)$ot['TotalHours'];
                 $totalEarnings += (float)$ot['OTAmount'];
             }
         }
@@ -119,7 +119,7 @@ class EmployeeController extends Controller {
         
         $otMap = [];
         foreach ($overtimes as $ot) {
-            $otMap[$ot['OvertimeDate']] = $ot['OvertimeHours'];
+            $otMap[$ot['OvertimeDate']] = $ot['TotalHours'];
         }
 
         foreach ($records as &$record) {
@@ -143,47 +143,7 @@ class EmployeeController extends Controller {
         ]);
     }
 
-    public function ot_action() {
-        $emp_id = $_SESSION['employee_id'];
-        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
-            $this->validateCsrfToken($_POST['csrf_token'] ?? '');
-            $ot_id = $_POST['ot_id'];
-            $response = $_POST['response'] ?? '';
-            $status = $_POST['action'] === 'accept' ? 'Accepted' : 'Rejected';
-            
-            $overtimeModel = $this->model('OvertimeAssign');
-            $overtimeModel->acceptReject($ot_id, $emp_id, $status, $response);
-            
-            $_SESSION['flash_success'] = "Overtime assignment " . strtolower($status) . ".";
-        }
-        $this->redirect('/payrollsystem/employee');
-    }
 
-    public function ot_attendance() {
-        $emp_id = $_SESSION['employee_id'];
-        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
-            $this->validateCsrfToken($_POST['csrf_token'] ?? '');
-            $ot_id = $_POST['ot_id'];
-            $overtimeModel = $this->model('OvertimeAssign');
-            $ot = $overtimeModel->getById($ot_id);
-            
-            if ($ot && $ot['EmpID'] == $emp_id) {
-                $time = date('Y-m-d H:i:s');
-                if ($_POST['action'] === 'check_in') {
-                    $overtimeModel->otCheckIn($ot_id, $emp_id, $time);
-                    $_SESSION['flash_success'] = "Overtime checked in.";
-                } elseif ($_POST['action'] === 'check_out') {
-                    // Calculate actual hours
-                    $inTime = strtotime($ot['OTCheckIn']);
-                    $outTime = time();
-                    $actualHours = round(($outTime - $inTime) / 3600, 2);
-                    $overtimeModel->otCheckOut($ot_id, $emp_id, $time, $actualHours);
-                    $_SESSION['flash_success'] = "Overtime checked out. Total: {$actualHours} Hrs.";
-                }
-            }
-        }
-        $this->redirect('/payrollsystem/employee');
-    }
 
     public function leaves() {
         $emp_id = $_SESSION['employee_id'];

@@ -155,29 +155,23 @@ CREATE TABLE `leaverequest` (
 -- 10. Table: overtimeassign
 -- --------------------------------------------------------------------
 DROP TABLE IF EXISTS `overtimeassign`;
-CREATE TABLE `overtimeassign` (
-  `OvertimeID` int NOT NULL AUTO_INCREMENT,
-  `EmpID` int NOT NULL,
-  `OvertimeDate` date NOT NULL,
-  `StartTime` time DEFAULT NULL,
-  `EndTime` time DEFAULT NULL,
-  `OvertimeHours` decimal(5,2) NOT NULL DEFAULT '0.00',
-  `OTRate` decimal(12,2) NOT NULL DEFAULT '0.00',
-  `OTAmount` decimal(12,2) NOT NULL DEFAULT '0.00',
-  `Status` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Pending',
-  `ApprovedBy` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `ApprovedAt` datetime DEFAULT NULL,
-  `EmployeeResponse` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT 'None',
-  `AcceptedAt` datetime DEFAULT NULL,
-  `OTCheckIn` datetime DEFAULT NULL,
-  `OTCheckOut` datetime DEFAULT NULL,
-  `ActualOTHours` decimal(5,2) DEFAULT '0.00',
-  `is_auto_checkout` tinyint(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`OvertimeID`),
-  KEY `idx_overtime_emp` (`EmpID`),
-  KEY `idx_overtime_date` (`OvertimeDate`),
-  CONSTRAINT `fk_overtime_employee` FOREIGN KEY (`EmpID`) REFERENCES `employee` (`EmpID`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `overtimeassign` ( 
+   `OvertimeID` int NOT NULL AUTO_INCREMENT, 
+   `EmpID` int NOT NULL, 
+   `OvertimeDate` date NOT NULL, 
+   `StartTime` datetime DEFAULT NULL, 
+   `EndTime` datetime DEFAULT NULL, 
+   `TotalHours` decimal(5,2) NOT NULL DEFAULT '0.00', 
+   `RateMultiplier` decimal(3,2) NOT NULL DEFAULT '1.00', 
+   `OTAmount` decimal(12,2) NOT NULL DEFAULT '0.00', 
+   `Status` enum('Pending','Approved','Rejected') NOT NULL DEFAULT 'Pending', 
+   `ApprovedBy` varchar(100) DEFAULT NULL, 
+   `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   PRIMARY KEY (`OvertimeID`), 
+   KEY `idx_overtime_emp` (`EmpID`), 
+   KEY `idx_overtime_date` (`OvertimeDate`), 
+   CONSTRAINT `fk_overtime_employee` FOREIGN KEY (`EmpID`) REFERENCES `employee` (`EmpID`) ON DELETE CASCADE ON UPDATE CASCADE 
+ ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------------------
 -- 11. Table: payroll
@@ -188,13 +182,8 @@ CREATE TABLE `payroll` (
   `EmpID` int NOT NULL,
   `employee_code` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `BasicSalary` decimal(12,2) NOT NULL DEFAULT '0.00',
-  `present_days` int DEFAULT '0',
-  `leave_days` int DEFAULT '0',
-  `absent_days` int DEFAULT '0',
-  `half_days` int DEFAULT '0',
-  `late_days` int DEFAULT '0',
-  `ot_hours` decimal(10,2) DEFAULT '0.00',
   `PayrollMonth` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `PayableDays` int NOT NULL DEFAULT '0',
   `BonousAmount` decimal(12,2) NOT NULL DEFAULT '0.00',
   `OvertimeAmount` decimal(12,2) NOT NULL DEFAULT '0.00',
   `LeaveDeductionAmount` decimal(12,2) NOT NULL DEFAULT '0.00',
@@ -273,14 +262,14 @@ INSERT INTO `leaverequest` (`RequestID`, `LeaveTypeID`, `EmpID`, `StartDate`, `E
 (2, 1, 3, '2026-08-28', '2026-08-29', 'Family ceremony in hometown', 'Pending');
 
 -- 10. Overtime Assignments
-INSERT INTO `overtimeassign` (`OvertimeID`, `EmpID`, `OvertimeDate`, `StartTime`, `EndTime`, `OvertimeHours`, `OTRate`, `OTAmount`, `Status`, `ApprovedBy`, `ApprovedAt`, `EmployeeResponse`, `AcceptedAt`, `OTCheckIn`, `OTCheckOut`, `ActualOTHours`, `is_auto_checkout`) VALUES
-(1, 1, '2026-08-19', '18:00:00', '21:00:00', 3.00, 15000.00, 45000.00, 'Accepted', 'Administrator', '2026-08-18 10:00:00', 'Accepted', '2026-08-18 11:30:00', NULL, NULL, 0.00, 0),
-(2, 3, '2026-08-20', '18:00:00', '20:00:00', 2.00, 8000.00, 16000.00, 'Pending', 'Administrator', '2026-08-18 14:00:00', 'None', NULL, NULL, NULL, 0.00, 0);
+INSERT INTO `overtimeassign` (`OvertimeID`, `EmpID`, `OvertimeDate`, `StartTime`, `EndTime`, `TotalHours`, `RateMultiplier`, `OTAmount`, `Status`, `ApprovedBy`) VALUES
+(1, 1, '2026-08-19', '2026-08-19 18:00:00', '2026-08-19 21:00:00', 3.00, 1.50, 45000.00, 'Approved', 'Administrator'),
+(2, 3, '2026-08-20', '2026-08-20 18:00:00', '2026-08-20 20:00:00', 2.00, 1.50, 16000.00, 'Pending', 'Administrator');
 
 -- 11. Payroll
-INSERT INTO `payroll` (`PayrollID`, `EmpID`, `employee_code`, `BasicSalary`, `present_days`, `leave_days`, `absent_days`, `half_days`, `late_days`, `ot_hours`, `PayrollMonth`, `BonousAmount`, `OvertimeAmount`, `LeaveDeductionAmount`, `NetSalary`, `Status`) VALUES
-(1, 1, 'EMP-0001', 1800000.00, 22, 0, 0, 0, 0, 10.00, '2026-07', 150000.00, 150000.00, 0.00, 2100000.00, 'Paid'),
-(2, 2, 'EMP-0002', 1200000.00, 21, 1, 0, 0, 1, 5.00, '2026-07', 50000.00, 50000.00, 0.00, 1300000.00, 'Paid'),
-(3, 3, 'EMP-0003', 950000.00, 22, 0, 0, 0, 0, 4.00, '2026-07', 80000.00, 32000.00, 0.00, 1062000.00, 'Paid');
+INSERT INTO `payroll` (`PayrollID`, `EmpID`, `employee_code`, `BasicSalary`, `PayrollMonth`, `BonousAmount`, `OvertimeAmount`, `LeaveDeductionAmount`, `NetSalary`, `Status`) VALUES
+(1, 1, 'EMP-0001', 1800000.00, '2026-07', 150000.00, 150000.00, 0.00, 2100000.00, 'Paid'),
+(2, 2, 'EMP-0002', 1200000.00, '2026-07', 50000.00, 50000.00, 0.00, 1300000.00, 'Paid'),
+(3, 3, 'EMP-0003', 950000.00, '2026-07', 80000.00, 32000.00, 0.00, 1062000.00, 'Paid');
 
 SET FOREIGN_KEY_CHECKS = 1;

@@ -630,7 +630,14 @@ class AdminController extends Controller {
                     $otDate = $_POST['overtime_date'];
                     $startTime = $_POST['start_time'];
                     $endTime = $_POST['end_time'];
-                    $rate = (float)$_POST['rate'];
+                    
+                    if (HolidayHelper::isPublicHoliday($otDate)) {
+                        $rateMultiplier = 3.0;
+                    } elseif (HolidayHelper::isWeekend($otDate)) {
+                        $rateMultiplier = 2.0;
+                    } else {
+                        $rateMultiplier = 1.5;
+                    }
                     
                     if ($_POST['action'] === 'add') {
                         $today = date('Y-m-d');
@@ -760,13 +767,22 @@ class AdminController extends Controller {
                     
                     // Create/Update records
                     foreach ($employeesToProcess as $empId) {
+                        // Fetch basic salary to calculate hourly rate
+                        $empStmt = $conn->prepare("SELECT p.BasicSalary FROM employee e JOIN position p ON e.PositionID = p.PositionID WHERE e.EmpID = :emp");
+                        $empStmt->execute([':emp' => $empId]);
+                        $basicSalary = $empStmt->fetchColumn() ?: 0;
+                        
+                        $dailyRate = $basicSalary / 30;
+                        $hourlyRate = $dailyRate / 8;
+                        $otAmount = $hours * $hourlyRate * $rateMultiplier;
+
                         $overtimeModel->EmpID = $empId;
                         $overtimeModel->OvertimeDate = $otDate;
                         $overtimeModel->StartTime = $startTime;
                         $overtimeModel->EndTime = $endTime;
-                        $overtimeModel->OvertimeHours = $hours;
-                        $overtimeModel->OTRate = $rate;
-                        $overtimeModel->OTAmount = $hours * $rate;
+                        $overtimeModel->TotalHours = $hours;
+                        $overtimeModel->RateMultiplier = $rateMultiplier;
+                        $overtimeModel->OTAmount = $otAmount;
                         
                         if ($_POST['action'] === 'add') {
                             $overtimeModel->create();
@@ -952,7 +968,10 @@ class AdminController extends Controller {
                     $empId = $emp['EmpID'];
                     $basicSalary = $emp['BasicSalary'];
                     
-                    // Prorate salary based on JoinDate
+                    // Prorate salary based on JoinDate using Calendar Days Method
+                    $daysInTargetMonth = (int)date('t', strtotime($startDate));
+                    $payableDays = $daysInTargetMonth; // Default to full month
+                    
                     $joinDateStr = $emp['JoinDate'] ?? null;
                     if ($joinDateStr) {
                         $joinTime = strtotime($joinDateStr);
@@ -967,16 +986,10 @@ class AdminController extends Controller {
                             continue;
                         } elseif ($targetYearInt == $joinYear && $targetMonthInt == $joinMonth) {
                             $joinDay = (int)date('j', $joinTime);
-                            $daysInTargetMonth = (int)date('t', strtotime($startDate));
-                            
-                            $daysWorked = $daysInTargetMonth - $joinDay + 1;
-                            if ($daysWorked < 0) $daysWorked = 0;
-                            
-                            $basicSalary = round(($basicSalary / $daysInTargetMonth) * $daysWorked);
+                            $payableDays = $daysInTargetMonth - $joinDay + 1;
+                            if ($payableDays < 0) $payableDays = 0;
                         }
                     }
-                    
-                    $dailySalary = $basicSalary / 30;
                     
                     // Attendance stats
                     $stmt = $conn->prepare("
@@ -991,7 +1004,7 @@ class AdminController extends Controller {
                     $attStats = $stmt->fetch(PDO::FETCH_ASSOC);
                     
                     // Overtime stats
-                    $stmt = $conn->prepare("SELECT SUM(ActualOTHours) as ot_hours, SUM(ActualOTHours * OTRate) as ot_amount FROM overtimeassign WHERE EmpID = :emp AND OvertimeDate BETWEEN :sd AND :ed AND Status = 'Approved'");
+                    $stmt = $conn->prepare("SELECT SUM(TotalHours) as ot_hours, SUM(OTAmount) as ot_amount FROM overtimeassign WHERE EmpID = :emp AND OvertimeDate BETWEEN :sd AND :ed AND Status = 'Approved'");
                     $stmt->execute([':emp' => $empId, ':sd' => $startDate, ':ed' => $endDate]);
                     $otStats = $stmt->fetch(PDO::FETCH_ASSOC);
                     
@@ -1068,37 +1081,34 @@ class AdminController extends Controller {
                         }
                     }
                     
-                    $grossSalary = $basicSalary + ($otStats['ot_amount'] ?: 0) + $bonusAmount;
+                    // Calculate Basic Pay based on Calendar Days
+                    $calculatedBasicPay = round(($basicSalary / $daysInTargetMonth) * $payableDays);
+                    
+                    $grossSalary = $calculatedBasicPay + ($otStats['ot_amount'] ?: 0) + $bonusAmount;
                     $netSalary = $grossSalary - $leaveDeductionAmount;
                     
                     // Insert Payroll
                     $stmt = $conn->prepare("
                         INSERT INTO payroll (
-                            EmpID, BasicSalary, PayrollMonth, BonousAmount, OvertimeAmount, 
+                            EmpID, BasicSalary, PayrollMonth, PayableDays, BonousAmount, OvertimeAmount, 
                             LeaveDeductionAmount, NetSalary, Status, 
-                            employee_code, present_days, leave_days, absent_days, half_days, 
-                            ot_hours
+                            employee_code
                         ) VALUES (
-                            :emp, :bs, :pm, :ba, :oa, 
+                            :emp, :bs, :pm, :pd, :ba, :oa, 
                             :lda, :ns, 'Pending', 
-                            :ec, :pd, :ld, :ad, :hd, 
-                            :oth
+                            :ec
                         )
                     ");
                     $stmt->execute([
                         ':emp' => $empId,
-                        ':bs' => $basicSalary,
+                        ':bs' => $calculatedBasicPay,
                         ':pm' => $payrollMonthStr,
+                        ':pd' => $payableDays,
                         ':ba' => $bonusAmount,
                         ':oa' => $otStats['ot_amount'] ?: 0,
                         ':lda' => $leaveDeductionAmount,
                         ':ns' => $netSalary,
-                        ':ec' => str_pad($empId, 4, '0', STR_PAD_LEFT),
-                        ':pd' => $attStats['present_days'] ?: 0,
-                        ':ld' => $leaveDaysInMonth,
-                        ':ad' => $attStats['absent_days'] ?: 0,
-                        ':hd' => $attStats['half_days'] ?: 0,
-                        ':oth' => $otStats['ot_hours'] ?: 0
+                        ':ec' => str_pad($empId, 4, '0', STR_PAD_LEFT)
                     ]);
                 }
                 

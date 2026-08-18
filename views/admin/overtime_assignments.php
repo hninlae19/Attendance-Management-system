@@ -26,7 +26,6 @@
                     <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Rate/Hr</th>
                     <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Total Amount</th>
                     <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Status</th>
-                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Actual Hrs</th>
                     <th scope="col" class="px-6 py-4 font-semibold tracking-wider text-right">Actions</th>
                 </tr>
             </thead>
@@ -66,11 +65,11 @@
                         </td>
                         <td class="px-6 py-4">
                             <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-indigo-50 text-indigo-700 border border-violet-700 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800/30">
-                                <?= $ot['OvertimeHours'] ?> Hrs
+                                <?= $ot['TotalHours'] ?> Hrs
                             </span>
                         </td>
                         <td class="px-6 py-4 font-medium text-gray-900 dark:text-gray-300">
-                            <?= number_format($ot['OTRate'], 2) ?> MMK
+                            <?= number_format($ot['RateMultiplier'], 1) ?>x
                         </td>
                         <td class="px-6 py-4 font-bold text-emerald-600 dark:text-emerald-400">
                             <?= number_format($ot['OTAmount'], 2) ?> MMK
@@ -93,11 +92,7 @@
                                 <?= $ot['Status'] ?? 'Assigned' ?>
                             </span>
                         </td>
-                        <td class="px-6 py-4">
-                            <span class="font-bold <?= ($ot['ActualOTHours'] > 0) ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400' ?>">
-                                <?= $ot['ActualOTHours'] > 0 ? $ot['ActualOTHours'] . ' Hrs' : '-' ?>
-                            </span>
-                        </td>
+
                         <td class="px-6 py-4 text-right">
                             <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <?php if (($ot['Status'] ?? 'Assigned') === 'Completed'): ?>
@@ -202,15 +197,6 @@
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Total Hours</label>
                         <input type="number" step="0.5" name="hours" id="hours" readonly class="w-full px-4 py-2.5 bg-gray-100 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-600 dark:border-gray-500 dark:text-gray-300 transition-all shadow-sm">
                     </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Rate/Hr (MMK)</label>
-                        <input type="number" step="0.01" min="0" name="rate" id="rate" required oninput="calculateAmount()" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm" placeholder="e.g. 1500">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Total Amount (MMK)</label>
-                    <input type="text" id="amount_display" readonly class="w-full px-4 py-2.5 bg-gray-100 border border-gray-200 rounded-xl text-gray-700 font-bold dark:bg-gray-600 dark:border-gray-500 dark:text-gray-300 transition-all shadow-sm" placeholder="0">
                 </div>
             </div>
             
@@ -286,7 +272,6 @@
         } else {
             hoursInput.value = '';
         }
-        calculateAmount();
     }
 
     const allAssignments = <?= json_encode($data['assignments']) ?>;
@@ -377,8 +362,7 @@
         document.getElementById('start_time').value = '';
         document.getElementById('end_time').value = '';
         document.getElementById('hours').value = '';
-        document.getElementById('rate').value = '';
-        calculateAmount();
+        document.getElementById('hours').value = '';
         document.getElementById('assignmentModal').classList.remove('hidden');
     }
 
@@ -396,9 +380,7 @@
         document.getElementById('overtime_date').value = data.OvertimeDate;
         document.getElementById('start_time').value = data.StartTime || '';
         document.getElementById('end_time').value = data.EndTime || '';
-        document.getElementById('hours').value = data.OvertimeHours;
-        document.getElementById('rate').value = data.OTRate;
-        calculateAmount();
+        document.getElementById('hours').value = data.TotalHours;
         document.getElementById('assignmentModal').classList.remove('hidden');
     }
 
@@ -406,9 +388,5 @@
         document.getElementById('assignmentModal').classList.add('hidden');
     }
 
-    function calculateAmount() {
-        const hours = parseFloat(document.getElementById('hours').value) || 0;
-        const rate = parseFloat(document.getElementById('rate').value) || 0;
-        document.getElementById('amount_display').value = (hours * rate).toLocaleString();
-    }
+
 </script>

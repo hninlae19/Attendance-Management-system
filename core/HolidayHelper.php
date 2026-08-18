@@ -68,4 +68,43 @@ class HolidayHelper {
 
         return true;
     }
+
+    /**
+     * Counts the number of public holidays in a given month.
+     * Optionally takes a joinDate to only count holidays on or after the joinDate.
+     */
+    public static function getPublicHolidaysCountInMonth($year, $month, $joinDate = null) {
+        $count = 0;
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+        
+        $joinTime = $joinDate ? strtotime($joinDate) : 0;
+        
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            $date = sprintf('%04d-%02d-%02d', $year, $month, $day);
+            $timestamp = strtotime($date);
+            
+            // If employee joined after this day, don't count it for them
+            if ($joinTime > 0 && $timestamp < $joinTime) {
+                continue;
+            }
+            
+            if (self::isPublicHoliday($date) && !self::isWeekend($date)) {
+                // Usually we only pay for public holidays that fall on weekdays, 
+                // but the user's formula "Basic Pay = (Actual Checked-in Days + Public Holidays in that month)"
+                // typically implies ALL public holidays, or just weekday ones.
+                // Assuming all public holidays are counted.
+                // Wait, if a public holiday is on a weekend, it shouldn't be counted twice if weekends are already off,
+                // but if we are counting "Paid Days", usually weekends are unpaid or paid in basic salary.
+                // Since Daily Rate = Basic / 30, it implies all 30 days are paid. Wait.
+                // If Daily Rate = Basic / 30, and employee checks in 22 days, 22 * Daily Rate is only ~73% of salary.
+                // This means weekends are NOT checked in. So 22 working days * (Basic/30) = low pay!
+                // Let me count ALL public holidays.
+                $count++;
+            } else if (self::isPublicHoliday($date) && self::isWeekend($date)) {
+                $count++;
+            }
+        }
+        
+        return $count;
+    }
 }

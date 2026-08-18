@@ -8,11 +8,13 @@ class OvertimeAssign {
     public $OvertimeID;
     public $EmpID;
     public $OvertimeDate;
-    public $OvertimeHours;
-    public $OTRate;
-    public $OTAmount;
     public $StartTime;
     public $EndTime;
+    public $TotalHours;
+    public $RateMultiplier;
+    public $OTAmount;
+    public $Status;
+    public $ApprovedBy;
 
     public function __construct() {
         $database = new Database();
@@ -39,16 +41,23 @@ class OvertimeAssign {
 
     public function create() {
         $query = "INSERT INTO " . $this->table . " 
-                  (EmpID, OvertimeDate, StartTime, EndTime, OvertimeHours, OTRate, OTAmount) 
-                  VALUES (:emp_id, :overtime_date, :start_time, :end_time, :hours, :rate, :amount)";
+                  (EmpID, OvertimeDate, StartTime, EndTime, TotalHours, RateMultiplier, OTAmount, Status, ApprovedBy) 
+                  VALUES (:emp_id, :overtime_date, :start_time, :end_time, :hours, :rate, :amount, :status, :approved_by)";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':emp_id', $this->EmpID);
         $stmt->bindParam(':overtime_date', $this->OvertimeDate);
         $stmt->bindParam(':start_time', $this->StartTime);
         $stmt->bindParam(':end_time', $this->EndTime);
-        $stmt->bindParam(':hours', $this->OvertimeHours);
-        $stmt->bindParam(':rate', $this->OTRate);
+        $stmt->bindParam(':hours', $this->TotalHours);
+        $stmt->bindParam(':rate', $this->RateMultiplier);
         $stmt->bindParam(':amount', $this->OTAmount);
+        
+        $status = $this->Status ?? 'Pending';
+        $stmt->bindParam(':status', $status);
+        
+        $approvedBy = $this->ApprovedBy ?? null;
+        $stmt->bindParam(':approved_by', $approvedBy);
+        
         return $stmt->execute();
     }
 
@@ -56,15 +65,15 @@ class OvertimeAssign {
         $query = "UPDATE " . $this->table . " 
                   SET EmpID = :emp_id, OvertimeDate = :overtime_date, 
                       StartTime = :start_time, EndTime = :end_time,
-                      OvertimeHours = :hours, OTRate = :rate, OTAmount = :amount 
+                      TotalHours = :hours, RateMultiplier = :rate, OTAmount = :amount 
                   WHERE OvertimeID = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':emp_id', $this->EmpID);
         $stmt->bindParam(':overtime_date', $this->OvertimeDate);
         $stmt->bindParam(':start_time', $this->StartTime);
         $stmt->bindParam(':end_time', $this->EndTime);
-        $stmt->bindParam(':hours', $this->OvertimeHours);
-        $stmt->bindParam(':rate', $this->OTRate);
+        $stmt->bindParam(':hours', $this->TotalHours);
+        $stmt->bindParam(':rate', $this->RateMultiplier);
         $stmt->bindParam(':amount', $this->OTAmount);
         $stmt->bindParam(':id', $this->OvertimeID);
         return $stmt->execute();
@@ -98,8 +107,8 @@ class OvertimeAssign {
     }
 
     public function getMonthlyHours($emp_id, $year, $month, $exclude_id = null) {
-        $query = "SELECT SUM(OvertimeHours) as total_hours FROM " . $this->table . " 
-                  WHERE EmpID = :emp_id AND YEAR(OvertimeDate) = :year AND MONTH(OvertimeDate) = :month";
+        $query = "SELECT SUM(TotalHours) as total_hours FROM " . $this->table . " 
+                  WHERE EmpID = :emp_id AND YEAR(OvertimeDate) = :year AND MONTH(OvertimeDate) = :month AND Status = 'Approved'";
         if ($exclude_id) {
             $query .= " AND OvertimeID != :exclude_id";
         }
@@ -144,7 +153,7 @@ class OvertimeAssign {
     public function updateStatus($id, $status, $approvedBy = null) {
         $query = "UPDATE " . $this->table . " SET Status = :status";
         if ($approvedBy) {
-            $query .= ", ApprovedBy = :app_by, ApprovedAt = NOW()";
+            $query .= ", ApprovedBy = :app_by";
         }
         $query .= " WHERE OvertimeID = :id";
         $stmt = $this->conn->prepare($query);
@@ -154,95 +163,5 @@ class OvertimeAssign {
             $stmt->bindParam(':app_by', $approvedBy);
         }
         return $stmt->execute();
-    }
-
-    public function acceptReject($id, $emp_id, $status, $response = null) {
-        $query = "UPDATE " . $this->table . " 
-                  SET Status = :status, EmployeeResponse = :resp, AcceptedAt = NOW() 
-                  WHERE OvertimeID = :id AND EmpID = :emp_id";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':status', $status);
-        $stmt->bindParam(':resp', $response);
-        $stmt->bindParam(':id', $id);
-        $stmt->bindParam(':emp_id', $emp_id);
-        return $stmt->execute();
-    }
-
-    public function otCheckIn($id, $emp_id, $datetime) {
-        $query = "UPDATE " . $this->table . " 
-                  SET Status = 'In Progress', OTCheckIn = :dt 
-                  WHERE OvertimeID = :id AND EmpID = :emp_id";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':dt', $datetime);
-        $stmt->bindParam(':id', $id);
-        $stmt->bindParam(':emp_id', $emp_id);
-        return $stmt->execute();
-    }
-
-    public function otCheckOut($id, $emp_id, $datetime, $actual_hours) {
-        $query = "UPDATE " . $this->table . " 
-                  SET Status = 'Completed', OTCheckOut = :dt, ActualOTHours = :ah 
-                  WHERE OvertimeID = :id AND EmpID = :emp_id";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':dt', $datetime);
-        $stmt->bindParam(':ah', $actual_hours);
-        $stmt->bindParam(':id', $id);
-        $stmt->bindParam(':emp_id', $emp_id);
-        return $stmt->execute();
-    }
-
-    public function processNoShows() {
-        // Any accepted OT where the scheduled EndTime has passed, but hasn't been checked in
-        $query = "UPDATE " . $this->table . " 
-                  SET Status = 'No Show' 
-                  WHERE Status = 'Accepted' 
-                  AND CONCAT(OvertimeDate, ' ', EndTime) < NOW() 
-                  AND OTCheckIn IS NULL";
-        $stmt = $this->conn->prepare($query);
-        return $stmt->execute();
-    }
-
-    public function processAutoCheckouts() {
-        // First ensure the column exists (safe to run once)
-        try {
-            $this->conn->exec("ALTER TABLE " . $this->table . " ADD COLUMN is_auto_checkout TINYINT(1) DEFAULT 0");
-        } catch (PDOException $e) {
-            // Column already exists, ignore
-        }
-
-        $currentTime = date('Y-m-d H:i:s');
-        
-        // Find overtimes that are in progress and 5 minutes past their scheduled EndTime
-        $query = "SELECT * FROM " . $this->table . " 
-                  WHERE Status = 'In Progress' 
-                  AND :current_time >= DATE_ADD(CONCAT(OvertimeDate, ' ', EndTime), INTERVAL 5 MINUTE)";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':current_time', $currentTime);
-        $stmt->execute();
-        $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        if (empty($records)) {
-            return;
-        }
-
-        $updateQuery = "UPDATE " . $this->table . " 
-                        SET Status = 'Completed', OTCheckOut = :dt, ActualOTHours = :ah, is_auto_checkout = 1
-                        WHERE OvertimeID = :id";
-        $updateStmt = $this->conn->prepare($updateQuery);
-
-        foreach ($records as $record) {
-            // Set check-out time to exactly 5 minutes after scheduled EndTime
-            $scheduledEndDateTime = $record['OvertimeDate'] . ' ' . $record['EndTime'];
-            $outTime = strtotime($scheduledEndDateTime) + (5 * 60);
-            $outTimeStr = date('Y-m-d H:i:s', $outTime);
-
-            $inTime = strtotime($record['OTCheckIn']);
-            $actualHours = round(($outTime - $inTime) / 3600, 2);
-
-            $updateStmt->bindParam(':dt', $outTimeStr);
-            $updateStmt->bindParam(':ah', $actualHours);
-            $updateStmt->bindParam(':id', $record['OvertimeID']);
-            $updateStmt->execute();
-        }
     }
 }
