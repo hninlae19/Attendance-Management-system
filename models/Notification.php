@@ -1,14 +1,12 @@
 <?php
+/**
+ * Notification Model (Deprecated / No-Op)
+ * All real-time notifications are now computed dynamically from status columns in
+ * leaverequest, overtimeassign, payroll, and employee tables with session tracking.
+ */
 class Notification {
-    private $conn;
-    private $table = 'notifications';
-
-    public function __construct() {
-        $database = new Database();
-        $this->conn = $database->getConnection();
-    }
-
     public function create($user_id, $message, $type = 'info', $link = '#', $title = 'System Notification', $sender_id = null) {
+        // No-op: Notifications are purely status-driven now
         return true;
     }
 
@@ -28,4 +26,3 @@ class Notification {
         return true;
     }
 }
-

@@ -1,5 +1,5 @@
 <!-- ============ EMPLOYEE HERO BANNER WITH 3D MASCOT ============ -->
-<div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#180f33] via-[#241447] to-[#121c3b] border border-violet-500/25 p-6 lg:p-8 mb-8 shadow-2xl" data-aos="fade-down">
+<div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600 via-violet-500 to-cyan-500 border border-violet-500/25 p-6 lg:p-8 mb-8 shadow-2xl" data-aos="fade-down">
     <!-- Ambient Glows -->
     <div class="absolute -right-20 -top-20 w-80 h-80 bg-violet-600/20 rounded-full blur-3xl pointer-events-none"></div>
     <div class="absolute right-1/3 -bottom-20 w-72 h-72 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none"></div>
@@ -170,9 +170,9 @@
                         <p class="text-xs text-gray-400 mb-4">Your working hours have been logged successfully.</p>
                         
                         <div class="flex justify-between items-center text-xs px-4 py-2.5 bg-darker/60 rounded-xl border border-violet-900/30">
-                            <span class="text-gray-400">IN: <strong class="text-emerald-300"><?= date('h:i A', strtotime($data['todayRecord']['CheckInTime'])) ?></strong></span>
+                            <span class="text-gray-400">IN: <strong class="text-emerald-300"><?= !empty($data['todayRecord']['CheckInTime']) ? date('h:i A', strtotime($data['todayRecord']['CheckInTime'])) : '--:--' ?></strong></span>
                             <span class="text-gray-600">|</span>
-                            <span class="text-gray-400">OUT: <strong class="text-cyan-300"><?= date('h:i A', strtotime($data['todayRecord']['CheckOutTime'])) ?></strong>
+                            <span class="text-gray-400">OUT: <strong class="text-cyan-300"><?= !empty($data['todayRecord']['CheckOutTime']) ? date('h:i A', strtotime($data['todayRecord']['CheckOutTime'])) : '--:--' ?></strong>
                                 <?php if(isset($data['todayRecord']['is_auto_checkout']) && $data['todayRecord']['is_auto_checkout'] == 1): ?>
                                     <span class="ml-1 text-[9px] bg-rose-900/50 text-rose-300 px-1.5 py-0.5 rounded-full border border-rose-800/50" title="System Auto Check-Out">Auto</span>
                                 <?php endif; ?>

@@ -4,6 +4,15 @@ class EmployeeController extends Controller {
         if(!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'Employee') {
             $this->redirect('/payrollsystem/auth/login');
         }
+
+        $url = isset($_GET['url']) ? explode('/', rtrim($_GET['url'], '/')) : [];
+        $method = $url[1] ?? 'index';
+
+        if (isset($_SESSION['is_first_login']) && $_SESSION['is_first_login'] == 1) {
+            if ($method !== 'first_login' && $method !== 'changeFirstPassword') {
+                $this->redirect('/payrollsystem/employee/first_login');
+            }
+        }
     }
 
     public function index() {
@@ -437,5 +446,50 @@ class EmployeeController extends Controller {
             }
         }
         $this->redirect('/payrollsystem/employee/profile');
+    }
+    public function first_login() {
+        if (!isset($_SESSION['is_first_login']) || $_SESSION['is_first_login'] != 1) {
+            $this->redirect('/payrollsystem/employee');
+        }
+        
+        $this->view('employee/first_login', ['title' => 'Change Default Password']);
+    }
+
+    public function changeFirstPassword() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $this->validateCsrfToken($_POST['csrf_token'] ?? '');
+            
+            $emp_id = $_SESSION['employee_id'];
+            $new_password = $_POST['new_password'];
+            $confirm_password = $_POST['confirm_password'];
+
+            if (strlen($new_password) < 6) {
+                $this->view('employee/first_login', ['title' => 'Change Default Password', 'error' => 'New password must be at least 6 characters.']);
+                return;
+            }
+
+            if ($new_password !== $confirm_password) {
+                $this->view('employee/first_login', ['title' => 'Change Default Password', 'error' => 'New passwords do not match.']);
+                return;
+            }
+
+            $db = new Database();
+            $conn = $db->getConnection();
+            $query = "UPDATE employee SET Password = :pwd, is_first_login = 0 WHERE EmpID = :id";
+            $stmt = $conn->prepare($query);
+            $hash = password_hash($new_password, PASSWORD_DEFAULT);
+            $stmt->bindParam(':pwd', $hash);
+            $stmt->bindParam(':id', $emp_id);
+            
+            if ($stmt->execute()) {
+                $_SESSION['is_first_login'] = 0;
+                $_SESSION['flash_success'] = 'Password changed successfully. Welcome to your dashboard!';
+                $this->redirect('/payrollsystem/employee');
+            } else {
+                $this->view('employee/first_login', ['title' => 'Change Default Password', 'error' => 'Failed to change password.']);
+            }
+        } else {
+            $this->redirect('/payrollsystem/employee/first_login');
+        }
     }
 }

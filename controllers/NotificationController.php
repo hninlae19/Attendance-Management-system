@@ -15,6 +15,11 @@ class NotificationController extends Controller {
             exit;
         }
 
+        // Initialize session array to track notified records during current login session
+        if (!isset($_SESSION['notified_items']) || !is_array($_SESSION['notified_items'])) {
+            $_SESSION['notified_items'] = [];
+        }
+
         $action = $_GET['action'] ?? 'get';
 
         if ($action === 'get') {
@@ -23,102 +28,161 @@ class NotificationController extends Controller {
             $role = $_SESSION['role'] ?? '';
             $userId = $_SESSION['user_id'];
             $alerts = [];
-            $idCounter = 1;
+            $newAlertsCount = 0;
 
             if ($role === 'Admin') {
-                // 1. Pending Leave Requests
-                $stmt = $conn->query("SELECT COUNT(*) FROM leaverequest WHERE Status = 'Pending'");
-                $pendingLeaves = $stmt->fetchColumn();
-                if ($pendingLeaves > 0) {
+                // 1. Pending Leave Requests (Admin view)
+                $stmt = $conn->query("SELECT RequestID, EmpID, StartDate FROM leaverequest WHERE Status = 'Pending'");
+                $pendingLeaves = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                foreach ($pendingLeaves as $leave) {
+                    $key = "admin_leave_" . $leave['RequestID'];
+                    $isNew = !in_array($key, $_SESSION['notified_items']);
+                    if ($isNew) {
+                        $_SESSION['notified_items'][] = $key;
+                        $newAlertsCount++;
+                    }
                     $alerts[] = [
-                        'id' => $idCounter++,
-                        'title' => 'Pending Leave Requests',
-                        'message' => "There are $pendingLeaves leave request(s) awaiting approval.",
+                        'id' => $key,
+                        'title' => 'Pending Leave Request',
+                        'message' => "Leave request for " . $leave['StartDate'] . " requires approval.",
                         'type' => 'warning',
                         'link' => '/admin/leaves',
+                        'is_new' => $isNew,
                         'created_at' => date('Y-m-d H:i:s')
                     ];
                 }
 
-                // 2. Pending Overtime Assignments
-                $stmt = $conn->query("SELECT COUNT(*) FROM overtimeassign WHERE Status = 'Pending' AND EmployeeResponse != 'None'");
-                $pendingOT = $stmt->fetchColumn();
-                if ($pendingOT > 0) {
+                // 2. Pending Overtime Assignments (Admin view)
+                $stmt = $conn->query("SELECT OvertimeID, OvertimeDate FROM overtimeassign WHERE Status = 'Pending' AND EmployeeResponse != 'None'");
+                $pendingOT = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                foreach ($pendingOT as $ot) {
+                    $key = "admin_ot_" . $ot['OvertimeID'];
+                    $isNew = !in_array($key, $_SESSION['notified_items']);
+                    if ($isNew) {
+                        $_SESSION['notified_items'][] = $key;
+                        $newAlertsCount++;
+                    }
                     $alerts[] = [
-                        'id' => $idCounter++,
-                        'title' => 'Overtime Responses',
-                        'message' => "There are $pendingOT overtime assignment(s) requiring admin review.",
+                        'id' => $key,
+                        'title' => 'Overtime Response',
+                        'message' => "Overtime response for " . $ot['OvertimeDate'] . " is ready for review.",
                         'type' => 'info',
-                        'link' => '/admin/overtime',
+                        'link' => '/admin/overtime_assignments',
+                        'is_new' => $isNew,
                         'created_at' => date('Y-m-d H:i:s')
                     ];
                 }
 
                 // 3. Password Reset Requests
-                $stmt = $conn->query("SELECT COUNT(*) FROM employee WHERE PasswordResetRequest = 1 AND Status = 'Active'");
-                $pendingResets = $stmt->fetchColumn();
-                if ($pendingResets > 0) {
+                $stmt = $conn->query("SELECT EmpID, FirstName, LastName FROM employee WHERE PasswordResetRequest = 1 AND Status = 'Active'");
+                $pendingResets = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                foreach ($pendingResets as $emp) {
+                    $key = "admin_reset_" . $emp['EmpID'];
+                    $isNew = !in_array($key, $_SESSION['notified_items']);
+                    if ($isNew) {
+                        $_SESSION['notified_items'][] = $key;
+                        $newAlertsCount++;
+                    }
                     $alerts[] = [
-                        'id' => $idCounter++,
-                        'title' => 'Password Reset Requests',
-                        'message' => "There are $pendingResets employee(s) requesting a password reset.",
+                        'id' => $key,
+                        'title' => 'Password Reset Request',
+                        'message' => $emp['FirstName'] . " " . $emp['LastName'] . " requested a password reset.",
                         'type' => 'error',
                         'link' => '/admin/password_resets',
+                        'is_new' => $isNew,
                         'created_at' => date('Y-m-d H:i:s')
                     ];
                 }
+
             } elseif ($role === 'Employee') {
-                // 1. Leave Requests status changes (Only for upcoming leaves)
-                $stmt = $conn->prepare("SELECT Status, StartDate FROM leaverequest WHERE EmpID = ? AND Status != 'Pending' AND StartDate >= CURDATE() ORDER BY StartDate ASC");
+                // =========================================================
+                // 1. LEAVE REQUESTS: Trigger on 'Approved' or 'Rejected'
+                // =========================================================
+                $stmt = $conn->prepare("SELECT RequestID, Status, StartDate, EndDate FROM leaverequest WHERE EmpID = ? AND Status IN ('Approved', 'Rejected') ORDER BY RequestID DESC");
                 $stmt->execute([$userId]);
-                $upcomingLeaves = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                foreach ($upcomingLeaves as $leave) {
+                $leaves = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                foreach ($leaves as $leave) {
+                    $itemKey = "leave_" . $leave['RequestID'] . "_" . strtolower($leave['Status']);
+                    $isNew = !in_array($itemKey, $_SESSION['notified_items']);
+                    
+                    if ($isNew) {
+                        $_SESSION['notified_items'][] = $itemKey;
+                        $newAlertsCount++;
+                    }
+
                     $alerts[] = [
-                        'id' => $idCounter++,
+                        'id' => $itemKey,
                         'title' => 'Leave Request ' . $leave['Status'],
-                        'message' => "Your upcoming leave starting on {$leave['StartDate']} has been {$leave['Status']}.",
+                        'message' => "Your leave request for {$leave['StartDate']} to {$leave['EndDate']} has been {$leave['Status']}.",
                         'type' => $leave['Status'] === 'Approved' ? 'success' : 'error',
                         'link' => '/employee/leaves',
+                        'is_new' => $isNew,
                         'created_at' => date('Y-m-d H:i:s')
                     ];
                 }
 
-                // 2. Overtime Assignments (Pending user response)
-                $stmt = $conn->prepare("SELECT OvertimeDate FROM overtimeassign WHERE EmpID = ? AND Status = 'Pending' AND EmployeeResponse = 'None'");
+                // =========================================================
+                // 2. OVERTIME ASSIGNMENTS: Trigger on Pending or Approved
+                // =========================================================
+                $stmt = $conn->prepare("SELECT OvertimeID, OvertimeDate, Status, EmployeeResponse FROM overtimeassign WHERE EmpID = ? AND (Status = 'Pending' AND EmployeeResponse = 'None' OR Status IN ('Approved', 'Accepted')) ORDER BY OvertimeID DESC");
                 $stmt->execute([$userId]);
-                $pendingOT = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                foreach ($pendingOT as $ot) {
+                $overtimes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                foreach ($overtimes as $ot) {
+                    $itemKey = "ot_" . $ot['OvertimeID'] . "_" . strtolower($ot['Status']);
+                    $isNew = !in_array($itemKey, $_SESSION['notified_items']);
+                    
+                    if ($isNew) {
+                        $_SESSION['notified_items'][] = $itemKey;
+                        $newAlertsCount++;
+                    }
+
                     $alerts[] = [
-                        'id' => $idCounter++,
-                        'title' => 'New Overtime Assignment',
-                        'message' => "You have been assigned overtime on {$ot['OvertimeDate']}. Please review and respond.",
+                        'id' => $itemKey,
+                        'title' => 'Overtime Assignment',
+                        'message' => "Overtime scheduled on {$ot['OvertimeDate']} is {$ot['Status']}.",
                         'type' => 'info',
                         'link' => '/employee/overtime',
+                        'is_new' => $isNew,
                         'created_at' => date('Y-m-d H:i:s')
                     ];
                 }
 
-                // 3. Payroll (Only for the current month)
-                $currentMonthStr = date('F Y');
-                $stmt = $conn->prepare("SELECT PayrollMonth, Status FROM payroll WHERE EmpID = ? AND PayrollMonth = ?");
-                $stmt->execute([$userId, $currentMonthStr]);
-                $currentPayroll = $stmt->fetch(PDO::FETCH_ASSOC);
-                if ($currentPayroll) {
+                // =========================================================
+                // 3. PAYROLL: Trigger on 'Approved' or 'Paid'
+                // =========================================================
+                $stmt = $conn->prepare("SELECT PayrollID, PayrollMonth, Status, NetSalary FROM payroll WHERE EmpID = ? AND Status IN ('Approved', 'Paid') ORDER BY PayrollID DESC");
+                $stmt->execute([$userId]);
+                $payrolls = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                foreach ($payrolls as $pr) {
+                    $itemKey = "payroll_" . $pr['PayrollID'] . "_" . strtolower($pr['Status']);
+                    $isNew = !in_array($itemKey, $_SESSION['notified_items']);
+                    
+                    if ($isNew) {
+                        $_SESSION['notified_items'][] = $itemKey;
+                        $newAlertsCount++;
+                    }
+
                     $alerts[] = [
-                        'id' => $idCounter++,
+                        'id' => $itemKey,
                         'title' => 'Salary Update',
-                        'message' => "Your salary for {$currentPayroll['PayrollMonth']} is currently {$currentPayroll['Status']}.",
-                        'type' => $currentPayroll['Status'] === 'Paid' ? 'success' : 'warning',
-                        'link' => '/employee/payroll',
+                        'message' => "Your salary for {$pr['PayrollMonth']} has been {$pr['Status']}.",
+                        'type' => $pr['Status'] === 'Paid' ? 'success' : 'warning',
+                        'link' => '/employee/salary_history',
+                        'is_new' => $isNew,
                         'created_at' => date('Y-m-d H:i:s')
                     ];
                 }
             }
 
-            echo json_encode(['unread_count' => count($alerts), 'notifications' => $alerts]);
+            echo json_encode([
+                'unread_count' => count($alerts),
+                'new_count' => $newAlertsCount,
+                'notifications' => $alerts
+            ]);
         } else {
             echo json_encode(['success' => true]);
         }
         exit;
     }
 }
+

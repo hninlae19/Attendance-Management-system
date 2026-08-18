@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $data['title'] ?? 'Forgot Password' ?> — Attendance & Payroll</title>
+    <title><?= $data['title'] ?? 'Change Default Password' ?> — Attendance & Payroll</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -59,13 +59,13 @@
             
             <div class="w-20 h-20 mx-auto mb-3 rounded-2xl overflow-hidden shadow-xl border-2 border-white/40 p-1 bg-white/20 backdrop-blur-md animate__animated animate__bounceIn flex items-center justify-center">
                 <div class="w-full h-full bg-white/20 rounded-xl flex items-center justify-center">
-                    <i class="fa-solid fa-key text-3xl text-yellow-300"></i>
+                    <i class="fa-solid fa-shield-halved text-3xl text-yellow-300"></i>
                 </div>
             </div>
             
-            <h2 class="text-2xl font-extrabold tracking-tight font-outfit text-white drop-shadow-sm">Forgot <span class="gradient-gold font-extrabold">Password</span></h2>
-            <p class="text-[11px] uppercase tracking-[0.22em] text-cyan-200 font-extrabold mt-0.5">Account Recovery</p>
-            <p class="text-xs text-indigo-100 mt-2 font-medium">Enter your registered email to request an admin password reset.</p>
+            <h2 class="text-2xl font-extrabold tracking-tight font-outfit text-white drop-shadow-sm">Security <span class="gradient-gold font-extrabold">Update</span></h2>
+            <p class="text-[11px] uppercase tracking-[0.22em] text-cyan-200 font-extrabold mt-0.5">Required Action</p>
+            <p class="text-xs text-indigo-100 mt-2 font-medium">Please change your default password before accessing your portal.</p>
         </div>
         
         <div class="p-8">
@@ -75,43 +75,48 @@
                     <span><?= htmlspecialchars($data['error']) ?></span>
                 </div>
             <?php endif; ?>
-            <?php if(isset($data['success'])): ?>
-                <div class="bg-emerald-50 text-emerald-700 p-3.5 rounded-2xl text-xs font-semibold mb-6 border border-emerald-200 flex items-center gap-2.5 shadow-sm">
-                    <i class="fa-solid fa-circle-check text-base text-emerald-500"></i>
-                    <span><?= htmlspecialchars($data['success']) ?></span>
-                </div>
-            <?php endif; ?>
 
-            <form action="/payrollsystem/auth/forgot_password_submit" method="POST" class="space-y-5">
+            <form action="/payrollsystem/employee/changeFirstPassword" method="POST" class="space-y-5" id="resetForm">
                 <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
 
                 <div class="animate__animated animate__fadeInLeft" style="animation-delay: 0.1s;">
-                    <label for="email" class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1.5">Registered Email</label>
+                    <label for="new_password" class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1.5">New Password</label>
                     <div class="relative group">
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                            <i class="fa-solid fa-envelope text-slate-400 group-focus-within:text-indigo-600 transition-colors text-xs"></i>
+                            <i class="fa-solid fa-lock text-slate-400 group-focus-within:text-indigo-600 transition-colors text-xs"></i>
                         </div>
-                        <input type="email" name="email" id="email" class="pl-10 w-full px-4 py-3 bg-slate-50 border border-slate-200 text-slate-900 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-xs font-medium transition-all shadow-sm placeholder-slate-400" placeholder="you@company.com" required>
+                        <input type="password" name="new_password" id="new_password" class="pl-10 w-full px-4 py-3 bg-slate-50 border border-slate-200 text-slate-900 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-xs font-medium transition-all shadow-sm placeholder-slate-400" placeholder="Enter new password (min. 6 chars)" required>
                     </div>
                 </div>
 
-                <div class="animate__animated animate__fadeInUp pt-2" style="animation-delay: 0.2s;">
-                    <button type="submit" class="relative w-full flex justify-center py-3.5 px-4 rounded-xl shadow-lg shadow-indigo-500/25 text-xs font-extrabold text-white bg-gradient-to-r from-indigo-600 via-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] overflow-hidden group">
+                <div class="animate__animated animate__fadeInRight" style="animation-delay: 0.2s;">
+                    <label for="confirm_password" class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1.5">Confirm Password</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                            <i class="fa-solid fa-lock text-slate-400 group-focus-within:text-indigo-600 transition-colors text-xs"></i>
+                        </div>
+                        <input type="password" name="confirm_password" id="confirm_password" class="pl-10 pr-11 w-full px-4 py-3 bg-slate-50 border border-slate-200 text-slate-900 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-xs font-medium transition-all shadow-sm placeholder-slate-400" placeholder="Re-enter new password" required>
+                    </div>
+                </div>
+
+                <div class="animate__animated animate__fadeInUp pt-2" style="animation-delay: 0.3s;">
+                    <button type="submit" id="submitBtn" class="relative w-full flex justify-center py-3.5 px-4 rounded-xl shadow-lg shadow-indigo-500/25 text-xs font-extrabold text-white bg-gradient-to-r from-indigo-600 via-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] overflow-hidden group">
                         <span class="relative flex items-center gap-2 tracking-wider uppercase">
-                            <span>Request Password Reset</span>
-                            <i class="fa-solid fa-paper-plane text-xs"></i>
+                            <span>UPDATE PASSWORD & CONTINUE</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
                         </span>
                     </button>
-                </div>
-                
-                <div class="text-center pt-2 animate__animated animate__fadeIn" style="animation-delay: 0.3s;">
-                    <a href="/payrollsystem/auth/login" class="text-xs font-extrabold text-indigo-600 hover:text-indigo-700 transition-colors inline-flex items-center gap-1.5">
-                        <i class="fa-solid fa-arrow-left text-[10px]"></i>
-                        <span>Back to Login</span>
-                    </a>
                 </div>
             </form>
         </div>
     </div>
+
+    <script>
+        document.getElementById('resetForm').addEventListener('submit', function() {
+            const btn = document.getElementById('submitBtn');
+            btn.innerHTML = '<span class="relative flex items-center"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Updating...</span>';
+            btn.classList.add('opacity-80', 'cursor-not-allowed');
+        });
+    </script>
 </body>
 </html>

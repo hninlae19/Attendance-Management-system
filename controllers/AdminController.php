@@ -17,7 +17,7 @@ class AdminController extends Controller {
         $today = date('Y-m-d');
         $presentToday = count(array_filter($attendance, fn($a) => $a['AttendanceDate'] === $today && $a['Status'] === 'Present'));
         $lateToday = count(array_filter($attendance, fn($a) => $a['AttendanceDate'] === $today && $a['Status'] === 'Late'));
-        $absentToday = count(array_filter($attendance, fn($a) => $a['AttendanceDate'] === $today && ($a['Status'] === 'Full-Day Absence' || $a['Status'] === 'Half-Day Absence')));
+        $absentToday = count(array_filter($attendance, fn($a) => $a['AttendanceDate'] === $today && ($a['Status'] === 'Absent' || $a['Status'] === 'Half Day')));
         // Employees on approved leave today
         $db = new Database();
         $conn = $db->getConnection();
@@ -71,7 +71,7 @@ class AdminController extends Controller {
         $today = date('Y-m-d');
         $presentToday = count(array_filter($attendance, function($a) use ($today) { return $a['AttendanceDate'] == $today && $a['Status'] == 'Present'; }));
         $lateToday = count(array_filter($attendance, function($a) use ($today) { return $a['AttendanceDate'] == $today && $a['Status'] == 'Late'; }));
-        $absentToday = count(array_filter($attendance, function($a) use ($today) { return $a['AttendanceDate'] == $today && $a['Status'] == 'Absent'; }));
+        $absentToday = count(array_filter($attendance, function($a) use ($today) { return $a['AttendanceDate'] == $today && ($a['Status'] == 'Absent' || $a['Status'] == 'Half Day'); }));
         
         $recentAttendance = array_slice($attendance, 0, 5);
 
@@ -439,8 +439,25 @@ class AdminController extends Controller {
             if (!empty($_GET['date_end']) && $item['date'] > $_GET['date_end']) $match = false;
             if (!empty($_GET['department_id']) && $item['department_id'] != $_GET['department_id']) $match = false;
             if (!empty($_GET['employee_id']) && $item['employee_id'] != $_GET['employee_id']) $match = false;
-            if (!empty($_GET['status']) && $item['status'] != $_GET['status']) $match = false;
-            
+            if (!empty($_GET['status'])) {
+                $f = strtolower(trim($_GET['status']));
+                $s = strtolower(trim($item['status'] ?? ''));
+                $statusMatch = ($f === $s);
+                if (!$statusMatch) {
+                    if ($f === 'present' && $s === 'present') {
+                        $statusMatch = true;
+                    } elseif ($f === 'late' && (strpos($s, 'late') !== false)) {
+                        $statusMatch = true;
+                    } elseif (($f === 'half day' || $f === 'half-day absence' || $f === 'half-day') && (strpos($s, 'half') !== false)) {
+                        $statusMatch = true;
+                    } elseif (($f === 'absent' || $f === 'full-day absence' || $f === 'full day absence' || $f === 'full day') && (strpos($s, 'absent') !== false || strpos($s, 'absence') !== false)) {
+                        $statusMatch = true;
+                    } elseif ($f === 'on leave' && (strpos($s, 'leave') !== false)) {
+                        $statusMatch = true;
+                    }
+                }
+                if (!$statusMatch) $match = false;
+            }
             if (!empty($_GET['search'])) {
                 $search = strtolower($_GET['search']);
                 $name = strtolower($item['first_name'] . ' ' . $item['last_name']);

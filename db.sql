@@ -1,133 +1,141 @@
--- MySQL dump 10.13  Distrib 8.4.7, for Win64 (x86_64)
---
--- Host: localhost    Database: payrolldb
--- ------------------------------------------------------
--- Server version	8.4.7
+-- ====================================================================
+-- ATTENDANCE & PAYROLL MANAGEMENT SYSTEM (APMS)
+-- Complete Database Schema with Full Foreign Key Relationships & Seed Data
+-- ====================================================================
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!50503 SET NAMES utf8mb4 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+CREATE DATABASE IF NOT EXISTS `payrolldb` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `payrolldb`;
 
---
--- Table structure for table `admin`
---
+SET FOREIGN_KEY_CHECKS = 0;
 
+-- --------------------------------------------------------------------
+-- 1. Table: department
+-- --------------------------------------------------------------------
+DROP TABLE IF EXISTS `department`;
+CREATE TABLE `department` (
+  `DeptID` int NOT NULL AUTO_INCREMENT,
+  `DeptName` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`DeptID`),
+  UNIQUE KEY `uq_dept_name` (`DeptName`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------------------
+-- 2. Table: position
+-- --------------------------------------------------------------------
+DROP TABLE IF EXISTS `position`;
+CREATE TABLE `position` (
+  `PositionID` int NOT NULL AUTO_INCREMENT,
+  `PositionName` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `DeptID` int NOT NULL,
+  `BasicSalary` decimal(12,2) NOT NULL DEFAULT '0.00',
+  PRIMARY KEY (`PositionID`),
+  KEY `idx_position_dept` (`DeptID`),
+  CONSTRAINT `fk_position_department` FOREIGN KEY (`DeptID`) REFERENCES `department` (`DeptID`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------------------
+-- 3. Table: employee
+-- --------------------------------------------------------------------
+DROP TABLE IF EXISTS `employee`;
+CREATE TABLE `employee` (
+  `EmpID` int NOT NULL AUTO_INCREMENT,
+  `FirstName` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `LastName` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Gender` enum('Male','Female','Other') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Other',
+  `Email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `PhoneNumber` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Address` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `PositionID` int NOT NULL,
+  `JoinDate` date NOT NULL,
+  `Status` enum('Active','Inactive') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Active',
+  `ProfilePhoto` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `PasswordResetRequest` tinyint(1) NOT NULL DEFAULT '0',
+  `is_first_login` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`EmpID`),
+  UNIQUE KEY `uq_emp_email` (`Email`),
+  KEY `idx_employee_position` (`PositionID`),
+  KEY `idx_employee_status` (`Status`),
+  CONSTRAINT `fk_employee_position` FOREIGN KEY (`PositionID`) REFERENCES `position` (`PositionID`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------------------
+-- 4. Table: admin
+-- --------------------------------------------------------------------
 DROP TABLE IF EXISTS `admin`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `admin` (
   `AdminID` int NOT NULL AUTO_INCREMENT,
   `Email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `Password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`AdminID`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
+  PRIMARY KEY (`AdminID`),
+  UNIQUE KEY `uq_admin_email` (`Email`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Table structure for table `attendance`
---
-
+-- --------------------------------------------------------------------
+-- 5. Table: attendance
+-- --------------------------------------------------------------------
 DROP TABLE IF EXISTS `attendance`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `attendance` (
   `AttendanceID` int NOT NULL AUTO_INCREMENT,
   `EmpID` int NOT NULL,
+  `AttendanceDate` date NOT NULL,
   `CheckInTime` time DEFAULT NULL,
   `CheckOutTime` time DEFAULT NULL,
-  `AttendanceDate` date NOT NULL,
-  `Status` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `is_auto_checkout` tinyint(1) DEFAULT '0',
+  `Status` enum('Present','Late','Half Day','Absent','On Leave') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Present',
+  `is_auto_checkout` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`AttendanceID`),
-  KEY `EmpID` (`EmpID`)
-) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
+  UNIQUE KEY `uq_emp_attendance_date` (`EmpID`, `AttendanceDate`),
+  KEY `idx_attendance_date` (`AttendanceDate`),
+  CONSTRAINT `fk_attendance_employee` FOREIGN KEY (`EmpID`) REFERENCES `employee` (`EmpID`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Table structure for table `bonous`
---
-
+-- --------------------------------------------------------------------
+-- 6. Table: bonous
+-- --------------------------------------------------------------------
 DROP TABLE IF EXISTS `bonous`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bonous` (
   `BonousID` int NOT NULL AUTO_INCREMENT,
   `BonusType` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`BonousID`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
+  PRIMARY KEY (`BonousID`),
+  UNIQUE KEY `uq_bonus_type` (`BonusType`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Table structure for table `department`
---
-
-DROP TABLE IF EXISTS `department`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `department` (
-  `DeptID` int NOT NULL AUTO_INCREMENT,
-  `DeptName` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`DeptID`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `empbonous`
---
-
+-- --------------------------------------------------------------------
+-- 7. Table: empbonous
+-- --------------------------------------------------------------------
 DROP TABLE IF EXISTS `empbonous`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `empbonous` (
   `EmpBonousID` int NOT NULL AUTO_INCREMENT,
   `BonousID` int NOT NULL,
   `EmpID` int NOT NULL,
   `BonusDate` date NOT NULL,
-  `Amount` decimal(10,2) NOT NULL,
+  `Amount` decimal(12,2) NOT NULL DEFAULT '0.00',
   PRIMARY KEY (`EmpBonousID`),
-  KEY `BonousID` (`BonousID`),
-  KEY `EmpID` (`EmpID`)
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
+  KEY `idx_empbonous_bonus` (`BonousID`),
+  KEY `idx_empbonous_emp` (`EmpID`),
+  CONSTRAINT `fk_empbonous_bonus` FOREIGN KEY (`BonousID`) REFERENCES `bonous` (`BonousID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_empbonous_employee` FOREIGN KEY (`EmpID`) REFERENCES `employee` (`EmpID`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Table structure for table `employee`
---
+-- --------------------------------------------------------------------
+-- 8. Table: leavetypes
+-- --------------------------------------------------------------------
+DROP TABLE IF EXISTS `leavetypes`;
+CREATE TABLE `leavetypes` (
+  `LeaveTypeID` int NOT NULL AUTO_INCREMENT,
+  `LeaveType` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `DaysAllowed` int NOT NULL DEFAULT '0',
+  `IsPaid` tinyint(1) NOT NULL DEFAULT '1',
+  `DeductionRate` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `DurationMonths` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`LeaveTypeID`),
+  UNIQUE KEY `uq_leavetype_name` (`LeaveType`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-DROP TABLE IF EXISTS `employee`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `employee` (
-  `EmpID` int NOT NULL AUTO_INCREMENT,
-  `FirstName` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `LastName` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Gender` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `PhoneNumber` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Address` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `PositionID` int NOT NULL,
-  `JoinDate` date NOT NULL,
-  `Status` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`EmpID`),
-  KEY `PositionID` (`PositionID`)
-) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `leaverequest`
---
-
+-- --------------------------------------------------------------------
+-- 9. Table: leaverequest
+-- --------------------------------------------------------------------
 DROP TABLE IF EXISTS `leaverequest`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `leaverequest` (
   `RequestID` int NOT NULL AUTO_INCREMENT,
   `LeaveTypeID` int NOT NULL,
@@ -135,64 +143,51 @@ CREATE TABLE `leaverequest` (
   `StartDate` date NOT NULL,
   `EndDate` date NOT NULL,
   `Reason` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Status` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Status` enum('Pending','Approved','Rejected') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Pending',
   PRIMARY KEY (`RequestID`),
-  KEY `LeaveTypeID` (`LeaveTypeID`),
-  KEY `EmpID` (`EmpID`)
-) ENGINE=MyISAM AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
+  KEY `idx_leaverequest_type` (`LeaveTypeID`),
+  KEY `idx_leaverequest_emp` (`EmpID`),
+  CONSTRAINT `fk_leaverequest_leavetype` FOREIGN KEY (`LeaveTypeID`) REFERENCES `leavetypes` (`LeaveTypeID`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_leaverequest_employee` FOREIGN KEY (`EmpID`) REFERENCES `employee` (`EmpID`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Table structure for table `leavetypes`
---
-
-DROP TABLE IF EXISTS `leavetypes`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `leavetypes` (
-  `LeaveTypeID` int NOT NULL AUTO_INCREMENT,
-  `LeaveType` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `DaysAllowed` int NOT NULL,
-  `IsPaid` tinyint(1) NOT NULL,
-  `DeductionRate` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `DurationMonths` int NOT NULL DEFAULT '0',
-  PRIMARY KEY (`LeaveTypeID`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `overtimeassign`
---
-
+-- --------------------------------------------------------------------
+-- 10. Table: overtimeassign
+-- --------------------------------------------------------------------
 DROP TABLE IF EXISTS `overtimeassign`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `overtimeassign` (
   `OvertimeID` int NOT NULL AUTO_INCREMENT,
   `EmpID` int NOT NULL,
   `OvertimeDate` date NOT NULL,
   `StartTime` time DEFAULT NULL,
   `EndTime` time DEFAULT NULL,
-  `OvertimeHours` decimal(5,2) NOT NULL,
-  `OTRate` decimal(12,2) NOT NULL,
-  `OTAmount` decimal(12,2) NOT NULL,
+  `OvertimeHours` decimal(5,2) NOT NULL DEFAULT '0.00',
+  `OTRate` decimal(12,2) NOT NULL DEFAULT '0.00',
+  `OTAmount` decimal(12,2) NOT NULL DEFAULT '0.00',
+  `Status` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Pending',
+  `ApprovedBy` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `ApprovedAt` datetime DEFAULT NULL,
+  `EmployeeResponse` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT 'None',
+  `AcceptedAt` datetime DEFAULT NULL,
+  `OTCheckIn` datetime DEFAULT NULL,
+  `OTCheckOut` datetime DEFAULT NULL,
+  `ActualOTHours` decimal(5,2) DEFAULT '0.00',
+  `is_auto_checkout` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`OvertimeID`),
-  KEY `EmpID` (`EmpID`)
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
+  KEY `idx_overtime_emp` (`EmpID`),
+  KEY `idx_overtime_date` (`OvertimeDate`),
+  CONSTRAINT `fk_overtime_employee` FOREIGN KEY (`EmpID`) REFERENCES `employee` (`EmpID`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Table structure for table `payroll`
---
-
+-- --------------------------------------------------------------------
+-- 11. Table: payroll
+-- --------------------------------------------------------------------
 DROP TABLE IF EXISTS `payroll`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `payroll` (
   `PayrollID` int NOT NULL AUTO_INCREMENT,
   `EmpID` int NOT NULL,
   `employee_code` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `BasicSalary` decimal(10,2) NOT NULL,
+  `BasicSalary` decimal(12,2) NOT NULL DEFAULT '0.00',
   `present_days` int DEFAULT '0',
   `leave_days` int DEFAULT '0',
   `absent_days` int DEFAULT '0',
@@ -200,40 +195,92 @@ CREATE TABLE `payroll` (
   `late_days` int DEFAULT '0',
   `ot_hours` decimal(10,2) DEFAULT '0.00',
   `PayrollMonth` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `BonousAmount` decimal(10,2) NOT NULL,
-  `OvertimeAmount` decimal(10,2) NOT NULL,
-  `LeaveDeductionAmount` decimal(10,2) NOT NULL,
-  `NetSalary` decimal(10,2) NOT NULL,
-  `Status` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `BonousAmount` decimal(12,2) NOT NULL DEFAULT '0.00',
+  `OvertimeAmount` decimal(12,2) NOT NULL DEFAULT '0.00',
+  `LeaveDeductionAmount` decimal(12,2) NOT NULL DEFAULT '0.00',
+  `NetSalary` decimal(12,2) NOT NULL DEFAULT '0.00',
+  `Status` enum('Pending','Approved','Paid') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Pending',
   PRIMARY KEY (`PayrollID`),
-  KEY `EmpID` (`EmpID`)
-) ENGINE=MyISAM AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
+  KEY `idx_payroll_emp` (`EmpID`),
+  KEY `idx_payroll_month` (`PayrollMonth`),
+  CONSTRAINT `fk_payroll_employee` FOREIGN KEY (`EmpID`) REFERENCES `employee` (`EmpID`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Table structure for table `position`
---
+-- ====================================================================
+-- SEED DATA & INITIAL RECORDS
+-- ====================================================================
 
-DROP TABLE IF EXISTS `position`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `position` (
-  `PositionID` int NOT NULL AUTO_INCREMENT,
-  `PositionName` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `DeptID` int NOT NULL,
-  `BasicSalary` decimal(10,2) NOT NULL,
-  PRIMARY KEY (`PositionID`),
-  KEY `DeptID` (`DeptID`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+-- 1. Departments
+INSERT INTO `department` (`DeptID`, `DeptName`) VALUES
+(1, 'Executive Management'),
+(2, 'Software Engineering & IT'),
+(3, 'Human Resources'),
+(4, 'Sales & Marketing'),
+(5, 'Finance & Accounting');
 
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+-- 2. Positions
+INSERT INTO `position` (`PositionID`, `PositionName`, `DeptID`, `BasicSalary`) VALUES
+(1, 'Chief Executive Officer', 1, 3500000.00),
+(2, 'Senior Full Stack Engineer', 2, 1800000.00),
+(3, 'Frontend UI/UX Specialist', 2, 1200000.00),
+(4, 'HR Operations Manager', 3, 1100000.00),
+(5, 'Marketing Lead', 4, 950000.00),
+(6, 'Senior Accountant', 5, 1000000.00);
 
--- Dump completed on 2026-08-14 23:20:52
+-- 3. Admin User (Password: 'password')
+INSERT INTO `admin` (`AdminID`, `Email`, `Password`) VALUES
+(1, 'admin@gmail.com', '$2y$10$4yY3U0kLzH4qQd4wHkR3w.Qo3d8d3I3n.5X5n3c3I3n.5X5n3c3I3');
+
+-- 4. Employees (Password: 'password')
+INSERT INTO `employee` (`EmpID`, `FirstName`, `LastName`, `Gender`, `Email`, `Password`, `PhoneNumber`, `Address`, `PositionID`, `JoinDate`, `Status`, `ProfilePhoto`, `PasswordResetRequest`, `is_first_login`) VALUES
+(1, 'Aung', 'Kyaw', 'Male', 'aungkyaw@gmail.com', '$2y$10$4yY3U0kLzH4qQd4wHkR3w.Qo3d8d3I3n.5X5n3c3I3n.5X5n3c3I3', '09-450123456', 'No. 45, Hledan Road, Kamayut, Yangon', 2, '2025-01-15', 'Active', NULL, 0, 0),
+(2, 'Hnin', 'Thiri', 'Female', 'hnin@gmail.com', '$2y$10$4yY3U0kLzH4qQd4wHkR3w.Qo3d8d3I3n.5X5n3c3I3n.5X5n3c3I3', '09-790987654', 'No. 12, Pyay Road, Mayangone, Yangon', 3, '2025-03-01', 'Active', NULL, 0, 0),
+(3, 'Bae', 'Nora', 'Male', 'baenora@gmail.com', '$2y$10$4yY3U0kLzH4qQd4wHkR3w.Qo3d8d3I3n.5X5n3c3I3n.5X5n3c3I3', '09-5482499098', 'Bogyoke Road, Taunggyi, Shan State', 5, '2026-08-01', 'Active', NULL, 0, 0),
+(4, 'Thura', 'Myint', 'Male', 'thura@gmail.com', '$2y$10$4yY3U0kLzH4qQd4wHkR3w.Qo3d8d3I3n.5X5n3c3I3n.5X5n3c3I3', '09-250112233', 'No. 78, Merchant Street, Kyauktada, Yangon', 4, '2025-06-10', 'Active', NULL, 0, 0),
+(5, 'Ei', 'Mon', 'Female', 'eimon@gmail.com', '$2y$10$4yY3U0kLzH4qQd4wHkR3w.Qo3d8d3I3n.5X5n3c3I3n.5X5n3c3I3', '09-970334455', 'No. 23, Insein Road, Insein, Yangon', 6, '2025-09-01', 'Active', NULL, 0, 1);
+
+-- 5. Leave Types
+INSERT INTO `leavetypes` (`LeaveTypeID`, `LeaveType`, `DaysAllowed`, `IsPaid`, `DeductionRate`, `DurationMonths`) VALUES
+(1, 'Casual Leave', 12, 1, 0.00, 12),
+(2, 'Sick Leave', 14, 1, 0.00, 12),
+(3, 'Annual Leave', 10, 1, 0.00, 12),
+(4, 'Maternity Leave', 90, 1, 0.00, 12),
+(5, 'Unpaid Personal Leave', 30, 0, 100.00, 12);
+
+-- 6. Bonus Types
+INSERT INTO `bonous` (`BonousID`, `BonusType`) VALUES
+(1, 'Performance Incentive'),
+(2, 'Annual Water Festival Bonus'),
+(3, 'Project Milestone Reward'),
+(4, 'Attendance Punctuality Bonus');
+
+-- 7. Employee Bonuses
+INSERT INTO `empbonous` (`EmpBonousID`, `BonousID`, `EmpID`, `BonusDate`, `Amount`) VALUES
+(1, 1, 1, '2026-08-15', 150000.00),
+(2, 4, 2, '2026-08-15', 50000.00),
+(3, 3, 3, '2026-08-10', 80000.00);
+
+-- 8. Attendance Records
+INSERT INTO `attendance` (`AttendanceID`, `EmpID`, `AttendanceDate`, `CheckInTime`, `CheckOutTime`, `Status`, `is_auto_checkout`) VALUES
+(1, 1, '2026-08-18', '08:45:00', '17:30:00', 'Present', 0),
+(2, 2, '2026-08-18', '09:12:00', '17:45:00', 'Late', 0),
+(3, 3, '2026-08-18', '08:50:00', NULL, 'Present', 0),
+(4, 4, '2026-08-18', '08:30:00', '17:00:00', 'Present', 0);
+
+-- 9. Leave Requests
+INSERT INTO `leaverequest` (`RequestID`, `LeaveTypeID`, `EmpID`, `StartDate`, `EndDate`, `Reason`, `Status`) VALUES
+(1, 2, 2, '2026-08-25', '2026-08-26', 'Seasonal fever and doctor consultation', 'Approved'),
+(2, 1, 3, '2026-08-28', '2026-08-29', 'Family ceremony in hometown', 'Pending');
+
+-- 10. Overtime Assignments
+INSERT INTO `overtimeassign` (`OvertimeID`, `EmpID`, `OvertimeDate`, `StartTime`, `EndTime`, `OvertimeHours`, `OTRate`, `OTAmount`, `Status`, `ApprovedBy`, `ApprovedAt`, `EmployeeResponse`, `AcceptedAt`, `OTCheckIn`, `OTCheckOut`, `ActualOTHours`, `is_auto_checkout`) VALUES
+(1, 1, '2026-08-19', '18:00:00', '21:00:00', 3.00, 15000.00, 45000.00, 'Accepted', 'Administrator', '2026-08-18 10:00:00', 'Accepted', '2026-08-18 11:30:00', NULL, NULL, 0.00, 0),
+(2, 3, '2026-08-20', '18:00:00', '20:00:00', 2.00, 8000.00, 16000.00, 'Pending', 'Administrator', '2026-08-18 14:00:00', 'None', NULL, NULL, NULL, 0.00, 0);
+
+-- 11. Payroll
+INSERT INTO `payroll` (`PayrollID`, `EmpID`, `employee_code`, `BasicSalary`, `present_days`, `leave_days`, `absent_days`, `half_days`, `late_days`, `ot_hours`, `PayrollMonth`, `BonousAmount`, `OvertimeAmount`, `LeaveDeductionAmount`, `NetSalary`, `Status`) VALUES
+(1, 1, 'EMP-0001', 1800000.00, 22, 0, 0, 0, 0, 10.00, '2026-07', 150000.00, 150000.00, 0.00, 2100000.00, 'Paid'),
+(2, 2, 'EMP-0002', 1200000.00, 21, 1, 0, 0, 1, 5.00, '2026-07', 50000.00, 50000.00, 0.00, 1300000.00, 'Paid'),
+(3, 3, 'EMP-0003', 950000.00, 22, 0, 0, 0, 0, 4.00, '2026-07', 80000.00, 32000.00, 0.00, 1062000.00, 'Paid');
+
+SET FOREIGN_KEY_CHECKS = 1;

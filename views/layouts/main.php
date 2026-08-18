@@ -20,14 +20,27 @@
                         outfit: ['Outfit', 'sans-serif']
                     },
                     colors: {
-                        primary:   '#7c3aed', // violet-700
-                        'primary-light': '#8b5cf6', // violet-500
-                        'primary-dark':  '#5b21b6', // violet-800
-                        secondary: '#06b6d4', // cyan-500
-                        accent:    '#f59e0b', // amber-500
-                        dark:      '#0f0a1e',
-                        darker:    '#070512',
-                        surface:   '#160e29',
+                        white: '#0f172a', // Map 'text-white' to slate-900 for dark text
+                        'pure-white': '#ffffff', // For explicit white needs
+                        gray: {
+                            100: '#64748b', // Map text-gray-100 to slate-500
+                            200: '#475569',
+                            300: '#334155', // Map text-gray-300 to slate-700
+                            400: '#1e293b', // Map text-gray-400 to slate-800
+                            500: '#94a3b8',
+                            600: '#cbd5e1',
+                            700: '#e2e8f0', // Map border-gray-700 to light border
+                            800: '#f1f5f9',
+                            900: '#f8fafc',
+                        },
+                        primary:   '#6366f1', // indigo-500 (bright beauty)
+                        'primary-light': '#818cf8', // indigo-400
+                        'primary-dark':  '#4f46e5', // indigo-600
+                        secondary: '#0ea5e9', // sky-500
+                        accent:    '#f43f5e', // rose-500
+                        dark:      '#f8fafc', // slate-50 (very light bg)
+                        darker:    '#f1f5f9', // slate-100 (light bg)
+                        surface:   '#ffffff', // pure white card bg
                     },
                     backgroundImage: {
                         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
@@ -37,7 +50,7 @@
                         floatSlow: { '0%,100%': { transform: 'translateY(0) scale(1)' }, '50%': { transform: 'translateY(-6px) scale(1.02)' } },
                         shimmer:  { '0%': { backgroundPosition: '-200% 0' }, '100%': { backgroundPosition: '200% 0' } },
                         pulse2:   { '0%,100%': { opacity: 1 }, '50%': { opacity: 0.5 } },
-                        pulseGlow: { '0%,100%': { filter: 'drop-shadow(0 0 15px rgba(124,58,237,0.6))' }, '50%': { filter: 'drop-shadow(0 0 25px rgba(6,182,212,0.8))' } },
+                        pulseGlow: { '0%,100%': { filter: 'drop-shadow(0 0 15px rgba(99,102,241,0.4))' }, '50%': { filter: 'drop-shadow(0 0 25px rgba(14,165,233,0.5))' } },
                         slideIn:  { '0%': { transform: 'translateX(-100%)', opacity: 0 }, '100%': { transform: 'translateX(0)', opacity: 1 } },
                         fadeUp:   { '0%': { transform: 'translateY(20px)',  opacity: 0 }, '100%': { transform: 'translateY(0)',  opacity: 1 } },
                         spinSlow: { '0%': { transform: 'rotate(0deg)' }, '100%': { transform: 'rotate(360deg)' } },
@@ -74,48 +87,64 @@
         * { box-sizing: border-box; }
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #070512;
+            background: #f1f5f9; /* Light slate */
+            color: #0f172a;
+        }
+
+        /* === PRESERVE WHITE TEXT IN COLORED CONTAINERS === */
+        button .text-white, 
+        .bg-gradient-to-r .text-white, 
+        .bg-gradient-to-br .text-white, 
+        .from-violet-600 .text-white,
+        .from-emerald-500 .text-white,
+        .from-amber-500 .text-white,
+        .from-rose-500 .text-white,
+        .from-blue-500 .text-white,
+        .bg-violet-600 .text-white,
+        .bg-indigo-600 .text-white {
+            color: #ffffff !important;
         }
 
         /* === SCROLLBAR === */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: rgba(7,5,18,0.5); }
-        ::-webkit-scrollbar-thumb { background: #5b21b6; border-radius: 99px; }
-        ::-webkit-scrollbar-thumb:hover { background: #7c3aed; }
+        ::-webkit-scrollbar-track { background: rgba(241,245,249,0.5); }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
         /* === TOPBAR GLASS === */
         .topbar-glass {
-            background: rgba(11, 7, 26, 0.85);
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
-            border-bottom: 1px solid rgba(124, 58, 237, 0.25);
+            border-bottom: 1px solid rgba(99, 102, 241, 0.15);
         }
 
         /* === SIDEBAR === */
         .sidebar-glass {
-            background: rgba(15, 10, 32, 0.95);
+            background: rgba(250, 250, 250, 0.95);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
-            border-right: 1px solid rgba(124, 58, 237, 0.18);
+            border-right: 1px solid rgba(99, 102, 241, 0.15);
         }
 
         /* === GLOW EFFECTS === */
-        .glow-violet { box-shadow: 0 0 25px rgba(124, 58, 237, 0.4); }
-        .glow-violet-sm { box-shadow: 0 0 12px rgba(124, 58, 237, 0.3); }
-        .glow-cyan { box-shadow: 0 0 25px rgba(6, 182, 212, 0.4); }
+        .glow-violet { box-shadow: 0 0 25px rgba(99, 102, 241, 0.4); }
+        .glow-violet-sm { box-shadow: 0 0 12px rgba(99, 102, 241, 0.3); }
+        .glow-cyan { box-shadow: 0 0 25px rgba(14, 165, 233, 0.4); }
         .glow-amber { box-shadow: 0 0 25px rgba(245, 158, 11, 0.35); }
-        .text-glow { text-shadow: 0 0 14px rgba(167, 139, 250, 0.7); }
+        .text-glow { text-shadow: 0 0 14px rgba(129, 140, 248, 0.7); }
 
         /* === CARD GLASS === */
         .card-glass {
-            background: rgba(22, 14, 41, 0.8);
-            border: 1px solid rgba(124, 58, 237, 0.22);
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(99, 102, 241, 0.15);
             backdrop-filter: blur(16px);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
         }
         .card-glass:hover {
-            border-color: rgba(124, 58, 237, 0.55);
-            box-shadow: 0 12px 30px -10px rgba(124, 58, 237, 0.25);
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 12px 30px -10px rgba(99, 102, 241, 0.15);
         }
 
         /* === NAV ITEM === */
@@ -130,29 +159,64 @@
             top: 15%;
             height: 70%;
             width: 3.5px;
-            background: linear-gradient(to bottom, #a78bfa, #7c3aed);
+            background: linear-gradient(to bottom, #818cf8, #4f46e5);
             border-radius: 0 4px 4px 0;
             opacity: 0;
             transition: all 0.25s ease;
         }
         .nav-item.active::before { opacity: 1; }
         .nav-item.active { 
-            background: linear-gradient(90deg, rgba(124, 58, 237, 0.22), rgba(124, 58, 237, 0.05));
-            border-left: 1px solid rgba(167, 139, 250, 0.3);
+            background: linear-gradient(90deg, rgba(99, 102, 241, 0.1), rgba(99, 102, 241, 0.02));
+            border-left: 1px solid rgba(129, 140, 248, 0.3);
         }
 
-        /* === GRADIENT TEXT === */
+        /* === GRADIENT TEXT (VIBRANT & CRISP ON LIGHT BACKGROUNDS) === */
         .gradient-text {
-            background: linear-gradient(135deg, #c4b5fd 0%, #a78bfa 50%, #06b6d4 100%);
+            background: linear-gradient(135deg, #4338ca 0%, #6366f1 45%, #0284c7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: inline-block;
+        }
+        .gradient-gold {
+            background: linear-gradient(135deg, #d97706 0%, #f59e0b 50%, #b45309 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        .gradient-gold {
-            background: linear-gradient(135deg, #fef08a 0%, #f59e0b 50%, #d97706 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+
+        /* === HERO BANNER PERFECTION (MAGNIFICENT CONTRAST & TITLE WORDS) === */
+        .bg-gradient-to-r.from-indigo-600 h1,
+        .bg-gradient-to-r.from-indigo-600 h2,
+        .bg-gradient-to-r.from-indigo-600 .text-white {
+            color: #ffffff !important;
+            text-shadow: 0 2px 10px rgba(15, 23, 42, 0.2);
+        }
+        .bg-gradient-to-r.from-indigo-600 p {
+            color: rgba(248, 250, 252, 0.95) !important;
+            text-shadow: 0 1px 4px rgba(15, 23, 42, 0.15);
+        }
+        .bg-gradient-to-r.from-indigo-600 .gradient-text {
+            background: linear-gradient(135deg, #fef08a 0%, #fde047 45%, #a5f3fc 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+            font-weight: 900;
+        }
+        .bg-gradient-to-r.from-indigo-600 .bg-violet-500\/15,
+        .bg-gradient-to-r.from-indigo-600 .bg-cyan-500\/15,
+        .bg-gradient-to-r.from-indigo-600 .bg-surface\/90 {
+            background-color: rgba(255, 255, 255, 0.22) !important;
+            border-color: rgba(255, 255, 255, 0.4) !important;
+            color: #ffffff !important;
+            backdrop-filter: blur(12px);
+        }
+        .bg-gradient-to-r.from-indigo-600 .text-violet-300,
+        .bg-gradient-to-r.from-indigo-600 .text-cyan-300,
+        .bg-gradient-to-r.from-indigo-600 .text-gray-300,
+        .bg-gradient-to-r.from-indigo-600 span {
+            color: #ffffff !important;
         }
 
         /* === ORBS === */
@@ -201,13 +265,13 @@
 <body
     x-data="{
         sidebarOpen: false,
-        darkMode: true
+        darkMode: false
     }"
     x-init="
-        darkMode = true;
-        document.documentElement.classList.add('dark');
+        darkMode = false;
+        document.documentElement.classList.remove('dark');
     "
-    class="bg-darker text-gray-100 min-h-screen selection:bg-primary selection:text-white"
+    class="bg-darker text-slate-800 min-h-screen selection:bg-primary selection:text-white"
 >
 
 <!-- Background Ambient Lighting -->
@@ -216,7 +280,7 @@
 <div class="orb orb-3"></div>
 
 <!-- ============ ADVANCED ANIMATED LOADER ============ -->
-<div id="global-loader" class="fixed inset-0 z-[100] bg-[#070512] flex flex-col items-center justify-center transition-all duration-700">
+<div id="global-loader" class="fixed inset-0 z-[100] bg-darker flex flex-col items-center justify-center transition-all duration-700">
     <div class="relative flex flex-col items-center">
         <!-- 3D Brand Badge in Rotating Rings -->
         <div class="relative w-28 h-28 flex items-center justify-center mb-6">
@@ -243,7 +307,7 @@
             </p>
             
             <!-- Animated Progress Bar -->
-            <div class="w-48 h-1.5 bg-violet-950/60 rounded-full overflow-hidden mx-auto mt-4 border border-violet-800/40 relative">
+            <div class="w-48 h-1.5 bg-gray-200 rounded-full overflow-hidden mx-auto mt-4 border border-gray-300 relative">
                 <div class="h-full bg-gradient-to-r from-violet-500 via-cyan-400 to-amber-400 animate-loader-bar rounded-full"></div>
             </div>
             <p class="text-[11px] text-gray-400 font-medium tracking-wider pt-1 animate-pulse">Initializing workspace...</p>
@@ -316,7 +380,11 @@
             x-init="
                 const fetchNotifs = () => fetch('/payrollsystem/notification/api?action=get').then(r=>r.json()).then(data=>{
                     if(data.unread_count !== undefined) {
-                        if(data.unread_count > unreadCount && data.notifications.length > 0) { playChime(); showToast(data.notifications[0]); }
+                        if(data.new_count > 0 && data.notifications.length > 0) {
+                            const newNotif = data.notifications.find(n => n.is_new) || data.notifications[0];
+                            playChime();
+                            showToast(newNotif);
+                        }
                         unreadCount = data.unread_count;
                         notifications = data.notifications;
                     }
@@ -472,19 +540,7 @@ $isActive = function($path) use ($currentPath) {
     <div class="h-full py-4 px-3.5 overflow-y-auto flex flex-col justify-between">
 
         <div>
-            <!-- User Role Banner in Sidebar -->
-            <div class="mx-0.5 mb-5 p-3.5 rounded-2xl bg-gradient-to-br from-violet-900/30 via-surface to-cyan-950/20 border border-violet-500/25 flex items-center gap-3 shadow-lg">
-                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-600 to-cyan-600 flex items-center justify-center font-extrabold text-white text-base flex-shrink-0 shadow-md border border-violet-400/30">
-                    <?= htmlspecialchars(strtoupper(substr($_SESSION['Email'] ?? ($_SESSION['first_name'] ?? 'U'), 0, 1))) ?>
-                </div>
-                <div class="min-w-0 flex-1">
-                    <div class="text-xs font-extrabold text-white truncate flex items-center gap-1.5">
-                        <span><?= htmlspecialchars($_SESSION['first_name'] ?? ($_SESSION['role'] ?? 'User')) ?></span>
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                    </div>
-                    <div class="text-[10px] text-cyan-400/90 font-medium truncate"><?= htmlspecialchars($_SESSION['Email'] ?? '') ?></div>
-                </div>
-            </div>
+
 
             <!-- Navigation Links -->
             <nav class="space-y-1">
@@ -634,7 +690,84 @@ $isActive = function($path) use ($currentPath) {
     });
 </script>
 
+<!-- Global Flash Message Component -->
+<?php 
+$flashMessage = null;
+$flashType = 'info';
+$flashTitle = 'Notification';
 
+if (isset($_SESSION['flash_success'])) {
+    $flashMessage = $_SESSION['flash_success'];
+    $flashType = 'success';
+    $flashTitle = 'Success';
+    unset($_SESSION['flash_success']);
+} elseif (isset($_SESSION['flash_error'])) {
+    $flashMessage = $_SESSION['flash_error'];
+    $flashType = 'error';
+    $flashTitle = 'Error';
+    unset($_SESSION['flash_error']);
+} elseif (isset($_SESSION['flash_notification'])) {
+    $flashMessage = $_SESSION['flash_notification'];
+    $flashType = $_SESSION['flash_type'] ?? 'info';
+    $flashTitle = $_SESSION['flash_title'] ?? 'Notification';
+    unset($_SESSION['flash_notification']);
+    unset($_SESSION['flash_title']);
+    unset($_SESSION['flash_type']);
+}
+?>
+
+<?php if ($flashMessage): ?>
+    <div id="flash-toast-notification" class="fixed top-5 right-5 z-[200] w-84 card-glass rounded-2xl overflow-hidden cursor-pointer border border-violet-400/50 shadow-2xl transition-all duration-300 transform translate-x-full opacity-0" style="transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);">
+        <div class="p-4 flex gap-3.5 relative bg-gradient-to-br from-surface to-darker">
+            <button onclick="closeFlashToast()" class="absolute top-3 right-3 text-gray-400 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-xs"></i></button>
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br <?= $flashType === 'error' ? 'from-rose-600 to-red-600' : ($flashType === 'success' ? 'from-emerald-500 to-teal-600' : 'from-violet-600 to-cyan-600') ?> flex items-center justify-center flex-shrink-0 shadow-md">
+                <i class="fa-solid <?= $flashType === 'error' ? 'fa-triangle-exclamation' : ($flashType === 'success' ? 'fa-check' : 'fa-bell') ?> text-white text-sm"></i>
+            </div>
+            <div class="flex-1 pr-4 text-white">
+                <p class="text-xs font-bold uppercase tracking-wider <?= $flashType === 'error' ? 'text-rose-300' : ($flashType === 'success' ? 'text-emerald-300' : 'text-cyan-300') ?>"><?= htmlspecialchars($flashTitle) ?></p>
+                <p class="text-xs text-gray-300 mt-0.5"><?= htmlspecialchars($flashMessage) ?></p>
+            </div>
+        </div>
+    </div>
+    <script>
+        function closeFlashToast() {
+            const toast = document.getElementById('flash-toast-notification');
+            if (toast) {
+                toast.style.transform = 'translateX(full)';
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 500);
+            }
+        }
+        
+        window.addEventListener('load', () => {
+            const toast = document.getElementById('flash-toast-notification');
+            if (toast) {
+                // Play notification chime
+                try {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.connect(gain); gain.connect(ctx.destination);
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(880, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.5, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.3);
+                } catch(e) {}
+                
+                // Animate in
+                setTimeout(() => {
+                    toast.style.transform = 'translateX(0)';
+                    toast.style.opacity = '1';
+                }, 100);
+                
+                // Auto dismiss
+                setTimeout(closeFlashToast, 5000);
+            }
+        });
+    </script>
+<?php endif; ?>
 
 </body>
 </html>

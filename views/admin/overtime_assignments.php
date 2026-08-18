@@ -14,7 +14,7 @@
     </div>
 <?php endif; ?>
 
-<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden" data-aos="fade-up" data-aos-delay="50">
+<div class="bg-surface dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden" data-aos="fade-up" data-aos-delay="50">
     <div class="overflow-x-auto">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead class="text-xs text-gray-500 uppercase bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-700">
@@ -32,7 +32,7 @@
             </thead>
             <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                 <?php if(empty($data['assignments'])): ?>
-                    <tr class="bg-white dark:bg-gray-800">
+                    <tr class="bg-surface dark:bg-gray-800">
                         <td colspan="6" class="px-6 py-12 text-center text-gray-500">
                             <div class="w-16 h-16 mx-auto bg-gray-50 dark:bg-gray-700 rounded-full flex items-center justify-center mb-3">
                                 <i class="fa-solid fa-clipboard-list text-2xl text-gray-300 dark:text-gray-500"></i>
@@ -65,7 +65,7 @@
                             <?php endif; ?>
                         </td>
                         <td class="px-6 py-4">
-                            <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800/30">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-indigo-50 text-indigo-700 border border-violet-700 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800/30">
                                 <?= $ot['OvertimeHours'] ?> Hrs
                             </span>
                         </td>
@@ -79,7 +79,7 @@
                             <?php 
                                 $statusColors = [
                                     'Assigned' => 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800/30',
-                                    'Accepted' => 'bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800/30',
+                                    'Accepted' => 'bg-indigo-50 text-indigo-700 border-violet-700 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800/30',
                                     'Rejected' => 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800/30',
                                     'In Progress' => 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800/30',
                                     'Completed' => 'bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-900/30 dark:text-teal-400 dark:border-teal-800/30',
@@ -136,7 +136,7 @@
 
 <!-- Add/Edit Modal -->
 <div id="assignmentModal" class="hidden fixed inset-0 z-[100] overflow-y-auto bg-gray-900/50 backdrop-blur-sm flex items-center justify-center p-4 transition-all">
-    <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full shadow-2xl overflow-hidden transform transition-all">
+    <div class="bg-surface dark:bg-gray-800 rounded-2xl max-w-md w-full shadow-2xl overflow-hidden transform transition-all">
         <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50">
             <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center" id="modalTitle"><i class="fa-solid fa-clipboard-list text-primary mr-3"></i> Assign Overtime</h3>
             <button type="button" onclick="closeModal()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 flex items-center justify-center transition-colors">

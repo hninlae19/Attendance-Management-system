@@ -42,6 +42,7 @@ class AuthController extends Controller {
                 $_SESSION['email'] = $email;
                 $_SESSION['first_name'] = $employeeModel->FirstName;
                 $_SESSION['last_name'] = $employeeModel->LastName;
+                $_SESSION['is_first_login'] = $employeeModel->is_first_login;
                 $this->redirect('/payrollsystem/employee');
                 return;
             }

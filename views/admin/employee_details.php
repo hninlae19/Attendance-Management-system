@@ -1,6 +1,6 @@
 <div class="mb-6 flex justify-between items-center" data-aos="fade-down">
     <div class="flex items-center gap-4">
-        <a href="/payrollsystem/admin/employees" class="w-10 h-10 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 hover:text-primary hover:border-primary transition-colors shadow-sm">
+        <a href="/payrollsystem/admin/employees" class="w-10 h-10 rounded-full bg-surface dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 hover:text-primary hover:border-primary transition-colors shadow-sm">
             <i class="fa-solid fa-arrow-left"></i>
         </a>
         <div>
@@ -18,11 +18,11 @@
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <!-- Left Column: Profile Card -->
     <div class="lg:col-span-1" data-aos="fade-up" data-aos-delay="0">
-        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden text-center relative pt-12 pb-8 px-6">
+        <div class="bg-surface/80 dark:bg-gray-800/80 backdrop-blur-md rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden text-center relative pt-12 pb-8 px-6">
             <!-- Background Decorative Header -->
             <div class="absolute top-0 left-0 w-full h-24 bg-gradient-to-r from-primary to-indigo-500"></div>
             
-            <div class="w-24 h-24 rounded-full bg-white dark:bg-gray-700 mx-auto mb-4 border-4 border-white dark:border-gray-800 shadow-lg relative z-10 flex items-center justify-center overflow-hidden">
+            <div class="w-24 h-24 rounded-full bg-surface dark:bg-gray-700 mx-auto mb-4 border-4 border-white dark:border-gray-800 shadow-lg relative z-10 flex items-center justify-center overflow-hidden">
                 <i class="fa-solid fa-user text-4xl text-gray-400"></i>
             </div>
             
@@ -52,7 +52,7 @@
     <!-- Right Column: Details -->
     <div class="lg:col-span-2 space-y-6" data-aos="fade-up" data-aos-delay="100">
         <!-- Personal Information -->
-        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+        <div class="bg-surface/80 dark:bg-gray-800/80 backdrop-blur-md rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
             <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center border-b border-gray-100 dark:border-gray-700 pb-3">
                 <i class="fa-regular fa-address-card text-primary mr-2"></i> Personal Information
             </h3>
@@ -81,7 +81,7 @@
         </div>
 
         <!-- Employment Information -->
-        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+        <div class="bg-surface/80 dark:bg-gray-800/80 backdrop-blur-md rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
             <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center border-b border-gray-100 dark:border-gray-700 pb-3">
                 <i class="fa-solid fa-briefcase text-emerald-500 mr-2"></i> Employment Details
             </h3>
@@ -106,7 +106,7 @@
         </div>
 
         <!-- Employee Data Links -->
-        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+        <div class="bg-surface/80 dark:bg-gray-800/80 backdrop-blur-md rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
             <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center border-b border-gray-100 dark:border-gray-700 pb-3">
                 <i class="fa-solid fa-link text-violet-500 mr-2"></i> Employee Data Links
             </h3>
@@ -162,7 +162,7 @@
 
 <!-- Edit Profile Modal -->
 <div id="editModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-gray-800 rounded-xl max-w-4xl w-full shadow-2xl overflow-hidden">
+    <div class="bg-surface dark:bg-gray-800 rounded-xl max-w-4xl w-full shadow-2xl overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
             <h3 class="text-lg font-bold text-gray-900 dark:text-white">Edit Employee Profile</h3>
             <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-500">
@@ -256,7 +256,7 @@
             </div>
 
             <div class="flex justify-end gap-3 mt-8 pt-4 border-t border-gray-100 dark:border-gray-700">
-                <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">Cancel</button>
+                <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-surface border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">Cancel</button>
                 <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-indigo-700">Save Changes</button>
             </div>
         </form>

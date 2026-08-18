@@ -10,7 +10,7 @@
     </a>
 </div>
 
-<div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden" data-aos="fade-up" data-aos-delay="100">
+<div class="bg-surface/80 dark:bg-gray-800/80 backdrop-blur-md rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden" data-aos="fade-up" data-aos-delay="100">
     <div class="overflow-x-auto">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50/50 dark:bg-gray-700/50 dark:text-gray-400">
@@ -27,7 +27,7 @@
             </thead>
             <tbody>
                 <?php if(empty($data['payrolls'])): ?>
-                    <tr class="bg-white/50 border-b dark:bg-gray-800/50 dark:border-gray-700">
+                    <tr class="bg-surface/50 border-b dark:bg-gray-800/50 dark:border-gray-700">
                         <td colspan="8" class="px-6 py-8 text-center text-gray-500">
                             <i class="fa-solid fa-file-invoice-dollar text-4xl mb-3 text-gray-300 dark:text-gray-600 block"></i>
                             No salary history available yet for this employee.
@@ -35,7 +35,7 @@
                     </tr>
                 <?php else: ?>
                     <?php foreach($data['payrolls'] as $pr): ?>
-                    <tr class="bg-white/50 border-b dark:bg-gray-800/50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <tr class="bg-surface/50 border-b dark:bg-gray-800/50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                         <td class="px-6 py-4 font-bold text-gray-900 dark:text-white">
                             <?= htmlspecialchars($pr['PayrollMonth']) ?>
                         </td>
@@ -45,7 +45,7 @@
                         <td class="px-6 py-4 text-teal-600 dark:text-teal-400 font-medium">
                             +<?= number_format($pr['BonousAmount'] ?? 0) ?>
                         </td>
-                        <td class="px-6 py-4 text-indigo-600 dark:text-indigo-400 font-medium">
+                        <td class="px-6 py-4 text-violet-300 dark:text-indigo-400 font-medium">
                             +<?= number_format($pr['OvertimeAmount'] ?? 0) ?>
                         </td>
                         <td class="px-6 py-4 text-red-500 dark:text-red-400 font-medium">

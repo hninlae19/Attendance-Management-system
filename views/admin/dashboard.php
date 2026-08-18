@@ -5,7 +5,7 @@
         <p class="text-gray-500 text-sm mt-1">Welcome back! Here's what's happening today.</p>
     </div>
     <div class="text-right">
-        <p class="text-sm font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 px-4 py-2 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <p class="text-sm font-medium text-gray-600 dark:text-gray-400 bg-surface dark:bg-gray-800 px-4 py-2 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
             <i class="fa-solid fa-calendar-day text-primary mr-2"></i> <span id="current-time"><?= date('l, F j, Y') ?></span>
         </p>
     </div>
@@ -15,7 +15,7 @@
 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8" data-aos="fade-up" data-aos-delay="100">
     
     <!-- Total Employees -->
-    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-gray-700 relative overflow-hidden group hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+    <div class="bg-surface dark:bg-gray-800 rounded-2xl p-6 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-gray-700 relative overflow-hidden group hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
         <div class="absolute -right-6 -top-6 w-24 h-24 bg-primary/5 rounded-full group-hover:scale-150 transition-transform duration-700 ease-out"></div>
         <div class="flex justify-between items-start relative z-10">
             <div>
@@ -32,7 +32,7 @@
     </div>
 
     <!-- Monthly Payroll Cost -->
-    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-gray-700 relative overflow-hidden group hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+    <div class="bg-surface dark:bg-gray-800 rounded-2xl p-6 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-gray-700 relative overflow-hidden group hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
         <div class="absolute -right-6 -top-6 w-24 h-24 bg-emerald-500/5 rounded-full group-hover:scale-150 transition-transform duration-700 ease-out"></div>
         <div class="flex justify-between items-start relative z-10">
             <div>
@@ -49,7 +49,7 @@
     </div>
 
     <!-- Present Today -->
-    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-gray-700 relative overflow-hidden group hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+    <div class="bg-surface dark:bg-gray-800 rounded-2xl p-6 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-gray-700 relative overflow-hidden group hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
         <div class="absolute -right-6 -top-6 w-24 h-24 bg-blue-500/5 rounded-full group-hover:scale-150 transition-transform duration-700 ease-out"></div>
         <div class="flex justify-between items-start relative z-10">
             <div>
@@ -66,7 +66,7 @@
     </div>
 
     <!-- On Leave & Absent -->
-    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-gray-700 relative overflow-hidden group hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+    <div class="bg-surface dark:bg-gray-800 rounded-2xl p-6 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-gray-700 relative overflow-hidden group hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
         <div class="absolute -right-6 -top-6 w-24 h-24 bg-red-500/5 rounded-full group-hover:scale-150 transition-transform duration-700 ease-out"></div>
         <div class="flex justify-between items-start relative z-10">
             <div>
@@ -90,7 +90,7 @@
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8" data-aos="fade-up" data-aos-delay="200">
     
     <!-- Action Center (Pending Items) -->
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-gray-700 p-6">
+    <div class="bg-surface dark:bg-gray-800 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-gray-700 p-6">
         <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
             <i class="fa-solid fa-clipboard-list text-primary mr-2"></i> Action Center
         </h2>
@@ -135,13 +135,13 @@
     </div>
 
     <!-- Analytics Chart: Attendance Trend -->
-    <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-gray-700 p-6 relative">
+    <div class="lg:col-span-2 bg-surface dark:bg-gray-800 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-gray-700 p-6 relative">
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
                 <i class="fa-solid fa-chart-area text-primary mr-2"></i> Attendance Overview (This Week)
             </h2>
             <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-1 flex text-xs font-medium">
-                <button class="px-3 py-1 bg-white dark:bg-gray-600 text-gray-900 dark:text-white rounded-md shadow-sm">Week</button>
+                <button class="px-3 py-1 bg-surface dark:bg-gray-600 text-gray-900 dark:text-white rounded-md shadow-sm">Week</button>
                 <button class="px-3 py-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">Month</button>
             </div>
         </div>
@@ -155,7 +155,7 @@
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8" data-aos="fade-up" data-aos-delay="300">
     
     <!-- Recent Attendance Table -->
-    <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-gray-700 overflow-hidden">
+    <div class="lg:col-span-2 bg-surface dark:bg-gray-800 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 dark:border-gray-700 overflow-hidden">
         <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50">
             <h2 class="font-bold text-gray-900 dark:text-white">Live Attendance Feed</h2>
             <a href="/payrollsystem/admin/attendance" class="text-sm font-bold text-primary hover:text-blue-700 transition-colors">View All</a>
@@ -222,7 +222,7 @@
 
     <!-- Quick Actions / Setup -->
     <div class="bg-gradient-to-br from-primary to-indigo-700 rounded-2xl shadow-xl shadow-primary/20 p-6 text-white relative overflow-hidden">
-        <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+        <div class="absolute -right-10 -top-10 w-40 h-40 bg-surface/10 rounded-full blur-2xl"></div>
         <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-black/10 rounded-full blur-2xl"></div>
         
         <div class="relative z-10">
@@ -230,8 +230,8 @@
             <p class="text-primary-100 text-sm mb-6 opacity-90">Manage your workforce efficiently</p>
             
             <div class="space-y-3">
-                <a href="/payrollsystem/admin/payroll" class="flex items-center p-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 backdrop-blur-sm transition-all duration-300 group">
-                    <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
+                <a href="/payrollsystem/admin/payroll" class="flex items-center p-3 rounded-xl bg-surface/10 hover:bg-surface/20 border border-white/10 backdrop-blur-sm transition-all duration-300 group">
+                    <div class="w-10 h-10 rounded-lg bg-surface/20 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-file-invoice-dollar"></i>
                     </div>
                     <div class="flex-1">
@@ -241,8 +241,8 @@
                     <i class="fa-solid fa-chevron-right text-xs opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all"></i>
                 </a>
                 
-                <a href="/payrollsystem/admin/employees" class="flex items-center p-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 backdrop-blur-sm transition-all duration-300 group">
-                    <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
+                <a href="/payrollsystem/admin/employees" class="flex items-center p-3 rounded-xl bg-surface/10 hover:bg-surface/20 border border-white/10 backdrop-blur-sm transition-all duration-300 group">
+                    <div class="w-10 h-10 rounded-lg bg-surface/20 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-user-plus"></i>
                     </div>
                     <div class="flex-1">

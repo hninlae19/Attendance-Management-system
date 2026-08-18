@@ -69,7 +69,7 @@ $pending_requests = $data['pending_requests'] ?? [];
 <!-- Reset Password Modal -->
 <div id="resetModal" class="fixed inset-0 z-50 hidden bg-gray-900/50 dark:bg-gray-900/80 backdrop-blur-sm overflow-y-auto w-full md:inset-0 h-[calc(100%-1rem)] max-h-full flex items-center justify-center">
     <div class="relative p-4 w-full max-w-md max-h-full">
-        <div class="relative bg-white rounded-2xl shadow dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+        <div class="relative bg-surface rounded-2xl shadow dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
             <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-700">
                 <h3 class="text-xl font-bold text-gray-900 dark:text-white">
                     Reset Password

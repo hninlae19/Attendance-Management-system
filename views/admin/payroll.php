@@ -18,7 +18,7 @@ else $currentMonthName = $monthNames[(int)$data['selectedMonth']];
     }
 }">
     <!-- ============ HEADER BANNER ============ -->
-    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#180f33] via-[#241447] to-[#121c3b] border border-violet-500/25 p-6 lg:p-7 mb-8 shadow-2xl" data-aos="fade-down">
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600 via-violet-500 to-cyan-500 border border-violet-500/25 p-6 lg:p-7 mb-8 shadow-2xl" data-aos="fade-down">
         <div class="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5">
             <div>
                 <div class="flex items-center gap-2 mb-1.5">

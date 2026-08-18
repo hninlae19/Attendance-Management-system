@@ -15,7 +15,7 @@
 </div>
 <?php endif; ?>
 
-<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+<div class="bg-surface dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
     <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
         <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
@@ -30,12 +30,12 @@
         </thead>
         <tbody>
             <?php if(empty($data['leaveTypes'])): ?>
-                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                <tr class="bg-surface border-b dark:bg-gray-800 dark:border-gray-700">
                     <td colspan="6" class="px-6 py-4 text-center">No leave types found.</td>
                 </tr>
             <?php else: ?>
                 <?php foreach($data['leaveTypes'] as $lt): ?>
-                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+                <tr class="bg-surface border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
                     <td class="px-6 py-4"><?= $lt['LeaveTypeID'] ?></td>
                     <td class="px-6 py-4 font-medium text-gray-900 dark:text-white"><?= htmlspecialchars($lt['LeaveType']) ?></td>
                     <td class="px-6 py-4 text-center font-bold"><?= $lt['DaysAllowed'] ?></td>
@@ -66,7 +66,7 @@
 
 <!-- Add Modal -->
 <div id="addModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full shadow-2xl overflow-hidden">
+    <div class="bg-surface dark:bg-gray-800 rounded-xl max-w-md w-full shadow-2xl overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
             <h3 class="text-lg font-bold text-gray-900 dark:text-white">Add Leave Type</h3>
             <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-500">
@@ -99,7 +99,7 @@
             </div>
 
             <div class="flex justify-end gap-3 mt-6">
-                <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">Cancel</button>
+                <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-surface border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">Cancel</button>
                 <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-indigo-700">Save</button>
             </div>
         </form>
@@ -108,7 +108,7 @@
 
 <!-- Edit Modal -->
 <div id="editModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full shadow-2xl overflow-hidden">
+    <div class="bg-surface dark:bg-gray-800 rounded-xl max-w-md w-full shadow-2xl overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
             <h3 class="text-lg font-bold text-gray-900 dark:text-white">Edit Leave Type</h3>
             <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-500">
@@ -142,7 +142,7 @@
             </div>
 
             <div class="flex justify-end gap-3 mt-6">
-                <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">Cancel</button>
+                <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-surface border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">Cancel</button>
                 <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-indigo-700">Update</button>
             </div>
         </form>

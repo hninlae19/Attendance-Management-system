@@ -7,14 +7,14 @@
             <p class="text-gray-500 text-sm mt-1">Manage and view detailed employee attendance records.</p>
         </div>
         <div class="flex gap-2">
-            <button class="bg-white hover:bg-gray-50 text-gray-700 font-medium py-2.5 px-4 rounded-xl border border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors shadow-sm text-sm">
+            <button class="bg-surface hover:bg-gray-50 text-gray-700 font-medium py-2.5 px-4 rounded-xl border border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors shadow-sm text-sm">
                 <i class="fa-solid fa-file-export mr-2"></i> Export
             </button>
         </div>
     </div>
 
     <!-- Filters Section -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5" data-aos="fade-up" data-aos-delay="100">
+    <div class="bg-surface dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5" data-aos="fade-up" data-aos-delay="100">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             
             <!-- View Type -->
@@ -67,8 +67,9 @@
                     <option value="">All Statuses</option>
                     <option value="Present">Present</option>
                     <option value="Late">Late</option>
-                    <option value="Half-Day Absence">Half-Day Absence</option>
-                    <option value="Full-Day Absence">Full-Day Absence</option>
+                    <option value="Half Day">Half Day</option>
+                    <option value="Absent">Absent</option>
+                    <option value="On Leave">On Leave</option>
                 </select>
             </div>
 
@@ -94,10 +95,10 @@
     </div>
 
     <!-- Data Table & Controls -->
-    <div x-show="filters.view_type !== 'corrections'" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden relative" data-aos="fade-up" data-aos-delay="200">
+    <div x-show="filters.view_type !== 'corrections'" class="bg-surface dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden relative" data-aos="fade-up" data-aos-delay="200">
         
         <!-- Loading Overlay -->
-        <div x-show="loading" class="absolute inset-0 z-10 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm flex items-center justify-center">
+        <div x-show="loading" class="absolute inset-0 z-10 bg-surface/60 dark:bg-gray-900/60 backdrop-blur-sm flex items-center justify-center">
             <div class="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent"></div>
         </div>
 
@@ -107,7 +108,7 @@
             </div>
             <div class="flex items-center gap-2">
                 <label class="text-sm text-gray-600 dark:text-gray-400">Per page:</label>
-                <select x-model="pagination.limit" @change="fetchData(1)" class="px-2 py-1 bg-white border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm">
+                <select x-model="pagination.limit" @change="fetchData(1)" class="px-2 py-1 bg-surface border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm">
                     <option value="10">10</option>
                     <option value="25">25</option>
                     <option value="50">50</option>
@@ -176,15 +177,17 @@
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold shadow-sm border" 
                                       :class="{
                                           'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800/30': record.status === 'Present',
-                                          'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800/30': record.status === 'Late',
-                                          'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800/30': record.status === 'Half-Day Absence',
-                                          'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800/30': record.status === 'Full-Day Absence'
+                                          'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800/30': record.status === 'Late' || record.status === 'Late Check-In',
+                                          'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800/30': record.status === 'Half Day' || record.status === 'Half-Day Absence',
+                                          'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800/30': record.status === 'Absent' || record.status === 'Full-Day Absence',
+                                          'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800/30': record.status === 'On Leave'
                                       }">
                                       <span class="w-1.5 h-1.5 rounded-full mr-1.5" :class="{
                                           'bg-emerald-500': record.status === 'Present',
-                                          'bg-amber-500': record.status === 'Late',
-                                          'bg-orange-500': record.status === 'Half-Day Absence',
-                                          'bg-rose-500': record.status === 'Full-Day Absence'
+                                          'bg-amber-500': record.status === 'Late' || record.status === 'Late Check-In',
+                                          'bg-orange-500': record.status === 'Half Day' || record.status === 'Half-Day Absence',
+                                          'bg-rose-500': record.status === 'Absent' || record.status === 'Full-Day Absence',
+                                          'bg-blue-500': record.status === 'On Leave'
                                       }"></span>
                                       <span x-text="record.status"></span>
                                 </span>
@@ -206,10 +209,10 @@
                 Page <span class="font-bold text-gray-900 dark:text-white" x-text="pagination.page"></span> of <span class="font-bold text-gray-900 dark:text-white" x-text="pagination.total_pages"></span>
             </span>
             <div class="inline-flex rounded-md shadow-sm" role="group">
-                <button type="button" @click="fetchData(pagination.page - 1)" :disabled="pagination.page <= 1" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-primary focus:z-10 focus:ring-2 focus:ring-primary focus:text-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+                <button type="button" @click="fetchData(pagination.page - 1)" :disabled="pagination.page <= 1" class="px-4 py-2 text-sm font-medium text-gray-900 bg-surface border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-primary focus:z-10 focus:ring-2 focus:ring-primary focus:text-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
                     <i class="fa-solid fa-chevron-left mr-1"></i> Prev
                 </button>
-                <button type="button" @click="fetchData(pagination.page + 1)" :disabled="pagination.page >= pagination.total_pages" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-l-0 border-gray-200 rounded-r-lg hover:bg-gray-100 hover:text-primary focus:z-10 focus:ring-2 focus:ring-primary focus:text-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+                <button type="button" @click="fetchData(pagination.page + 1)" :disabled="pagination.page >= pagination.total_pages" class="px-4 py-2 text-sm font-medium text-gray-900 bg-surface border border-l-0 border-gray-200 rounded-r-lg hover:bg-gray-100 hover:text-primary focus:z-10 focus:ring-2 focus:ring-primary focus:text-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
                     Next <i class="fa-solid fa-chevron-right ml-1"></i>
                 </button>
             </div>
@@ -218,7 +221,7 @@
 
     <!-- Attendance Detail Modal -->
     <div x-show="modalOpen" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div @click.away="closeModal()" class="bg-white dark:bg-gray-800 rounded-2xl max-w-3xl w-full shadow-2xl overflow-hidden transform transition-all" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95 translate-y-4" x-transition:enter-end="opacity-100 scale-100 translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100 translate-y-0" x-transition:leave-end="opacity-0 scale-95 translate-y-4">
+        <div @click.away="closeModal()" class="bg-surface dark:bg-gray-800 rounded-2xl max-w-3xl w-full shadow-2xl overflow-hidden transform transition-all" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95 translate-y-4" x-transition:enter-end="opacity-100 scale-100 translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100 translate-y-0" x-transition:leave-end="opacity-0 scale-95 translate-y-4">
             
             <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/80 dark:bg-gray-800/80">
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
@@ -234,7 +237,7 @@
                 
                 <!-- Employee Header Info -->
                 <div class="flex items-center gap-4 mb-8">
-                    <div class="w-16 h-16 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 text-2xl font-bold shadow-inner">
+                    <div class="w-16 h-16 rounded-full bg-violet-900 dark:bg-indigo-900/50 flex items-center justify-center text-violet-300 dark:text-indigo-400 text-2xl font-bold shadow-inner">
                         <span x-text="selectedRecord?.first_name?.charAt(0) + selectedRecord?.last_name?.charAt(0)"></span>
                     </div>
                     <div>
@@ -304,7 +307,7 @@
                             <ul class="space-y-3 text-sm">
                                 <li class="flex justify-between items-center">
                                     <span class="text-gray-600 dark:text-gray-400">OT Type</span>
-                                    <span class="font-medium text-gray-900 dark:text-white bg-indigo-100 dark:bg-indigo-900/50 px-2 py-0.5 rounded text-xs" x-text="selectedRecord?.ot_type"></span>
+                                    <span class="font-medium text-gray-900 dark:text-white bg-violet-900 dark:bg-indigo-900/50 px-2 py-0.5 rounded text-xs" x-text="selectedRecord?.ot_type"></span>
                                 </li>
                                 <li class="flex justify-between items-center">
                                     <span class="text-gray-600 dark:text-gray-400">Start Time</span>
@@ -316,7 +319,7 @@
                                 </li>
                                 <li class="flex justify-between items-center">
                                     <span class="text-gray-600 dark:text-gray-400">OT Hours</span>
-                                    <span class="font-bold text-indigo-600 dark:text-indigo-400" x-text="formatNumber(selectedRecord?.ot_hours) + ' hrs'"></span>
+                                    <span class="font-bold text-violet-300 dark:text-indigo-400" x-text="formatNumber(selectedRecord?.ot_hours) + ' hrs'"></span>
                                 </li>
                                 <li class="flex justify-between items-center">
                                     <span class="text-gray-600 dark:text-gray-400">Hourly Rate</span>
@@ -324,7 +327,7 @@
                                 </li>
                                 <li class="flex justify-between items-center pt-2 border-t border-indigo-100 dark:border-indigo-800">
                                     <span class="text-gray-600 dark:text-gray-400">Total OT Amount</span>
-                                    <span class="font-bold text-indigo-600 dark:text-indigo-400 text-base" x-text="'MMK ' + formatCurrency(selectedRecord?.ot_amount)"></span>
+                                    <span class="font-bold text-violet-300 dark:text-indigo-400 text-base" x-text="'MMK ' + formatCurrency(selectedRecord?.ot_amount)"></span>
                                 </li>
                             </ul>
                         </div>
@@ -348,7 +351,7 @@
             </div>
             
             <div class="px-6 py-4 border-t border-gray-100 dark:border-gray-700 flex justify-end bg-gray-50/50 dark:bg-gray-800/50">
-                <button @click="closeModal()" class="px-5 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-4 focus:ring-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-gray-700 transition-all shadow-sm">
+                <button @click="closeModal()" class="px-5 py-2 text-sm font-medium text-gray-700 bg-surface border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-4 focus:ring-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-gray-700 transition-all shadow-sm">
                     Close Details
                 </button>
             </div>

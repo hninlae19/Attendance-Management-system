@@ -16,6 +16,7 @@ class Employee {
     public $PositionID;
     public $JoinDate;
     public $Status;
+    public $is_first_login;
 
     public function __construct() {
         $database = new Database();
@@ -34,6 +35,7 @@ class Employee {
                 $this->EmpID = $row['EmpID'];
                 $this->FirstName = $row['FirstName'];
                 $this->LastName = $row['LastName'];
+                $this->is_first_login = $row['is_first_login'] ?? 0;
                 return true;
             }
         }

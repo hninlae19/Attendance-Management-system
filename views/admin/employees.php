@@ -1,5 +1,5 @@
 <!-- ============ HEADER BANNER ============ -->
-<div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#180f33] via-[#241447] to-[#121c3b] border border-violet-500/25 p-6 lg:p-7 mb-8 shadow-2xl" data-aos="fade-down">
+<div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600 via-violet-500 to-cyan-500 border border-violet-500/25 p-6 lg:p-7 mb-8 shadow-2xl" data-aos="fade-down">
     <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
             <div class="flex items-center gap-2 mb-1.5">
@@ -51,92 +51,120 @@
     </div>
 </div>
 
-<!-- Table -->
-<div class="card-glass rounded-3xl overflow-hidden border border-violet-500/20 mb-8 shadow-xl" data-aos="fade-up" data-aos-delay="100">
-    <div class="overflow-x-auto">
-        <table class="w-full text-sm text-left text-gray-400" id="employeeTable">
-            <thead class="text-xs uppercase bg-surface/80 text-violet-300/80 border-b border-violet-900/40">
-                <tr>
-                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Employee</th>
-                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Department & Role</th>
-                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Contact</th>
-                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Status</th>
-                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider text-right">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-violet-900/30">
-                <?php if(empty($data['employees'])): ?>
-                    <tr>
-                        <td colspan="5" class="px-6 py-12 text-center text-gray-500">
-                            <div class="w-12 h-12 mx-auto bg-surface rounded-2xl border border-violet-900/40 flex items-center justify-center mb-2 text-violet-400">
-                                <i class="fa-solid fa-users-slash text-xl"></i>
-                            </div>
-                            <p class="font-semibold text-gray-300">No employees found</p>
-                            <p class="text-xs text-gray-500 mt-0.5">Try adding a new employee or adjust your search filter.</p>
-                        </td>
-                    </tr>
-                <?php else: ?>
-                    <?php foreach($data['employees'] as $emp): ?>
-                    <tr class="hover:bg-violet-950/20 transition-colors group emp-row">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-600/30 to-cyan-500/30 text-cyan-300 border border-violet-500/30 flex items-center justify-center font-extrabold text-xs shadow-inner">
+<!-- Directory Grid View -->
+<div id="directory-container" class="space-y-8 mb-8" data-aos="fade-up" data-aos-delay="100">
+    <?php 
+        // Group employees by department
+        $groupedEmployees = [];
+        $employeesList = $data['employees'] ?? [];
+        foreach ($employeesList as $emp) {
+            $dept = $emp['DeptName'] ?? 'Unassigned';
+            if (!isset($groupedEmployees[$dept])) {
+                $groupedEmployees[$dept] = [];
+            }
+            $groupedEmployees[$dept][] = $emp;
+        }
+        ksort($groupedEmployees);
+    ?>
+
+    <?php if(empty($employeesList)): ?>
+        <div class="card-glass rounded-3xl p-12 text-center border border-violet-500/20 shadow-xl">
+            <div class="w-16 h-16 mx-auto bg-surface rounded-2xl border border-violet-900/40 flex items-center justify-center mb-4 text-violet-400">
+                <i class="fa-solid fa-users-slash text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-1">No Employees Found</h3>
+            <p class="text-sm text-gray-400 mb-6">Your directory is currently empty or no matches were found.</p>
+            <button onclick="document.getElementById('addModal').classList.remove('hidden')" class="px-5 py-2.5 rounded-xl bg-violet-600/20 hover:bg-violet-600/40 border border-violet-500/30 text-violet-300 font-bold transition-all inline-flex items-center gap-2">
+                <i class="fa-solid fa-user-plus"></i> Add First Employee
+            </button>
+        </div>
+    <?php else: ?>
+        <?php foreach($groupedEmployees as $deptName => $employees): ?>
+        <div class="department-group" data-department="<?= htmlspecialchars($deptName) ?>">
+            <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-3 border-b border-violet-500/20 pb-3">
+                <div class="w-8 h-8 rounded-lg bg-surface border border-violet-500/30 flex items-center justify-center text-secondary shadow-inner">
+                    <i class="fa-solid fa-users-rectangle text-sm"></i>
+                </div>
+                <?= htmlspecialchars($deptName) ?>
+                <span class="text-[10px] font-bold text-violet-300 bg-violet-900/30 px-2 py-0.5 rounded-md border border-violet-700/30"><?= count($employees) ?> <?= count($employees) === 1 ? 'Member' : 'Members' ?></span>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
+                <?php foreach($employees as $emp): ?>
+                <div class="emp-card card-glass rounded-2xl p-5 flex flex-col justify-between hover:border-violet-400/50 hover:shadow-[0_8px_30px_-5px_rgba(124,58,237,0.25)] hover:-translate-y-1 transition-all duration-300 relative group" 
+                     data-name="<?= strtolower(htmlspecialchars($emp['FirstName'] . ' ' . $emp['LastName'])) ?>" 
+                     data-email="<?= strtolower(htmlspecialchars($emp['Email'])) ?>">
+                    <!-- Card Header -->
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center gap-3.5">
+                            <div class="relative">
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-600/30 to-cyan-500/30 text-cyan-300 border border-violet-500/30 flex items-center justify-center font-extrabold text-lg shadow-inner group-hover:scale-105 transition-transform">
                                     <?= strtoupper(substr($emp['FirstName'],0,1) . substr($emp['LastName'],0,1)) ?>
                                 </div>
-                                <div>
-                                    <div class="font-bold text-white group-hover:text-violet-300 transition-colors emp-name"><?= htmlspecialchars($emp['FirstName'] . ' ' . $emp['LastName']) ?></div>
-                                    <div class="text-[11px] text-cyan-400 font-mono">EMP-<?= htmlspecialchars(str_pad($emp['EmpID'], 4, '0', STR_PAD_LEFT)) ?></div>
-                                </div>
+                                <?php if($emp['Status'] === 'Active'): ?>
+                                    <div class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-darker rounded-full flex items-center justify-center">
+                                        <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" title="Active"></div>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-darker rounded-full flex items-center justify-center">
+                                        <div class="w-2.5 h-2.5 rounded-full bg-rose-400 shadow-[0_0_8px_rgba(251,113,133,0.8)]" title="Inactive"></div>
+                                    </div>
+                                <?php endif; ?>
                             </div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="font-bold text-gray-200 text-xs emp-dept"><?= htmlspecialchars($emp['DeptName'] ?? 'No Department') ?></div>
-                            <div class="text-[11px] text-violet-400 font-medium"><?= htmlspecialchars($emp['PositionName'] ?? 'No Position') ?></div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="text-xs text-gray-300 flex items-center gap-1.5"><i class="fa-regular fa-envelope text-violet-400"></i> <?= htmlspecialchars($emp['Email']) ?></div>
-                            <?php if(!empty($emp['PhoneNumber'])): ?>
-                            <div class="text-[11px] text-gray-400 mt-1 flex items-center gap-1.5"><i class="fa-solid fa-phone text-secondary"></i> <?= htmlspecialchars($emp['PhoneNumber']) ?></div>
-                            <?php endif; ?>
-                        </td>
-                        <td class="px-6 py-4">
-                            <?php if($emp['Status'] === 'Active'): ?>
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5"></span> Active</span>
-                            <?php else: ?>
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30"><span class="w-1.5 h-1.5 rounded-full bg-rose-400 mr-1.5"></span> Inactive</span>
-                            <?php endif; ?>
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            <div class="flex items-center justify-end gap-1.5 opacity-90 group-hover:opacity-100 transition-opacity">
-                                <a href="/payrollsystem/admin/employee/<?= $emp['EmpID'] ?>" class="w-8 h-8 rounded-xl bg-violet-600/20 text-violet-300 border border-violet-500/30 flex items-center justify-center hover:bg-violet-600/40 hover:scale-105 transition-all" title="View Profile">
-                                    <i class="fa-solid fa-eye text-xs"></i>
+                            <div class="min-w-0">
+                                <a href="/payrollsystem/admin/employee/<?= $emp['EmpID'] ?>" class="font-bold text-white text-base hover:text-violet-300 transition-colors truncate block leading-tight mb-0.5" title="View Profile">
+                                    <?= htmlspecialchars($emp['FirstName'] . ' ' . $emp['LastName']) ?>
                                 </a>
-                                <a href="/payrollsystem/admin/employee_salary_history/<?= $emp['EmpID'] ?>" class="w-8 h-8 rounded-xl bg-emerald-600/20 text-emerald-300 border border-emerald-500/30 flex items-center justify-center hover:bg-emerald-600/40 hover:scale-105 transition-all" title="Salary History">
-                                    <i class="fa-solid fa-file-invoice-dollar text-xs"></i>
-                                </a>
-                                <a href="/payrollsystem/admin/employee/<?= $emp['EmpID'] ?>#edit" class="w-8 h-8 rounded-xl bg-amber-600/20 text-amber-300 border border-amber-500/30 flex items-center justify-center hover:bg-amber-600/40 hover:scale-105 transition-all" title="Edit Employee">
-                                    <i class="fa-solid fa-pen-to-square text-xs"></i>
-                                </a>
-                                <form action="/payrollsystem/admin/employees" method="POST" class="inline m-0 p-0" onsubmit="return confirm('Are you sure you want to delete this employee?');">
-                                    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
-                                    <input type="hidden" name="action" value="delete">
-                                    <input type="hidden" name="id" value="<?= $emp['EmpID'] ?>">
-                                    <button type="submit" class="w-8 h-8 rounded-xl bg-rose-600/20 text-rose-300 border border-rose-500/30 flex items-center justify-center hover:bg-rose-600/40 hover:scale-105 transition-all" title="Delete">
-                                        <i class="fa-solid fa-trash text-xs"></i>
-                                    </button>
-                                </form>
+                                <div class="text-xs text-violet-400 font-medium truncate"><?= htmlspecialchars($emp['PositionName'] ?? 'No Position') ?></div>
                             </div>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
-    </div>
-    <div class="px-6 py-4 border-t border-violet-900/40 bg-surface/60 flex justify-between items-center text-xs text-gray-400">
-        <div>Showing <span class="font-bold text-white font-mono"><?= count($data['employees'] ?? []) ?></span> active staff profiles</div>
-    </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Contact Info -->
+                    <div class="space-y-2 mb-5 bg-darker/40 rounded-xl p-3 border border-violet-900/20">
+                        <div class="flex items-center gap-2.5 text-xs text-gray-300">
+                            <div class="w-5 flex justify-center text-gray-500"><i class="fa-regular fa-envelope"></i></div>
+                            <span class="truncate" title="<?= htmlspecialchars($emp['Email']) ?>"><?= htmlspecialchars($emp['Email']) ?></span>
+                        </div>
+                        <?php if(!empty($emp['PhoneNumber'])): ?>
+                        <div class="flex items-center gap-2.5 text-xs text-gray-300">
+                            <div class="w-5 flex justify-center text-gray-500"><i class="fa-solid fa-phone"></i></div>
+                            <span><?= htmlspecialchars($emp['PhoneNumber']) ?></span>
+                        </div>
+                        <?php endif; ?>
+                        <div class="flex items-center gap-2.5 text-[10px] text-gray-400 mt-2 pt-2 border-t border-violet-900/30">
+                            <div class="w-5 flex justify-center text-gray-500"><i class="fa-solid fa-fingerprint text-[9px]"></i></div>
+                            <span class="font-mono">EMP-<?= htmlspecialchars(str_pad($emp['EmpID'], 4, '0', STR_PAD_LEFT)) ?></span>
+                            <span class="ml-auto flex items-center gap-1" title="Join Date"><i class="fa-regular fa-calendar text-[9px]"></i> <?= date('M Y', strtotime($emp['JoinDate'] ?? 'now')) ?></span>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex items-center justify-between pt-3 border-t border-violet-500/20">
+                        <a href="/payrollsystem/admin/employee/<?= $emp['EmpID'] ?>" class="text-[11px] font-extrabold text-white bg-violet-600/30 hover:bg-violet-600 border border-violet-500/50 hover:border-violet-400 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all shadow-sm">
+                            <i class="fa-regular fa-user text-[10px]"></i> View Profile
+                        </a>
+                        <div class="flex items-center gap-1.5">
+                            <a href="/payrollsystem/admin/employee/<?= $emp['EmpID'] ?>#edit" class="w-7 h-7 rounded-lg bg-surface border border-gray-700 hover:bg-amber-600/20 text-gray-400 hover:text-amber-300 hover:border-amber-500/30 flex items-center justify-center transition-all" title="Edit Profile">
+                                <i class="fa-solid fa-pen-to-square text-[10px]"></i>
+                            </a>
+                            <form action="/payrollsystem/admin/employees" method="POST" class="inline m-0 p-0" onsubmit="return confirm('Are you sure you want to remove this employee?');">
+                                <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="id" value="<?= $emp['EmpID'] ?>">
+                                <button type="submit" class="w-7 h-7 rounded-lg bg-surface border border-gray-700 hover:bg-rose-600/20 text-gray-400 hover:text-rose-300 hover:border-rose-500/30 flex items-center justify-center transition-all" title="Delete">
+                                    <i class="fa-solid fa-trash text-[10px]"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php endforeach; ?>
+    <?php endif; ?>
 </div>
+
 
 <!-- Add Modal -->
 <div id="addModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4 transition-all">
@@ -158,17 +186,27 @@
                 <div class="space-y-5">
                     <div>
                         <h4 class="font-bold text-violet-300 mb-3 text-xs uppercase tracking-wider flex items-center gap-2">
-                            <i class="fa-regular fa-id-card text-secondary"></i> Account Credentials
+                            <i class="fa-regular fa-user text-secondary"></i> Personal Details
                         </h4>
-                        <div class="space-y-3.5 bg-darker/50 p-4 rounded-2xl border border-violet-700/30 shadow-inner">
-                            <div>
-                                <label for="email" class="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-1">Email Address (Login ID)</label>
-                                <input type="email" name="email" id="email" required class="w-full px-3.5 py-2 bg-darker/80 border border-violet-700/30 rounded-xl focus:ring-2 focus:ring-violet-500 text-white text-xs shadow-inner">
+                        <div class="grid grid-cols-2 gap-3.5 bg-darker/50 p-4 rounded-2xl border border-violet-700/30 shadow-inner">
+                            <div class="col-span-2 hidden">
+                                <input type="hidden" name="employee_code" id="employee_code" value="AUTO">
                             </div>
                             <div>
-                                <label for="password" class="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-1">Account Password</label>
-                                <input type="password" name="password" id="password" required class="w-full px-3.5 py-2 bg-darker/80 border border-violet-700/30 rounded-xl focus:ring-2 focus:ring-violet-500 text-white text-xs shadow-inner">
-                                <span id="password-error" class="text-xs text-rose-400 hidden mt-1">Password must be at least 6 characters.</span>
+                                <label for="first_name" class="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-1">First Name</label>
+                                <input type="text" name="first_name" id="first_name" required class="w-full px-3.5 py-2 bg-darker/80 border border-violet-700/30 rounded-xl focus:ring-2 focus:ring-violet-500 text-white text-xs shadow-inner">
+                            </div>
+                            <div>
+                                <label for="last_name" class="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-1">Last Name</label>
+                                <input type="text" name="last_name" id="last_name" required class="w-full px-3.5 py-2 bg-darker/80 border border-violet-700/30 rounded-xl focus:ring-2 focus:ring-violet-500 text-white text-xs shadow-inner">
+                            </div>
+                            <div class="col-span-2">
+                                <label for="gender" class="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-1">Gender</label>
+                                <select name="gender" id="gender" required class="w-full px-3.5 py-2 bg-darker/80 border border-violet-700/30 rounded-xl focus:ring-2 focus:ring-violet-500 text-white text-xs shadow-inner cursor-pointer">
+                                    <option value="Other">Other</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -195,27 +233,18 @@
                 <div class="space-y-5">
                     <div>
                         <h4 class="font-bold text-violet-300 mb-3 text-xs uppercase tracking-wider flex items-center gap-2">
-                            <i class="fa-regular fa-user text-secondary"></i> Personal Details
+                            <i class="fa-regular fa-id-card text-secondary"></i> Account Credentials
                         </h4>
-                        <div class="grid grid-cols-2 gap-3.5 bg-darker/50 p-4 rounded-2xl border border-violet-700/30 shadow-inner">
-                            <div class="col-span-2 hidden">
-                                <input type="hidden" name="employee_code" id="employee_code" value="AUTO">
+                        <div class="space-y-3.5 bg-darker/50 p-4 rounded-2xl border border-violet-700/30 shadow-inner">
+                            <div>
+                                <label for="email" class="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-1">Email Address (Login ID)</label>
+                                <input type="email" name="email" id="email" required class="w-full px-3.5 py-2 bg-darker/80 border border-violet-700/30 rounded-xl focus:ring-2 focus:ring-violet-500 text-white text-xs shadow-inner">
                             </div>
                             <div>
-                                <label for="first_name" class="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-1">First Name</label>
-                                <input type="text" name="first_name" id="first_name" required class="w-full px-3.5 py-2 bg-darker/80 border border-violet-700/30 rounded-xl focus:ring-2 focus:ring-violet-500 text-white text-xs shadow-inner">
-                            </div>
-                            <div>
-                                <label for="last_name" class="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-1">Last Name</label>
-                                <input type="text" name="last_name" id="last_name" required class="w-full px-3.5 py-2 bg-darker/80 border border-violet-700/30 rounded-xl focus:ring-2 focus:ring-violet-500 text-white text-xs shadow-inner">
-                            </div>
-                            <div class="col-span-2">
-                                <label for="gender" class="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-1">Gender</label>
-                                <select name="gender" id="gender" required class="w-full px-3.5 py-2 bg-darker/80 border border-violet-700/30 rounded-xl focus:ring-2 focus:ring-violet-500 text-white text-xs shadow-inner cursor-pointer">
-                                    <option value="Other">Other</option>
-                                    <option value="Male">Male</option>
-                                    <option value="Female">Female</option>
-                                </select>
+                                <label for="password" class="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-1">Account Password (Default)</label>
+                                <input type="password" name="password" id="password" required value="password" class="w-full px-3.5 py-2 bg-darker/80 border border-violet-700/30 rounded-xl focus:ring-2 focus:ring-violet-500 text-white text-xs shadow-inner">
+                                <span id="password-error" class="text-xs text-rose-400 hidden mt-1">Password must be at least 6 characters.</span>
+                                <p class="text-[10px] text-gray-400 mt-1"><i class="fa-solid fa-circle-info text-violet-400"></i> New employees are forced to change this upon first login.</p>
                             </div>
                         </div>
                     </div>
@@ -268,23 +297,36 @@
 function filterEmployees() {
     const searchVal = (document.getElementById('employeeSearchInput').value || '').toLowerCase();
     const deptVal = (document.getElementById('departmentFilterSelect').value || '').toLowerCase();
-    const rows = document.querySelectorAll('.emp-row');
+    const deptGroups = document.querySelectorAll('.department-group');
 
-    rows.forEach(row => {
-        const name = (row.querySelector('.emp-name')?.textContent || '').toLowerCase();
-        const dept = (row.querySelector('.emp-dept')?.textContent || '').toLowerCase();
+    deptGroups.forEach(group => {
+        const groupDept = (group.getAttribute('data-department') || '').toLowerCase();
+        const cards = group.querySelectorAll('.emp-card');
+        let visibleCardsInGroup = 0;
 
-        const matchSearch = !searchVal || name.includes(searchVal);
-        const matchDept = !deptVal || dept.includes(deptVal);
+        cards.forEach(card => {
+            const name = card.getAttribute('data-name');
+            const email = card.getAttribute('data-email');
+            
+            const matchSearch = !searchVal || name.includes(searchVal) || email.includes(searchVal);
+            const matchDept = !deptVal || groupDept === deptVal;
 
-        if (matchSearch && matchDept) {
-            row.style.display = '';
+            if (matchSearch && matchDept) {
+                card.style.display = '';
+                visibleCardsInGroup++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        // Hide the whole department group if no cards are visible or if it's filtered out by department dropdown
+        if (visibleCardsInGroup === 0) {
+            group.style.display = 'none';
         } else {
-            row.style.display = 'none';
+            group.style.display = '';
         }
     });
 }
-
 document.addEventListener('DOMContentLoaded', function() {
     const departmentSelect = document.getElementById('department_id');
     const positionSelect = document.getElementById('position_id');

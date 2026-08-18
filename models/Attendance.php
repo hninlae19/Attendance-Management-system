@@ -49,7 +49,7 @@ class Attendance {
 
     public function calculateStatus($checkInTime, $checkOutTime) {
         if (empty($checkInTime) || empty($checkOutTime)) {
-            return 'Full-Day Absence';
+            return 'Absent';
         }
 
         $in = strtotime($checkInTime);
@@ -59,9 +59,9 @@ class Attendance {
         $lateThreshold = strtotime('09:15:00');
 
         if ($workingHours < 4) {
-            return 'Full-Day Absence';
+            return 'Absent';
         } elseif ($workingHours >= 4 && $workingHours < 6) {
-            return 'Half-Day Absence';
+            return 'Half Day';
         } elseif ($workingHours >= 6 && $workingHours < 7.75) {
             return 'Late';
         } else {
@@ -135,7 +135,7 @@ class Attendance {
 
 
             // Check each employee
-            $insertQuery = "INSERT INTO " . $this->table . " (EmpID, AttendanceDate, Status) VALUES (:emp_id, :date, 'Full-Day Absence')";
+            $insertQuery = "INSERT INTO " . $this->table . " (EmpID, AttendanceDate, Status) VALUES (:emp_id, :date, 'Absent')";
             $insertStmt = $this->conn->prepare($insertQuery);
 
             foreach ($activeEmployees as $emp) {
