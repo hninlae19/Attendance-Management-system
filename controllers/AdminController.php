@@ -387,7 +387,7 @@ class AdminController extends Controller {
         
         $otMap = [];
         foreach($overtimes as $ot) {
-            $otMap[$ot['EmpID'] . '_' . $ot['OvertimeDate']] = $ot['OvertimeHours'];
+            $otMap[$ot['EmpID'] . '_' . $ot['OvertimeDate']] = $ot['TotalHours'];
         }
         
         $empMap = [];
@@ -406,11 +406,27 @@ class AdminController extends Controller {
             $dept = $deptMap[$deptId] ?? null;
             
             $working_hours = 0;
+            $calculated_status = $record['Status'];
+            
             if ($record['CheckInTime'] && $record['CheckOutTime']) {
                 $in = strtotime($record['CheckInTime']);
                 $out = strtotime($record['CheckOutTime']);
-                $working_hours = round(abs($out - $in) / 3600, 1);
+                $working_hours = round(abs($out - $in) / 3600, 2);
+                
+                $calculated_status = $attendanceModel->calculateStatus($record['CheckInTime'], $record['CheckOutTime']);
+            } elseif ($record['CheckInTime'] && empty($record['CheckOutTime'])) {
+                $in = strtotime($record['CheckInTime']);
+                $now = strtotime(date('H:i:s'));
+                $working_hours = round(abs($now - $in) / 3600, 2);
+                $calculated_status = 'Present';
+            } elseif (empty($record['CheckInTime']) && empty($record['CheckOutTime'])) {
+                $calculated_status = 'Absent';
+            } else if ($record['Status'] === 'Absent' || $record['Status'] === 'Full-Day Absence' || $record['Status'] === 'Full-day absent') {
+                $calculated_status = 'Absent';
+            } else if ($record['Status'] === 'Half Day' || $record['Status'] === 'Half-Day Absence' || $record['Status'] === 'Half-day absent') {
+                $calculated_status = 'Half Day';
             }
+            
             $ot_hours = $otMap[$record['EmpID'] . '_' . $record['AttendanceDate']] ?? 0;
             
             $data[] = [
@@ -425,10 +441,10 @@ class AdminController extends Controller {
                 'date' => $record['AttendanceDate'],
                 'check_in' => $record['CheckInTime'],
                 'check_out' => $record['CheckOutTime'],
-                'is_auto_checkout' => 0, 
+                'is_auto_checkout' => $record['is_auto_checkout'] ?? 0, 
                 'working_hours' => $working_hours,
                 'ot_hours' => $ot_hours, 
-                'status' => $record['Status'],
+                'status' => $calculated_status,
                 'late_minutes' => 0
             ];
         }
@@ -442,21 +458,7 @@ class AdminController extends Controller {
             if (!empty($_GET['status'])) {
                 $f = strtolower(trim($_GET['status']));
                 $s = strtolower(trim($item['status'] ?? ''));
-                $statusMatch = ($f === $s);
-                if (!$statusMatch) {
-                    if ($f === 'present' && $s === 'present') {
-                        $statusMatch = true;
-                    } elseif ($f === 'late' && (strpos($s, 'late') !== false)) {
-                        $statusMatch = true;
-                    } elseif (($f === 'half day' || $f === 'half-day absence' || $f === 'half-day') && (strpos($s, 'half') !== false)) {
-                        $statusMatch = true;
-                    } elseif (($f === 'absent' || $f === 'full-day absence' || $f === 'full day absence' || $f === 'full day') && (strpos($s, 'absent') !== false || strpos($s, 'absence') !== false)) {
-                        $statusMatch = true;
-                    } elseif ($f === 'on leave' && (strpos($s, 'leave') !== false)) {
-                        $statusMatch = true;
-                    }
-                }
-                if (!$statusMatch) $match = false;
+                if ($f !== $s) $match = false;
             }
             if (!empty($_GET['search'])) {
                 $search = strtolower($_GET['search']);
@@ -645,13 +647,6 @@ class AdminController extends Controller {
                             $this->redirect('/payrollsystem/admin/overtime_assignments?error=' . urlencode('New overtime assignments must be for the current date or a future date.'));
                             return;
                         }
-                        if ($otDate === $today) {
-                            $startDatetime = strtotime("$today $startTime");
-                            if ($startDatetime < time()) {
-                                $this->redirect('/payrollsystem/admin/overtime_assignments?error=' . urlencode('Overtime assignment failed: Cannot assign overtime for a time that has already passed today.'));
-                                return;
-                            }
-                        }
                     }
                     
                     $db = new Database();
@@ -707,7 +702,7 @@ class AdminController extends Controller {
                         $minStart = strtotime("1970-01-01 09:00:00");
                         $maxEnd = strtotime("1970-01-01 17:00:00");
                         if ($startUnix < $minStart || $endUnix > $maxEnd) {
-                            $this->redirect('/payrollsystem/admin/overtime_assignments?error=' . urlencode('Overtime assignment failed: Invalid overtime schedule.'));
+                            $this->redirect('/payrollsystem/admin/overtime_assignments?error=' . urlencode('Overtime assignment failed: Overtime is only allowed between 9:00 AM and 5:00 PM on holidays/weekends.'));
                             return;
                         }
                     }
@@ -745,8 +740,10 @@ class AdminController extends Controller {
                         $existing = $overtimeModel->getAssignmentsByDate($empId, $otDate, $excludeId);
                         foreach ($existing as $ex) {
                             if (!$ex['StartTime'] || !$ex['EndTime']) continue; // skip old malformed data
-                            $exStart = strtotime("1970-01-01 {$ex['StartTime']}");
-                            $exEnd = strtotime("1970-01-01 {$ex['EndTime']}");
+                            $exStartTimeOnly = date('H:i:s', strtotime($ex['StartTime']));
+                            $exEndTimeOnly = date('H:i:s', strtotime($ex['EndTime']));
+                            $exStart = strtotime("1970-01-01 $exStartTimeOnly");
+                            $exEnd = strtotime("1970-01-01 $exEndTimeOnly");
                             if ($exEnd < $exStart) $exEnd += 86400;
                             
                             if ($startUnix < $exEnd && $endUnix > $exStart) {
@@ -778,8 +775,8 @@ class AdminController extends Controller {
 
                         $overtimeModel->EmpID = $empId;
                         $overtimeModel->OvertimeDate = $otDate;
-                        $overtimeModel->StartTime = $startTime;
-                        $overtimeModel->EndTime = $endTime;
+                        $overtimeModel->StartTime = date('Y-m-d H:i:s', strtotime("$otDate $startTime:00"));
+                        $overtimeModel->EndTime = date('Y-m-d H:i:s', strtotime("$otDate $endTime:00" . (strtotime("1970-01-01 $endTime") < strtotime("1970-01-01 $startTime") ? " +1 day" : "")));
                         $overtimeModel->TotalHours = $hours;
                         $overtimeModel->RateMultiplier = $rateMultiplier;
                         $overtimeModel->OTAmount = $otAmount;

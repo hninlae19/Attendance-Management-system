@@ -48,6 +48,29 @@ class EmployeeController extends Controller {
     public function overtime() {
         $emp_id = $_SESSION['employee_id'];
         $overtimeModel = $this->model('OvertimeAssign');
+        
+        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'], $_POST['id'])) {
+            $this->validateCsrfToken($_POST['csrf_token'] ?? '');
+            $ot_id = $_POST['id'];
+            $action = $_POST['action'];
+            
+            if ($action === 'accept') {
+                $overtimeModel->accept($ot_id, $emp_id);
+                $_SESSION['flash_success'] = 'Overtime assignment accepted.';
+            } elseif ($action === 'reject') {
+                $overtimeModel->reject($ot_id, $emp_id);
+                $_SESSION['flash_success'] = 'Overtime assignment rejected.';
+            } elseif ($action === 'checkin') {
+                if ($overtimeModel->checkIn($ot_id, $emp_id)) {
+                    $_SESSION['flash_success'] = 'Checked in successfully for overtime.';
+                } else {
+                    $_SESSION['flash_error'] = 'Cannot check in yet. Please try again within 10 minutes of your scheduled start time.';
+                }
+            }
+            header("Location: /payrollsystem/employee/overtime");
+            exit;
+        }
+
         $overtimes = $overtimeModel->getByEmployee($emp_id);
 
         $upcoming = 0;
@@ -57,13 +80,13 @@ class EmployeeController extends Controller {
         $today = date('Y-m-d');
 
         foreach ($overtimes as $ot) {
-            if ($ot['OvertimeDate'] >= $today && $ot['Status'] === 'Approved') {
+            if ($ot['OvertimeDate'] >= $today && in_array($ot['Status'], ['Accepted', 'Completed', 'InProgress'])) {
                 $upcoming++;
             }
             if ($ot['Status'] === 'Pending') {
                 $pending++;
             }
-            if ($ot['Status'] === 'Approved') {
+            if ($ot['Status'] === 'Completed') {
                 $totalHours += (float)$ot['TotalHours'];
                 $totalEarnings += (float)$ot['OTAmount'];
             }
@@ -128,6 +151,10 @@ class EmployeeController extends Controller {
                 $in = strtotime($record['CheckInTime']);
                 $out = strtotime($record['CheckOutTime']);
                 $working_hours = round(abs($out - $in) / 3600, 1);
+            } elseif (!empty($record['CheckInTime']) && empty($record['CheckOutTime'])) {
+                $in = strtotime($record['CheckInTime']);
+                $now = strtotime(date('H:i:s'));
+                $working_hours = round(abs($now - $in) / 3600, 1);
             }
             $record['working_hours'] = $working_hours;
             $record['ot_hours'] = $otMap[$record['AttendanceDate']] ?? 0;

@@ -108,7 +108,7 @@ class Payroll {
             $p['late_days'] = $attStats['late_days'] ?: 0;
             
             // OT stats
-            $stmt = $this->conn->prepare("SELECT SUM(TotalHours) as ot_hours FROM overtimeassign WHERE EmpID = :emp AND OvertimeDate BETWEEN :sd AND :ed AND Status = 'Approved'");
+            $stmt = $this->conn->prepare("SELECT SUM(TotalHours) as ot_hours FROM overtimeassign WHERE EmpID = :emp AND OvertimeDate BETWEEN :sd AND :ed AND Status = 'Completed'");
             $stmt->execute([':emp' => $empId, ':sd' => $startDate, ':ed' => $endDate]);
             $p['ot_hours'] = $stmt->fetchColumn() ?: 0;
             

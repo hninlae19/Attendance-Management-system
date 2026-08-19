@@ -86,7 +86,7 @@
                 <input type="number" name="days" id="days" required min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
             </div>
             <div class="mb-4 flex items-center">
-                <input type="checkbox" name="is_paid" id="is_paid" value="1" class="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary dark:bg-gray-700 dark:border-gray-600">
+                <input type="checkbox" name="is_paid" id="is_paid" value="1" class="text-gray-900 w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary dark:bg-gray-700 dark:border-gray-600">
                 <label for="is_paid" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">Is Paid Leave?</label>
             </div>
             <div class="mb-4">
@@ -129,7 +129,7 @@
                 <input type="number" name="days" id="edit_days" required min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm">
             </div>
             <div class="mb-4 flex items-center">
-                <input type="checkbox" name="is_paid" id="edit_is_paid" value="1" class="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary dark:bg-gray-700 dark:border-gray-600">
+                <input type="checkbox" name="is_paid" id="edit_is_paid" value="1" class="text-gray-900 w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary dark:bg-gray-700 dark:border-gray-600">
                 <label for="edit_is_paid" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">Is Paid Leave?</label>
             </div>
             <div class="mb-4">

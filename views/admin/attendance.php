@@ -20,7 +20,7 @@
             <!-- View Type -->
             <div>
                 <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Attendance Type</label>
-                <select x-model="filters.view_type" @change="handleViewTypeChange()" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm">
+                <select x-model="filters.view_type" @change="handleViewTypeChange()" class="text-gray-900 w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm">
                     <option value="daily">Daily</option>
                     <option value="weekly">Weekly</option>
                     <option value="monthly">Monthly</option>
@@ -31,17 +31,17 @@
             <!-- Date Range -->
             <div x-show="filters.view_type !== 'corrections'">
                 <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</label>
-                <input type="date" x-model="filters.date_start" @change="fetchData()" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm">
+                <input type="date" x-model="filters.date_start" @change="fetchData()" class="text-gray-900 w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm">
             </div>
             <div x-show="filters.view_type !== 'corrections'">
                 <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">End Date</label>
-                <input type="date" x-model="filters.date_end" @change="fetchData()" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm">
+                <input type="date" x-model="filters.date_end" @change="fetchData()" class="text-gray-900 w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm">
             </div>
 
             <!-- Department -->
             <div x-show="filters.view_type !== 'corrections'">
                 <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Department</label>
-                <select x-model="filters.department_id" @change="fetchData()" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm">
+                <select x-model="filters.department_id" @change="fetchData()" class="text-gray-900 w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm">
                     <option value="">All Departments</option>
                     <?php foreach($data['departments'] as $dept): ?>
                         <option value="<?= $dept['DeptID'] ?>"><?= htmlspecialchars($dept['DeptName']) ?></option>
@@ -52,7 +52,7 @@
             <!-- Employee -->
             <div x-show="filters.view_type !== 'corrections'">
                 <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Employee</label>
-                <select x-model="filters.employee_id" @change="fetchData()" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm">
+                <select x-model="filters.employee_id" @change="fetchData()" class="text-gray-900 w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm">
                     <option value="">All Employees</option>
                     <?php foreach($data['employees'] as $emp): ?>
                         <option value="<?= $emp['EmpID'] ?>"><?= htmlspecialchars($emp['FirstName'] . ' ' . $emp['LastName']) ?></option>
@@ -63,7 +63,7 @@
             <!-- Status -->
             <div x-show="filters.view_type !== 'corrections'">
                 <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
-                <select x-model="filters.status" @change="fetchData()" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm">
+                <select x-model="filters.status" @change="fetchData()" class="text-gray-900 w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm">
                     <option value="">All Statuses</option>
                     <option value="Present">Present</option>
                     <option value="Late">Late</option>
@@ -80,7 +80,7 @@
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i class="fa-solid fa-search text-gray-400"></i>
                     </div>
-                    <input type="text" x-model.debounce.500ms="filters.search" @input="fetchData()" placeholder="Search by name, code, or department..." class="w-full pl-10 px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm">
+                    <input type="text" x-model.debounce.500ms="filters.search" @input="fetchData()" placeholder="Search by name, code, or department..." class="text-gray-900 w-full pl-10 px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm">
                 </div>
             </div>
 
@@ -178,15 +178,15 @@
                                       :class="{
                                           'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800/30': record.status === 'Present',
                                           'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800/30': record.status === 'Late' || record.status === 'Late Check-In',
-                                          'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800/30': record.status === 'Half Day' || record.status === 'Half-Day Absence',
-                                          'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800/30': record.status === 'Absent' || record.status === 'Full-Day Absence',
+                                          'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800/30': record.status === 'Half Day' || record.status === 'Half-day absent',
+                                          'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800/30': record.status === 'Absent' || record.status === 'Full-day absent',
                                           'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800/30': record.status === 'On Leave'
                                       }">
                                       <span class="w-1.5 h-1.5 rounded-full mr-1.5" :class="{
                                           'bg-emerald-500': record.status === 'Present',
                                           'bg-amber-500': record.status === 'Late' || record.status === 'Late Check-In',
-                                          'bg-orange-500': record.status === 'Half Day' || record.status === 'Half-Day Absence',
-                                          'bg-rose-500': record.status === 'Absent' || record.status === 'Full-Day Absence',
+                                          'bg-orange-500': record.status === 'Half Day' || record.status === 'Half-day absent',
+                                          'bg-rose-500': record.status === 'Absent' || record.status === 'Full-day absent',
                                           'bg-blue-500': record.status === 'On Leave'
                                       }"></span>
                                       <span x-text="record.status"></span>
@@ -284,9 +284,9 @@
                                 <span class="font-medium" 
                                     :class="{
                                         'text-green-600': selectedRecord?.status === 'Present',
-                                        'text-yellow-600': selectedRecord?.status === 'Late',
-                                        'text-orange-600': selectedRecord?.status === 'Half Day',
-                                        'text-red-600': selectedRecord?.status === 'Absent'
+                                        'text-yellow-600': selectedRecord?.status === 'Late' || selectedRecord?.status === 'Late Check-In',
+                                        'text-orange-600': selectedRecord?.status === 'Half Day' || selectedRecord?.status === 'Half-day absent',
+                                        'text-red-600': selectedRecord?.status === 'Absent' || selectedRecord?.status === 'Full-day absent'
                                     }"
                                     x-text="selectedRecord?.status"></span>
                             </li>

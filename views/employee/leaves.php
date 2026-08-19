@@ -11,10 +11,10 @@
             <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-outfit">
                 My <span class="gradient-text">Leave</span> Portal
             </h1>
-            <p class="text-gray-300 text-xs sm:text-sm mt-1">Track your annual leave entitlement, submit time-off requests, and monitor approval statuses.</p>
+            <p class="text-gray-700 dark:text-gray-300 text-xs sm:text-sm mt-1">Track your annual leave entitlement, submit time-off requests, and monitor approval statuses.</p>
         </div>
         <button onclick="document.getElementById('applyModal').classList.remove('hidden')" 
-                class="px-5 py-3 rounded-2xl bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-extrabold text-xs tracking-wide shadow-xl shadow-violet-600/30 transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-2.5 font-outfit">
+                class="px-5 py-3 rounded-2xl bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-gray-900 dark:text-white font-extrabold text-xs tracking-wide shadow-xl shadow-violet-600/30 transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-2.5 font-outfit">
             <i class="fa-solid fa-plus text-sm"></i>
             <span>APPLY FOR LEAVE</span>
         </button>
@@ -58,14 +58,14 @@
             <div class="card-glass rounded-3xl p-5 flex flex-col justify-between hover:-translate-y-1 transition-all duration-300 border border-violet-500/20 <?= !$lb['is_eligible'] ? 'opacity-60' : '' ?>">
                 <div>
                     <div class="flex justify-between items-start mb-3">
-                        <h4 class="text-sm font-extrabold text-white flex items-center gap-2 font-outfit">
+                        <h4 class="text-sm font-extrabold text-gray-900 dark:text-white flex items-center gap-2 font-outfit">
                             <i class="fa-solid fa-calendar-check text-cyan-400 text-xs"></i>
                             <span><?= htmlspecialchars($lb['LeaveType']) ?></span>
                         </h4>
                         <?php if($lb['is_paid']): ?>
                             <span class="px-2 py-0.5 text-[9px] uppercase font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 rounded-full">Paid</span>
                         <?php else: ?>
-                            <span class="px-2 py-0.5 text-[9px] uppercase font-bold bg-gray-500/20 text-gray-300 border border-gray-500/30 rounded-full">Unpaid</span>
+                            <span class="px-2 py-0.5 text-[9px] uppercase font-bold bg-gray-500/20 text-gray-700 dark:text-gray-300 border border-gray-500/30 rounded-full">Unpaid</span>
                         <?php endif; ?>
                     </div>
                     
@@ -75,17 +75,17 @@
                             <span><?= htmlspecialchars($lb['ineligible_reason']) ?></span>
                         </p>
                     <?php else: ?>
-                        <p class="text-[11px] text-gray-400 mb-4">Total days taken this year.</p>
+                        <p class="text-[11px] text-gray-600 dark:text-gray-400 mb-4">Total days taken this year.</p>
                     <?php endif; ?>
                 </div>
                 
                 <?php if($lb['is_eligible']): ?>
                 <div class="pt-2 border-t border-violet-900/30">
                     <div class="flex justify-between items-end mb-1.5">
-                        <span class="text-2xl font-black text-white font-mono"><?= $used ?></span>
-                        <span class="text-xs text-gray-400 font-bold">/ <?= $isUnlimited ? '∞' : $limit ?> days</span>
+                        <span class="text-2xl font-black text-gray-900 dark:text-white font-mono"><?= $used ?></span>
+                        <span class="text-xs text-gray-600 dark:text-gray-400 font-bold">/ <?= $isUnlimited ? '∞' : $limit ?> days</span>
                     </div>
-                    <div class="w-full h-2 bg-darker/80 rounded-full overflow-hidden border border-violet-900/40">
+                    <div class="w-full h-2 bg-darker/80 rounded-full overflow-hidden border border-gray-200 dark:border-violet-900/40">
                         <div class="h-full rounded-full transition-all duration-500 <?= $exhausted ? 'bg-rose-500' : 'bg-gradient-to-r from-violet-500 via-cyan-400 to-emerald-400' ?>" style="width: <?= $pct ?>%"></div>
                     </div>
                 </div>
@@ -107,23 +107,23 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <?php if(empty($data['leaveRequests'])): ?>
             <div class="col-span-full p-12 text-center card-glass rounded-3xl">
-                <div class="w-14 h-14 mx-auto rounded-2xl bg-surface flex items-center justify-center mb-3 text-violet-400 border border-violet-800/30">
+                <div class="w-14 h-14 mx-auto rounded-2xl bg-white dark:bg-gray-800 flex items-center justify-center mb-3 text-violet-400 border border-violet-800/30">
                     <i class="fa-solid fa-folder-open text-2xl"></i>
                 </div>
-                <p class="font-bold text-white text-base font-outfit">No leave applications found</p>
-                <p class="text-xs text-gray-400 mt-1">Submit a leave request using the button above to request time off.</p>
+                <p class="font-bold text-gray-900 dark:text-white text-base font-outfit">No leave applications found</p>
+                <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">Submit a leave request using the button above to request time off.</p>
             </div>
         <?php else: ?>
             <?php foreach($data['leaveRequests'] as $lr): ?>
             <div class="card-glass rounded-3xl p-5 hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group border border-violet-500/20">
                 <div class="flex justify-between items-start mb-4">
                     <div>
-                        <h3 class="text-base font-extrabold text-white flex items-center gap-2 font-outfit">
+                        <h3 class="text-base font-extrabold text-gray-900 dark:text-white flex items-center gap-2 font-outfit">
                             <?= htmlspecialchars($lr['LeaveType']) ?>
                             <?php if($lr['IsPaid']): ?>
                                 <span class="px-2 py-0.5 text-[9px] uppercase font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 rounded-full">Paid</span>
                             <?php else: ?>
-                                <span class="px-2 py-0.5 text-[9px] uppercase font-bold bg-gray-500/20 text-gray-300 border border-gray-500/30 rounded-full">Unpaid</span>
+                                <span class="px-2 py-0.5 text-[9px] uppercase font-bold bg-gray-500/20 text-gray-700 dark:text-gray-300 border border-gray-500/30 rounded-full">Unpaid</span>
                             <?php endif; ?>
                         </h3>
                     </div>
@@ -140,21 +140,21 @@
                 
                 <div class="flex items-center justify-between p-3.5 bg-darker/60 rounded-2xl border border-violet-900/30 mb-3">
                     <div class="text-center w-1/2 border-r border-violet-900/40">
-                        <p class="text-[10px] text-gray-400 uppercase font-extrabold tracking-wider mb-0.5">Start Date</p>
-                        <p class="font-mono text-xs font-bold text-white"><?= date('M j, Y', strtotime($lr['StartDate'])) ?></p>
+                        <p class="text-[10px] text-gray-600 dark:text-gray-400 uppercase font-extrabold tracking-wider mb-0.5">Start Date</p>
+                        <p class="font-mono text-xs font-bold text-gray-900 dark:text-white"><?= date('M j, Y', strtotime($lr['StartDate'])) ?></p>
                     </div>
                     <div class="text-center w-1/2">
-                        <p class="text-[10px] text-gray-400 uppercase font-extrabold tracking-wider mb-0.5">End Date</p>
-                        <p class="font-mono text-xs font-bold text-white"><?= date('M j, Y', strtotime($lr['EndDate'])) ?></p>
+                        <p class="text-[10px] text-gray-600 dark:text-gray-400 uppercase font-extrabold tracking-wider mb-0.5">End Date</p>
+                        <p class="font-mono text-xs font-bold text-gray-900 dark:text-white"><?= date('M j, Y', strtotime($lr['EndDate'])) ?></p>
                     </div>
                 </div>
                 
-                <div class="text-xs text-gray-300 mb-1.5 flex justify-between">
-                    <span class="text-gray-400">Duration:</span>
+                <div class="text-xs text-gray-700 dark:text-gray-300 mb-1.5 flex justify-between">
+                    <span class="text-gray-600 dark:text-gray-400">Duration:</span>
                     <strong class="text-cyan-300 font-mono"><?= $lr['days'] ?> Day(s)</strong>
                 </div>
-                <div class="text-xs text-gray-300 mb-2">
-                    <span class="text-gray-400">Reason:</span>
+                <div class="text-xs text-gray-700 dark:text-gray-300 mb-2">
+                    <span class="text-gray-600 dark:text-gray-400">Reason:</span>
                     <span class="text-gray-200"><?= htmlspecialchars($lr['Reason']) ?></span>
                 </div>
 
@@ -174,10 +174,10 @@
 <div id="applyModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
     <div class="card-glass rounded-3xl max-w-md w-full shadow-2xl overflow-hidden border border-violet-500/30" data-aos="zoom-in">
         <div class="px-6 py-4 border-b border-violet-900/40 flex justify-between items-center bg-surface/90">
-            <h3 class="text-base font-extrabold text-white flex items-center gap-2 font-outfit">
+            <h3 class="text-base font-extrabold text-gray-900 dark:text-white flex items-center gap-2 font-outfit">
                 <i class="fa-solid fa-plane-departure text-secondary"></i> Apply for Leave
             </h3>
-            <button type="button" onclick="document.getElementById('applyModal').classList.add('hidden')" class="w-8 h-8 rounded-xl bg-surface text-gray-400 hover:text-white flex items-center justify-center transition-colors">
+            <button type="button" onclick="document.getElementById('applyModal').classList.add('hidden')" class="w-8 h-8 rounded-xl bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:text-white flex items-center justify-center transition-colors">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
@@ -187,7 +187,7 @@
             
             <div>
                 <label for="leave_type_id" class="block text-xs font-bold uppercase tracking-wider text-violet-300 mb-1.5">Leave Type</label>
-                <select name="leave_type_id" id="leave_type_id" required class="w-full px-3.5 py-2.5 bg-darker/60 border border-violet-700/30 text-white rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-400 text-xs shadow-inner">
+                <select name="leave_type_id" id="leave_type_id" required class="w-full px-3.5 py-2.5 bg-darker/60 border border-gray-300 dark:border-violet-700/30 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-400 text-xs shadow-inner">
                     <option value="">Select Leave Type</option>
                     <?php foreach($data['leaveBalances'] as $lb): ?>
                         <?php 
@@ -209,25 +209,25 @@
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label for="start_date" class="block text-xs font-bold uppercase tracking-wider text-violet-300 mb-1.5">Start Date</label>
-                    <input type="date" name="start_date" id="start_date" required min="<?= date('Y-m-d', strtotime('+1 day')) ?>" class="w-full px-3.5 py-2.5 bg-darker/60 border border-violet-700/30 text-white rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-400 text-xs shadow-inner">
+                    <input type="date" name="start_date" id="start_date" required min="<?= date('Y-m-d', strtotime('+1 day')) ?>" class="w-full px-3.5 py-2.5 bg-darker/60 border border-gray-300 dark:border-violet-700/30 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-400 text-xs shadow-inner">
                 </div>
                 <div>
                     <label for="end_date" class="block text-xs font-bold uppercase tracking-wider text-violet-300 mb-1.5">End Date</label>
-                    <input type="date" name="end_date" id="end_date" required min="<?= date('Y-m-d', strtotime('+1 day')) ?>" class="w-full px-3.5 py-2.5 bg-darker/60 border border-violet-700/30 text-white rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-400 text-xs shadow-inner">
+                    <input type="date" name="end_date" id="end_date" required min="<?= date('Y-m-d', strtotime('+1 day')) ?>" class="w-full px-3.5 py-2.5 bg-darker/60 border border-gray-300 dark:border-violet-700/30 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-400 text-xs shadow-inner">
                 </div>
             </div>
             <div id="dateError" class="text-rose-400 text-xs mt-1 hidden"><i class="fa-solid fa-circle-exclamation mr-1"></i> End Date cannot be earlier than Start Date.</div>
             <div id="attendanceError" class="text-rose-400 text-xs mt-1 hidden"><i class="fa-solid fa-circle-exclamation mr-1"></i> You have already checked in today. Your leave request must start from tomorrow.</div>
-            <div id="durationDisplay" class="text-xs font-bold text-cyan-300 mt-2 hidden p-2 bg-darker/60 rounded-xl border border-violet-900/30"><i class="fa-solid fa-clock mr-1"></i> Total Duration: <span id="durationDays" class="font-extrabold text-white font-mono"></span> Day(s)</div>
+            <div id="durationDisplay" class="text-xs font-bold text-cyan-300 mt-2 hidden p-2 bg-darker/60 rounded-xl border border-violet-900/30"><i class="fa-solid fa-clock mr-1"></i> Total Duration: <span id="durationDays" class="font-extrabold text-gray-900 dark:text-white font-mono"></span> Day(s)</div>
 
             <div>
                 <label for="reason" class="block text-xs font-bold uppercase tracking-wider text-violet-300 mb-1.5">Reason</label>
-                <textarea name="reason" id="reason" rows="3" required class="w-full px-3.5 py-2.5 bg-darker/60 border border-violet-700/30 text-white rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-400 text-xs shadow-inner placeholder-gray-500" placeholder="Please provide leave reason..."></textarea>
+                <textarea name="reason" id="reason" rows="3" required class="w-full px-3.5 py-2.5 bg-darker/60 border border-gray-300 dark:border-violet-700/30 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-400 text-xs shadow-inner placeholder-gray-500" placeholder="Please provide leave reason..."></textarea>
             </div>
             
             <div class="flex justify-end gap-3 mt-6 pt-3 border-t border-violet-900/40">
-                <button type="button" onclick="document.getElementById('applyModal').classList.add('hidden')" class="px-4 py-2.5 text-xs font-bold text-gray-400 hover:text-white bg-surface rounded-xl border border-violet-900/30 transition-colors">Cancel</button>
-                <button type="submit" class="px-5 py-2.5 text-xs font-extrabold text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 rounded-xl shadow-lg shadow-violet-600/30 transition-all hover:scale-105 font-outfit">Submit Application</button>
+                <button type="button" onclick="document.getElementById('applyModal').classList.add('hidden')" class="px-4 py-2.5 text-xs font-bold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:text-white bg-white dark:bg-gray-800 rounded-xl border border-violet-900/30 transition-colors">Cancel</button>
+                <button type="submit" class="px-5 py-2.5 text-xs font-extrabold text-gray-900 dark:text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 rounded-xl shadow-lg shadow-violet-600/30 transition-all hover:scale-105 font-outfit">Submit Application</button>
             </div>
         </form>
     </div>

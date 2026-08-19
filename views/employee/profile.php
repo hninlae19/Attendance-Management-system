@@ -16,7 +16,7 @@
             <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-outfit">
                 My <span class="gradient-text">Profile</span> & Security
             </h1>
-            <p class="text-gray-300 text-xs sm:text-sm mt-1">Manage your contact details, profile photograph, and account credentials.</p>
+            <p class="text-gray-700 dark:text-gray-300 text-xs sm:text-sm mt-1">Manage your contact details, profile photograph, and account credentials.</p>
         </div>
     </div>
 </div>
@@ -49,22 +49,22 @@
                 <!-- Avatar with glowing border -->
                 <div class="relative w-32 h-32 mx-auto mb-4 group">
                     <div class="absolute -inset-1 rounded-full bg-gradient-to-r from-violet-600 via-cyan-500 to-amber-500 opacity-70 blur-md group-hover:opacity-100 transition-opacity"></div>
-                    <div class="relative w-full h-full rounded-full overflow-hidden border-2 border-violet-400/40 bg-surface shadow-2xl">
+                    <div class="relative w-full h-full rounded-full overflow-hidden border-2 border-violet-400/40 bg-white dark:bg-gray-800 shadow-2xl">
                         <?php if (!empty($employee['ProfilePhoto'])): ?>
                             <img src="/payrollsystem/<?= htmlspecialchars($employee['ProfilePhoto']) ?>" alt="Profile" class="w-full h-full object-cover">
                         <?php else: ?>
-                            <div class="w-full h-full bg-gradient-to-br from-violet-600 to-purple-800 flex items-center justify-center text-4xl font-extrabold text-white">
+                            <div class="w-full h-full bg-gradient-to-br from-violet-600 to-purple-800 flex items-center justify-center text-4xl font-extrabold text-gray-900 dark:text-white">
                                 <?= htmlspecialchars(strtoupper(substr($employee['FirstName'] ?? 'E', 0, 1))) ?>
                             </div>
                         <?php endif; ?>
                     </div>
                 </div>
 
-                <h3 class="text-xl font-extrabold text-white font-outfit"><?= htmlspecialchars(($employee['FirstName'] ?? '') . ' ' . ($employee['LastName'] ?? '')) ?></h3>
+                <h3 class="text-xl font-extrabold text-gray-900 dark:text-white font-outfit"><?= htmlspecialchars(($employee['FirstName'] ?? '') . ' ' . ($employee['LastName'] ?? '')) ?></h3>
                 <p class="text-cyan-400 font-bold text-xs mt-0.5"><?= htmlspecialchars($employee['PositionName'] ?? 'Employee') ?></p>
-                <p class="text-xs text-gray-400 mt-1"><?= htmlspecialchars($employee['DeptName'] ?? 'Department') ?></p>
+                <p class="text-xs text-gray-600 dark:text-gray-400 mt-1"><?= htmlspecialchars($employee['DeptName'] ?? 'Department') ?></p>
                 
-                <div class="mt-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-surface/90 border border-violet-900/40 text-gray-300 text-xs font-mono">
+                <div class="mt-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-surface/90 border border-gray-200 dark:border-violet-900/40 text-gray-700 dark:text-gray-300 text-xs font-mono">
                     <i class="fa-solid fa-fingerprint text-secondary text-xs"></i>
                     <span>EMP-<?= str_pad($employee['EmpID'] ?? 0, 4, '0', STR_PAD_LEFT) ?></span>
                 </div>
@@ -75,8 +75,8 @@
                 <form action="/payrollsystem/employee/updatePhoto" method="POST" enctype="multipart/form-data">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                     <label class="block text-xs font-bold uppercase tracking-wider text-violet-300 mb-2">Update Photo</label>
-                    <input type="file" name="profile_photo" accept="image/*" class="w-full text-xs text-gray-400 file:mr-3 file:py-2 file:px-3.5 file:rounded-xl file:border-0 file:text-xs file:font-extrabold file:bg-violet-600/30 file:text-violet-300 hover:file:bg-violet-600/50 mb-3 cursor-pointer bg-darker/60 rounded-xl border border-violet-700/30 p-1">
-                    <button type="submit" class="w-full py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-extrabold text-xs rounded-xl transition-all shadow-lg shadow-violet-600/25 hover:scale-[1.02] active:scale-[0.98]">
+                    <input type="file" name="profile_photo" accept="image/*" class="w-full text-xs text-gray-600 dark:text-gray-400 file:mr-3 file:py-2 file:px-3.5 file:rounded-xl file:border-0 file:text-xs file:font-extrabold file:bg-violet-600/30 file:text-violet-300 hover:file:bg-violet-600/50 mb-3 cursor-pointer bg-darker/60 rounded-xl border border-gray-300 dark:border-violet-700/30 p-1">
+                    <button type="submit" class="w-full py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-gray-900 dark:text-white font-extrabold text-xs rounded-xl transition-all shadow-lg shadow-violet-600/25 hover:scale-[1.02] active:scale-[0.98]">
                         <i class="fa-solid fa-upload mr-1.5"></i> Upload Photo
                     </button>
                 </form>
@@ -88,7 +88,7 @@
     <div class="lg:col-span-2 space-y-6">
         <!-- Personal Info Form -->
         <div class="card-glass rounded-3xl p-6 border border-violet-500/20 shadow-xl">
-            <h3 class="text-base font-extrabold text-white mb-4 flex items-center gap-2 font-outfit">
+            <h3 class="text-base font-extrabold text-gray-900 dark:text-white mb-4 flex items-center gap-2 font-outfit">
                 <i class="fa-solid fa-user-pen text-secondary"></i> Personal Information
             </h3>
             <form action="/payrollsystem/employee/updateProfile" method="POST">
@@ -97,28 +97,28 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-violet-300 mb-1.5">First Name</label>
-                        <input type="text" name="first_name" value="<?= htmlspecialchars($employee['FirstName'] ?? '') ?>" required class="w-full px-3.5 py-2.5 bg-darker/60 border border-violet-700/30 text-white rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-400 text-xs shadow-inner">
+                        <input type="text" name="first_name" value="<?= htmlspecialchars($employee['FirstName'] ?? '') ?>" required class="w-full px-3.5 py-2.5 bg-darker/60 border border-gray-300 dark:border-violet-700/30 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-400 text-xs shadow-inner">
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-violet-300 mb-1.5">Last Name</label>
-                        <input type="text" name="last_name" value="<?= htmlspecialchars($employee['LastName'] ?? '') ?>" required class="w-full px-3.5 py-2.5 bg-darker/60 border border-violet-700/30 text-white rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-400 text-xs shadow-inner">
+                        <input type="text" name="last_name" value="<?= htmlspecialchars($employee['LastName'] ?? '') ?>" required class="w-full px-3.5 py-2.5 bg-darker/60 border border-gray-300 dark:border-violet-700/30 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-400 text-xs shadow-inner">
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-violet-300 mb-1.5">Phone Number</label>
-                        <input type="text" name="phone_number" id="phone_number" value="<?= htmlspecialchars($employee['PhoneNumber'] ?? '') ?>" required class="w-full px-3.5 py-2.5 bg-darker/60 border border-violet-700/30 text-white rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-400 text-xs shadow-inner">
+                        <input type="text" name="phone_number" id="phone_number" value="<?= htmlspecialchars($employee['PhoneNumber'] ?? '') ?>" required class="w-full px-3.5 py-2.5 bg-darker/60 border border-gray-300 dark:border-violet-700/30 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-400 text-xs shadow-inner">
                         <span id="phone-error" class="text-xs text-rose-400 hidden mt-1">Invalid phone number format.</span>
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-violet-300 mb-1.5">Email Address</label>
-                        <input type="email" name="email" value="<?= htmlspecialchars($employee['Email'] ?? '') ?>" readonly class="w-full px-3.5 py-2.5 bg-darker/80 border border-violet-900/40 text-gray-500 rounded-xl cursor-not-allowed text-xs">
+                        <input type="email" name="email" value="<?= htmlspecialchars($employee['Email'] ?? '') ?>" readonly class="w-full px-3.5 py-2.5 bg-darker/80 border border-gray-200 dark:border-violet-900/40 text-gray-500 rounded-xl cursor-not-allowed text-xs">
                     </div>
                     <div class="md:col-span-2">
                         <label class="block text-xs font-bold uppercase tracking-wider text-violet-300 mb-1.5">Residential Address</label>
-                        <textarea name="address" rows="3" required class="w-full px-3.5 py-2.5 bg-darker/60 border border-violet-700/30 text-white rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-400 text-xs shadow-inner"><?= htmlspecialchars($employee['Address'] ?? '') ?></textarea>
+                        <textarea name="address" rows="3" required class="w-full px-3.5 py-2.5 bg-darker/60 border border-gray-300 dark:border-violet-700/30 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-400 text-xs shadow-inner"><?= htmlspecialchars($employee['Address'] ?? '') ?></textarea>
                     </div>
                 </div>
                 <div class="mt-5 flex justify-end">
-                    <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-extrabold text-xs rounded-xl transition-all shadow-lg shadow-violet-600/25 hover:scale-105">
+                    <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-gray-900 dark:text-white font-extrabold text-xs rounded-xl transition-all shadow-lg shadow-violet-600/25 hover:scale-105">
                         <i class="fa-solid fa-floppy-disk mr-1.5"></i> Save Changes
                     </button>
                 </div>
@@ -127,7 +127,7 @@
 
         <!-- Change Password Form -->
         <div class="card-glass rounded-3xl p-6 border border-violet-500/20 shadow-xl">
-            <h3 class="text-base font-extrabold text-white mb-4 flex items-center gap-2 font-outfit">
+            <h3 class="text-base font-extrabold text-gray-900 dark:text-white mb-4 flex items-center gap-2 font-outfit">
                 <i class="fa-solid fa-lock text-secondary"></i> Change Password
             </h3>
             <form action="/payrollsystem/employee/changePassword" method="POST">
@@ -136,22 +136,22 @@
                 <div class="space-y-4">
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-violet-300 mb-1.5">Current Password</label>
-                        <input type="password" name="current_password" required class="w-full px-3.5 py-2.5 bg-darker/60 border border-violet-700/30 text-white rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-400 text-xs shadow-inner" placeholder="••••••••">
+                        <input type="password" name="current_password" required class="w-full px-3.5 py-2.5 bg-darker/60 border border-gray-300 dark:border-violet-700/30 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-400 text-xs shadow-inner" placeholder="••••••••">
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold uppercase tracking-wider text-violet-300 mb-1.5">New Password</label>
-                            <input type="password" name="new_password" id="new_password" required class="w-full px-3.5 py-2.5 bg-darker/60 border border-violet-700/30 text-white rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-400 text-xs shadow-inner" placeholder="••••••••">
+                            <input type="password" name="new_password" id="new_password" required class="w-full px-3.5 py-2.5 bg-darker/60 border border-gray-300 dark:border-violet-700/30 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-400 text-xs shadow-inner" placeholder="••••••••">
                             <span id="password-error" class="text-xs text-rose-400 hidden mt-1">Password must be at least 6 characters.</span>
                         </div>
                         <div>
                             <label class="block text-xs font-bold uppercase tracking-wider text-violet-300 mb-1.5">Confirm New Password</label>
-                            <input type="password" name="confirm_password" required class="w-full px-3.5 py-2.5 bg-darker/60 border border-violet-700/30 text-white rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-400 text-xs shadow-inner" placeholder="••••••••">
+                            <input type="password" name="confirm_password" required class="w-full px-3.5 py-2.5 bg-darker/60 border border-gray-300 dark:border-violet-700/30 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-400 text-xs shadow-inner" placeholder="••••••••">
                         </div>
                     </div>
                 </div>
                 <div class="mt-5 flex justify-end">
-                    <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-extrabold text-xs rounded-xl transition-all shadow-lg shadow-cyan-600/25 hover:scale-105">
+                    <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-gray-900 dark:text-white font-extrabold text-xs rounded-xl transition-all shadow-lg shadow-cyan-600/25 hover:scale-105">
                         <i class="fa-solid fa-key mr-1.5"></i> Update Password
                     </button>
                 </div>

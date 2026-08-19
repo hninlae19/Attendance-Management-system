@@ -11,24 +11,24 @@
             <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-outfit">
                 My <span class="gradient-text">Salary History</span>
             </h1>
-            <p class="text-gray-300 text-xs sm:text-sm mt-1">Review your monthly compensation breakdown, bonuses, overtime pay, deductions, and download payslips.</p>
+            <p class="text-gray-700 dark:text-gray-300 text-xs sm:text-sm mt-1">Review your monthly compensation breakdown, bonuses, overtime pay, deductions, and download payslips.</p>
         </div>
-        <div class="px-4 py-2.5 rounded-2xl bg-surface/90 border border-violet-700/30 text-center shadow-lg backdrop-blur-md">
+        <div class="px-4 py-2.5 rounded-2xl bg-surface/90 border border-gray-300 dark:border-violet-700/30 text-center shadow-lg backdrop-blur-md">
             <div class="text-[10px] uppercase tracking-widest text-violet-400 font-bold">Total Payslips</div>
-            <div class="text-xl font-extrabold text-white font-mono"><?= count($data['payrolls'] ?? []) ?> Records</div>
+            <div class="text-xl font-extrabold text-gray-900 dark:text-white font-mono"><?= count($data['payrolls'] ?? []) ?> Records</div>
         </div>
     </div>
 </div>
 
-<div class="card-glass rounded-3xl overflow-hidden border border-violet-500/20 mb-8" data-aos="fade-up" data-aos-delay="100">
-    <div class="p-4 px-6 border-b border-violet-900/40 flex justify-between items-center bg-surface/60">
-        <h3 class="font-bold text-white text-base flex items-center gap-2 font-outfit">
+<div class="bg-white dark:bg-gray-800 rounded-3xl overflow-hidden border border-gray-200 dark:border-violet-500/20 mb-8" data-aos="fade-up" data-aos-delay="100">
+    <div class="p-4 px-6 border-b border-violet-900/40 flex justify-between items-center bg-gray-50 dark:bg-gray-800/60">
+        <h3 class="font-bold text-gray-900 dark:text-white text-base flex items-center gap-2 font-outfit">
             <i class="fa-solid fa-money-check-dollar text-emerald-400"></i> Monthly Payslip Statements
         </h3>
     </div>
     <div class="overflow-x-auto">
-        <table class="w-full text-sm text-left text-gray-400">
-            <thead class="text-xs uppercase bg-surface/80 text-violet-300/80 border-b border-violet-900/40">
+        <table class="w-full text-sm text-left text-gray-600 dark:text-gray-400">
+            <thead class="text-xs uppercase bg-gray-50 dark:bg-gray-900/80 text-violet-700 dark:text-violet-300/80 border-b border-gray-200 dark:border-violet-900/40">
                 <tr>
                     <th scope="col" class="px-6 py-4">Payroll Month</th>
                     <th scope="col" class="px-6 py-4">Basic Salary</th>
@@ -44,20 +44,20 @@
                 <?php if(empty($data['payrolls'])): ?>
                     <tr>
                         <td colspan="8" class="px-6 py-12 text-center text-gray-500">
-                            <div class="w-12 h-12 mx-auto bg-surface rounded-2xl border border-violet-900/40 flex items-center justify-center mb-2 text-violet-400">
+                            <div class="w-12 h-12 mx-auto bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-violet-900/40 flex items-center justify-center mb-2 text-violet-400">
                                 <i class="fa-solid fa-file-invoice-dollar text-2xl"></i>
                             </div>
-                            <p class="font-semibold text-gray-300">No salary history available yet</p>
+                            <p class="font-semibold text-gray-700 dark:text-gray-300">No salary history available yet</p>
                             <p class="text-xs text-gray-500 mt-0.5">Your monthly payroll payslips will appear here once processed.</p>
                         </td>
                     </tr>
                 <?php else: ?>
                     <?php foreach($data['payrolls'] as $pr): ?>
                     <tr class="hover:bg-violet-950/20 transition-colors">
-                        <td class="px-6 py-4 font-bold text-white">
+                        <td class="px-6 py-4 font-bold text-gray-900 dark:text-white">
                             <?= htmlspecialchars($pr['PayrollMonth']) ?>
                         </td>
-                        <td class="px-6 py-4 text-gray-300 font-mono">
+                        <td class="px-6 py-4 text-gray-700 dark:text-gray-300 font-mono">
                             <?= number_format($pr['BasicSalary'] ?? 0) ?> <span class="text-xs text-gray-500">MMK</span>
                         </td>
                         <td class="px-6 py-4 text-emerald-400 font-bold font-mono">
@@ -70,7 +70,7 @@
                             -<?= number_format($pr['LeaveDeductionAmount'] ?? 0) ?>
                         </td>
                         <td class="px-6 py-4 font-extrabold text-emerald-400 text-base font-mono">
-                            <?= number_format($pr['NetSalary'] ?? 0) ?> <span class="text-xs font-normal text-gray-400">MMK</span>
+                            <?= number_format($pr['NetSalary'] ?? 0) ?> <span class="text-xs font-normal text-gray-600 dark:text-gray-400">MMK</span>
                         </td>
                         <td class="px-6 py-4 text-center">
                             <?php if ($pr['Status'] === 'Paid'): ?>

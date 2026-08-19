@@ -20,26 +20,11 @@
                         outfit: ['Outfit', 'sans-serif']
                     },
                     colors: {
-                        white: '#0f172a', // Map 'text-white' to slate-900 for dark text
-                        'pure-white': '#ffffff', // For explicit white needs
-                        gray: {
-                            100: '#64748b', // Map text-gray-100 to slate-500
-                            200: '#475569',
-                            300: '#334155', // Map text-gray-300 to slate-700
-                            400: '#1e293b', // Map text-gray-400 to slate-800
-                            500: '#94a3b8',
-                            600: '#cbd5e1',
-                            700: '#e2e8f0', // Map border-gray-700 to light border
-                            800: '#f1f5f9',
-                            900: '#f8fafc',
-                        },
                         primary:   '#6366f1', // indigo-500 (bright beauty)
                         'primary-light': '#818cf8', // indigo-400
                         'primary-dark':  '#4f46e5', // indigo-600
                         secondary: '#0ea5e9', // sky-500
                         accent:    '#f43f5e', // rose-500
-                        dark:      '#f8fafc', // slate-50 (very light bg)
-                        darker:    '#f1f5f9', // slate-100 (light bg)
                         surface:   '#ffffff', // pure white card bg
                     },
                     backgroundImage: {
@@ -87,22 +72,7 @@
         * { box-sizing: border-box; }
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #f1f5f9; /* Light slate */
-            color: #0f172a;
-        }
-
-        /* === PRESERVE WHITE TEXT IN COLORED CONTAINERS === */
-        button .text-white, 
-        .bg-gradient-to-r .text-white, 
-        .bg-gradient-to-br .text-white, 
-        .from-violet-600 .text-white,
-        .from-emerald-500 .text-white,
-        .from-amber-500 .text-white,
-        .from-rose-500 .text-white,
-        .from-blue-500 .text-white,
-        .bg-violet-600 .text-white,
-        .bg-indigo-600 .text-white {
-            color: #ffffff !important;
+            background-color: transparent;
         }
 
         /* === SCROLLBAR === */
@@ -188,7 +158,7 @@
         /* === HERO BANNER PERFECTION (MAGNIFICENT CONTRAST & TITLE WORDS) === */
         .bg-gradient-to-r.from-indigo-600 h1,
         .bg-gradient-to-r.from-indigo-600 h2,
-        .bg-gradient-to-r.from-indigo-600 .text-white {
+        .bg-gradient-to-r.from-indigo-600 .text-gray-900 dark:text-white {
             color: #ffffff !important;
             text-shadow: 0 2px 10px rgba(15, 23, 42, 0.2);
         }
@@ -214,7 +184,7 @@
         }
         .bg-gradient-to-r.from-indigo-600 .text-violet-300,
         .bg-gradient-to-r.from-indigo-600 .text-cyan-300,
-        .bg-gradient-to-r.from-indigo-600 .text-gray-300,
+        .bg-gradient-to-r.from-indigo-600 .text-gray-700 dark:text-gray-300,
         .bg-gradient-to-r.from-indigo-600 span {
             color: #ffffff !important;
         }
@@ -265,13 +235,25 @@
 <body
     x-data="{
         sidebarOpen: false,
-        darkMode: false
+        darkMode: localStorage.getItem('darkMode') === 'true',
+        toggleDarkMode() {
+            this.darkMode = !this.darkMode;
+            localStorage.setItem('darkMode', this.darkMode);
+            if (this.darkMode) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
     }"
     x-init="
-        darkMode = false;
-        document.documentElement.classList.remove('dark');
+        if (darkMode) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
     "
-    class="bg-darker text-slate-800 min-h-screen selection:bg-primary selection:text-white"
+    class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 min-h-screen selection:bg-primary selection:text-gray-900 dark:text-white"
 >
 
 <!-- Background Ambient Lighting -->
@@ -280,7 +262,7 @@
 <div class="orb orb-3"></div>
 
 <!-- ============ ADVANCED ANIMATED LOADER ============ -->
-<div id="global-loader" class="fixed inset-0 z-[100] bg-darker flex flex-col items-center justify-center transition-all duration-700">
+<div id="global-loader" class="fixed inset-0 z-[100] bg-slate-50 dark:bg-slate-900 flex flex-col items-center justify-center transition-all duration-700">
     <div class="relative flex flex-col items-center">
         <!-- 3D Brand Badge in Rotating Rings -->
         <div class="relative w-28 h-28 flex items-center justify-center mb-6">
@@ -310,7 +292,7 @@
             <div class="w-48 h-1.5 bg-gray-200 rounded-full overflow-hidden mx-auto mt-4 border border-gray-300 relative">
                 <div class="h-full bg-gradient-to-r from-violet-500 via-cyan-400 to-amber-400 animate-loader-bar rounded-full"></div>
             </div>
-            <p class="text-[11px] text-gray-400 font-medium tracking-wider pt-1 animate-pulse">Initializing workspace...</p>
+            <p class="text-[11px] text-gray-600 dark:text-gray-400 font-medium tracking-wider pt-1 animate-pulse">Initializing workspace...</p>
         </div>
     </div>
 </div>
@@ -322,7 +304,7 @@
         <!-- Left: Brand Logo & Title -->
         <div class="flex items-center gap-3">
             <button @click="sidebarOpen = !sidebarOpen"
-                    class="sm:hidden text-gray-400 hover:text-violet-400 w-9 h-9 flex items-center justify-center rounded-xl hover:bg-violet-500/10 transition-all border border-transparent hover:border-violet-500/20">
+                    class="sm:hidden text-gray-600 dark:text-gray-400 hover:text-violet-400 w-9 h-9 flex items-center justify-center rounded-xl hover:bg-violet-500/10 transition-all border border-transparent hover:border-violet-500/20">
                 <i class="fa-solid fa-bars text-lg"></i>
             </button>
             <a href="<?= ($_SESSION['role'] ?? '') === 'Employee' ? '/payrollsystem/employee' : '/payrollsystem/admin' ?>" class="flex items-center gap-3 group">
@@ -349,6 +331,15 @@
 
         <!-- Right: Notifications + User Profile -->
         <div class="flex items-center gap-2.5">
+
+            <!-- Dark Mode Toggle -->
+            <button @click="toggleDarkMode()"
+                    class="relative w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 dark:bg-gray-800/80 dark:bg-gray-800 text-gray-500 hover:text-amber-500 dark:text-gray-600 dark:text-gray-400 dark:hover:text-amber-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 transition-all shadow-sm">
+                <!-- Sun Icon for Light Mode (hidden in dark mode) -->
+                <i x-show="!darkMode" class="fa-solid fa-moon text-sm"></i>
+                <!-- Moon Icon for Dark Mode (hidden in light mode) -->
+                <i x-show="darkMode" class="fa-solid fa-sun text-sm" x-cloak></i>
+            </button>
 
             <!-- Notifications -->
             <div class="relative" x-data="{
@@ -394,10 +385,10 @@
                 window.addEventListener('notifications-read', fetchNotifs);
             ">
                 <button @click="notifOpen = !notifOpen"
-                        class="relative w-10 h-10 flex items-center justify-center rounded-xl bg-surface/80 text-gray-300 hover:text-violet-300 hover:bg-violet-500/20 border border-violet-500/20 hover:border-violet-500/40 transition-all shadow-md">
+                        class="relative w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 dark:bg-gray-800/80 text-gray-700 dark:text-gray-300 hover:text-violet-300 hover:bg-violet-500/20 border border-violet-500/20 hover:border-violet-500/40 transition-all shadow-md">
                     <i class="fa-solid fa-bell text-sm"></i>
                     <span x-show="unreadCount > 0" x-text="unreadCount"
-                          class="absolute -top-1 -right-1 bg-gradient-to-r from-rose-500 to-red-600 text-white text-[9px] font-extrabold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1 shadow-lg shadow-rose-500/50 notif-pulse"></span>
+                          class="absolute -top-1 -right-1 bg-gradient-to-r from-rose-500 to-red-600 text-gray-900 dark:text-white text-[9px] font-extrabold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1 shadow-lg shadow-rose-500/50 notif-pulse"></span>
                 </button>
 
                 <!-- Toast -->
@@ -413,13 +404,13 @@
                          class="fixed bottom-5 right-5 z-[100] w-84 card-glass rounded-2xl overflow-hidden cursor-pointer border border-violet-400/50 hover:scale-105 transition-all shadow-2xl"
                          x-cloak>
                         <div class="p-4 flex gap-3.5 relative bg-gradient-to-br from-surface to-darker">
-                            <button @click.stop="toastNotif=null" class="absolute top-3 right-3 text-gray-400 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-xs"></i></button>
+                            <button @click.stop="toastNotif=null" class="absolute top-3 right-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:text-white transition-colors"><i class="fa-solid fa-xmark text-xs"></i></button>
                             <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-cyan-600 flex items-center justify-center flex-shrink-0 glow-violet-sm shadow-md">
-                                <i class="fa-solid fa-bell text-white text-sm animate-bounce-soft"></i>
+                                <i class="fa-solid fa-bell text-gray-900 dark:text-white text-sm animate-bounce-soft"></i>
                             </div>
                             <div class="flex-1 pr-4">
-                                <p class="text-xs font-bold text-white uppercase tracking-wider text-cyan-300" x-text="toastNotif?.title || 'System Alert'"></p>
-                                <p class="text-xs text-gray-300 mt-0.5 line-clamp-2" x-text="toastNotif?.message"></p>
+                                <p class="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider text-cyan-300" x-text="toastNotif?.title || 'System Alert'"></p>
+                                <p class="text-xs text-gray-700 dark:text-gray-300 mt-0.5 line-clamp-2" x-text="toastNotif?.message"></p>
                             </div>
                         </div>
                     </div>
@@ -433,25 +424,25 @@
                      class="absolute right-0 top-13 w-84 card-glass rounded-2xl overflow-hidden shadow-2xl z-50 border border-violet-500/30"
                      x-cloak>
                     <div class="flex items-center justify-between px-4 py-3 border-b border-violet-900/40 bg-surface/90">
-                        <span class="font-bold text-white text-xs uppercase tracking-wider flex items-center gap-1.5">
+                        <span class="font-bold text-gray-900 dark:text-white text-xs uppercase tracking-wider flex items-center gap-1.5">
                             <i class="fa-solid fa-bolt text-secondary"></i> Active Alerts
                         </span>
-                        <span class="text-[10px] text-gray-400 bg-darker/60 px-2 py-0.5 rounded-full border border-violet-900/40" x-text="notifications.length + ' Live'"></span>
+                        <span class="text-[10px] text-gray-600 dark:text-gray-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full border border-gray-200 dark:border-violet-900/40" x-text="notifications.length + ' Live'"></span>
                     </div>
                     <div class="max-h-72 overflow-y-auto divide-y divide-violet-900/20">
                         <template x-if="notifications.length === 0">
-                            <div class="p-6 text-center text-gray-400">
+                            <div class="p-6 text-center text-gray-600 dark:text-gray-400">
                                 <div class="w-10 h-10 mx-auto rounded-xl bg-surface flex items-center justify-center mb-2 text-violet-400 border border-violet-800/30">
                                     <i class="fa-solid fa-circle-check text-lg"></i>
                                 </div>
-                                <p class="text-xs font-semibold text-gray-300">All caught up!</p>
+                                <p class="text-xs font-semibold text-gray-700 dark:text-gray-300">All caught up!</p>
                                 <p class="text-[10px] text-gray-500 mt-0.5">No pending alerts at this time.</p>
                             </div>
                         </template>
                         <template x-for="notif in notifications" :key="notif.id">
                             <a :href="'/payrollsystem' + notif.link"
                                class="flex items-start gap-3.5 p-3.5 hover:bg-violet-600/10 transition-colors group relative">
-                                <div class="w-8 h-8 rounded-xl flex-shrink-0 flex items-center justify-center text-white text-xs mt-0.5 shadow-inner"
+                                <div class="w-8 h-8 rounded-xl flex-shrink-0 flex items-center justify-center text-gray-900 dark:text-white text-xs mt-0.5 shadow-inner"
                                      :class="{
                                          'bg-gradient-to-br from-blue-500 to-indigo-600': notif.type === 'attendance' || notif.type === 'info',
                                          'bg-gradient-to-br from-emerald-500 to-teal-600': notif.type === 'success' || notif.type === 'leave',
@@ -468,8 +459,8 @@
                                     }"></i>
                                 </div>
                                 <div class="flex-1 min-w-0">
-                                    <p class="text-xs font-bold text-white truncate group-hover:text-violet-300 transition-colors" x-text="notif.title || 'Notification'"></p>
-                                    <p class="text-[11px] text-gray-400 line-clamp-2 mt-0.5" x-text="notif.message"></p>
+                                    <p class="text-xs font-bold text-gray-900 dark:text-white truncate group-hover:text-violet-300 transition-colors" x-text="notif.title || 'Notification'"></p>
+                                    <p class="text-[11px] text-gray-600 dark:text-gray-400 line-clamp-2 mt-0.5" x-text="notif.message"></p>
                                 </div>
                                 <i class="fa-solid fa-chevron-right text-[9px] text-gray-500 group-hover:text-violet-400 group-hover:translate-x-0.5 transition-all mt-2"></i>
                             </a>
@@ -481,17 +472,17 @@
             <!-- User Avatar & Profile Pill -->
             <div class="relative" x-data="{ userOpen: false }">
                 <button @click="userOpen = !userOpen"
-                        class="flex items-center gap-2.5 p-1.5 sm:px-3 sm:py-1.5 rounded-2xl bg-surface/80 hover:bg-violet-900/30 border border-violet-500/20 hover:border-violet-500/40 transition-all group shadow-md">
-                    <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-600 via-purple-600 to-cyan-600 flex items-center justify-center font-extrabold text-white text-xs shadow-md glow-violet-sm group-hover:scale-105 transition-transform">
+                        class="flex items-center gap-2.5 p-1.5 sm:px-3 sm:py-1.5 rounded-2xl bg-gray-50 dark:bg-gray-800/80 hover:bg-violet-900/30 border border-violet-500/20 hover:border-violet-500/40 transition-all group shadow-md">
+                    <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-600 via-purple-600 to-cyan-600 flex items-center justify-center font-extrabold text-gray-900 dark:text-white text-xs shadow-md glow-violet-sm group-hover:scale-105 transition-transform">
                         <?= htmlspecialchars(strtoupper(substr($_SESSION['Email'] ?? ($_SESSION['first_name'] ?? 'U'), 0, 1))) ?>
                     </div>
                     <div class="hidden sm:block text-left">
-                        <div class="text-xs font-bold text-white leading-tight flex items-center gap-1">
+                        <div class="text-xs font-bold text-gray-900 dark:text-white leading-tight flex items-center gap-1">
                             <span><?= htmlspecialchars($_SESSION['first_name'] ?? ($_SESSION['role'] ?? 'User')) ?></span>
                         </div>
                         <div class="text-[10px] text-cyan-400/80 font-medium leading-none mt-0.5 capitalize"><?= htmlspecialchars($_SESSION['role'] ?? 'Staff') ?></div>
                     </div>
-                    <i class="fa-solid fa-chevron-down text-[9px] text-gray-400 group-hover:text-violet-300 transition-colors ml-1"></i>
+                    <i class="fa-solid fa-chevron-down text-[9px] text-gray-600 dark:text-gray-400 group-hover:text-violet-300 transition-colors ml-1"></i>
                 </button>
                 <div x-show="userOpen" @click.away="userOpen=false"
                      x-transition:enter="transition ease-out duration-150"
@@ -501,15 +492,15 @@
                      x-cloak>
                     <div class="px-4 py-3.5 border-b border-violet-900/40 bg-surface/90">
                         <p class="text-[10px] uppercase font-bold tracking-wider text-violet-400">Authenticated As</p>
-                        <p class="text-xs font-bold text-white truncate mt-0.5"><?= htmlspecialchars($_SESSION['Email'] ?? '') ?></p>
+                        <p class="text-xs font-bold text-gray-900 dark:text-white truncate mt-0.5"><?= htmlspecialchars($_SESSION['Email'] ?? '') ?></p>
                         <span class="inline-block mt-1 text-[9px] font-bold px-2 py-0.5 rounded-md bg-violet-500/20 text-violet-300 border border-violet-500/30"><?= htmlspecialchars($_SESSION['role'] ?? 'User') ?></span>
                     </div>
                     <div class="p-2 space-y-1">
                         <?php if (($_SESSION['role'] ?? '') === 'Employee'): ?>
-                        <a href="/payrollsystem/employee/profile" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-gray-300 hover:text-white hover:bg-violet-600/20 transition-all">
-                            <i class="fa-solid fa-user-pen text-violet-400 w-4 text-center"></i> My Profile
+                        <a href="/payrollsystem/employee/profile" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:text-white hover:bg-violet-600/20 transition-all">
+                            <i class="fa-solid fa-user text-violet-400 w-4 text-center"></i> My Profile
                         </a>
-                        <a href="/payrollsystem/employee/salary_history" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-gray-300 hover:text-white hover:bg-violet-600/20 transition-all">
+                        <a href="/payrollsystem/employee/salary_history" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:text-white hover:bg-violet-600/20 transition-all">
                             <i class="fa-solid fa-file-invoice-dollar text-emerald-400 w-4 text-center"></i> My Salary Slip
                         </a>
                         <?php endif; ?>
@@ -559,18 +550,6 @@ $isActive = function($path) use ($currentPath) {
                         'items' => [
                             ['href' => '/payrollsystem/employee/leaves', 'icon' => 'fa-calendar-minus', 'label' => 'My Leaves', 'match' => '/leaves'],
                             ['href' => '/payrollsystem/employee/overtime', 'icon' => 'fa-clipboard-list', 'label' => 'Overtime Assign', 'match' => '/overtime'],
-                        ]
-                    ],
-                    [
-                        'label' => 'Compensation',
-                        'items' => [
-                            ['href' => '/payrollsystem/employee/salary_history', 'icon' => 'fa-file-invoice-dollar', 'label' => 'My Salary History', 'match' => '/salary_history'],
-                        ]
-                    ],
-                    [
-                        'label' => 'Account',
-                        'items' => [
-                            ['href' => '/payrollsystem/employee/profile', 'icon' => 'fa-user-pen', 'label' => 'My Profile', 'match' => '/profile'],
                         ]
                     ]
                 ];
@@ -638,9 +617,9 @@ $isActive = function($path) use ($currentPath) {
                     ?>
                     <a href="<?= $item['href'] ?>"
                        class="nav-item <?= $active ? 'active' : '' ?> flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all duration-300 group
-                              <?= $active ? 'bg-gradient-to-r from-violet-600/35 via-violet-600/20 to-cyan-500/10 text-white border border-violet-500/40 shadow-lg shadow-violet-950/50' : 'text-gray-400 hover:text-violet-200 hover:bg-violet-600/10 border border-transparent' ?>">
+                              <?= $active ? 'bg-gradient-to-r from-violet-600/35 via-violet-600/20 to-cyan-500/10 text-gray-900 dark:text-white border border-violet-500/40 shadow-lg shadow-violet-950/50' : 'text-gray-600 dark:text-gray-400 hover:text-violet-200 hover:bg-violet-600/10 border border-transparent' ?>">
                         <div class="w-7 h-7 rounded-xl flex items-center justify-center transition-all duration-300
-                                    <?= $active ? 'bg-gradient-to-br from-violet-500 to-cyan-500 text-white shadow-md glow-violet-sm' : 'bg-surface/80 text-gray-400 group-hover:text-violet-300 group-hover:scale-110' ?>">
+                                    <?= $active ? 'bg-gradient-to-br from-violet-500 to-cyan-500 text-white shadow-md glow-violet-sm' : 'bg-gray-50 dark:bg-gray-800/80 text-gray-600 dark:text-gray-400 group-hover:text-violet-300 group-hover:scale-110' ?>">
                             <i class="fa-solid <?= $item['icon'] ?> text-xs"></i>
                         </div>
                         <span class="tracking-wide"><?= $item['label'] ?></span>
@@ -719,13 +698,13 @@ if (isset($_SESSION['flash_success'])) {
 <?php if ($flashMessage): ?>
     <div id="flash-toast-notification" class="fixed top-5 right-5 z-[200] w-84 card-glass rounded-2xl overflow-hidden cursor-pointer border border-violet-400/50 shadow-2xl transition-all duration-300 transform translate-x-full opacity-0" style="transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);">
         <div class="p-4 flex gap-3.5 relative bg-gradient-to-br from-surface to-darker">
-            <button onclick="closeFlashToast()" class="absolute top-3 right-3 text-gray-400 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-xs"></i></button>
+            <button onclick="closeFlashToast()" class="absolute top-3 right-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:text-white transition-colors"><i class="fa-solid fa-xmark text-xs"></i></button>
             <div class="w-10 h-10 rounded-xl bg-gradient-to-br <?= $flashType === 'error' ? 'from-rose-600 to-red-600' : ($flashType === 'success' ? 'from-emerald-500 to-teal-600' : 'from-violet-600 to-cyan-600') ?> flex items-center justify-center flex-shrink-0 shadow-md">
-                <i class="fa-solid <?= $flashType === 'error' ? 'fa-triangle-exclamation' : ($flashType === 'success' ? 'fa-check' : 'fa-bell') ?> text-white text-sm"></i>
+                <i class="fa-solid <?= $flashType === 'error' ? 'fa-triangle-exclamation' : ($flashType === 'success' ? 'fa-check' : 'fa-bell') ?> text-gray-900 dark:text-white text-sm"></i>
             </div>
-            <div class="flex-1 pr-4 text-white">
+            <div class="flex-1 pr-4 text-gray-900 dark:text-white">
                 <p class="text-xs font-bold uppercase tracking-wider <?= $flashType === 'error' ? 'text-rose-300' : ($flashType === 'success' ? 'text-emerald-300' : 'text-cyan-300') ?>"><?= htmlspecialchars($flashTitle) ?></p>
-                <p class="text-xs text-gray-300 mt-0.5"><?= htmlspecialchars($flashMessage) ?></p>
+                <p class="text-xs text-gray-700 dark:text-gray-300 mt-0.5"><?= htmlspecialchars($flashMessage) ?></p>
             </div>
         </div>
     </div>

@@ -18,7 +18,7 @@ class Attendance {
     }
 
     public function checkIn($emp_id, $time, $date) {
-        $status = ($time > '09:15:00') ? 'Late' : 'Present';
+        $status = 'Present';
         $query = "INSERT INTO " . $this->table . " 
                   SET EmpID = :emp_id, CheckInTime = :time, AttendanceDate = :date, Status = :status";
         $stmt = $this->conn->prepare($query);
@@ -56,8 +56,6 @@ class Attendance {
         $out = strtotime($checkOutTime);
         $workingHours = round(abs($out - $in) / 3600, 2);
 
-        $lateThreshold = strtotime('09:15:00');
-
         if ($workingHours < 4) {
             return 'Absent';
         } elseif ($workingHours >= 4 && $workingHours < 6) {
@@ -65,12 +63,7 @@ class Attendance {
         } elseif ($workingHours >= 6 && $workingHours < 7.75) {
             return 'Late';
         } else {
-            // $workingHours >= 7.75
-            if (date('H:i:s', $in) > '09:15:00') {
-                return 'Late';
-            } else {
-                return 'Present';
-            }
+            return 'Present';
         }
     }
 
@@ -154,7 +147,7 @@ class Attendance {
                 $chkLeave->execute([$emp['EmpID'], $date]);
                 if ($chkLeave->rowCount() > 0) continue;
 
-                // If no attendance and no leave, insert Full-Day Absence
+                // If no attendance and no leave, insert Absent
                 try {
                     $insertStmt->bindParam(':emp_id', $emp['EmpID']);
                     $insertStmt->bindParam(':date', $date);

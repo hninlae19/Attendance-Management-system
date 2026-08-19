@@ -157,7 +157,7 @@
 
                 <div id="dept_container" class="hidden">
                     <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Select Department</label>
-                    <select name="assign_dept_id" id="assign_dept_id" onchange="validateOT()" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm">
+                    <select name="assign_dept_id" id="assign_dept_id" onchange="validateOT()" class="w-full px-4 py-2.5 text-gray-900 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm">
                         <option value="">Select a Department</option>
                         <?php foreach($data['departments'] as $dept): ?>
                             <option value="<?= $dept['DeptID'] ?>"><?= htmlspecialchars($dept['DeptName']) ?></option>
@@ -167,7 +167,7 @@
 
                 <div id="emp_container">
                     <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Employee</label>
-                    <select name="emp_id" id="emp_id" onchange="validateOT()" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm">
+                    <select name="emp_id" id="emp_id" onchange="validateOT()" class="w-full px-4 py-2.5 text-gray-900 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm">
                         <option value="">Select Employee</option>
                         <?php foreach($data['employees'] as $emp): ?>
                             <option value="<?= $emp['EmpID'] ?>" data-dept="<?= $emp['DeptID'] ?>"><?= htmlspecialchars($emp['FirstName'] . ' ' . $emp['LastName']) ?> (EMP-<?= str_pad($emp['EmpID'], 5, '0', STR_PAD_LEFT) ?>) <?= $emp['Status'] !== 'Active' ? '[Inactive]' : '' ?></option>
@@ -177,17 +177,17 @@
                 
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Date</label>
-                    <input type="date" name="overtime_date" id="overtime_date" min="<?= date('Y-m-d') ?>" required onchange="updateTimeConstraints(); validateOT()" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm">
+                    <input type="date" name="overtime_date" id="overtime_date" min="<?= date('Y-m-d') ?>" required onchange="validateOT()" class="w-full px-4 py-2.5 text-gray-900 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm">
                 </div>
                 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Start Time</label>
-                        <input type="time" name="start_time" id="start_time" required onchange="calculateHoursAndAmount(); validateOT();" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm">
+                        <input type="time" name="start_time" id="start_time" required onchange="calculateHoursAndAmount(); validateOT();" class="w-full px-4 py-2.5 text-gray-900 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm">
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">End Time</label>
-                        <input type="time" name="end_time" id="end_time" required onchange="calculateHoursAndAmount(); validateOT();" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm">
+                        <input type="time" name="end_time" id="end_time" required onchange="calculateHoursAndAmount(); validateOT();" class="w-full px-4 py-2.5 text-gray-900 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm">
                     </div>
                 </div>
                 <p id="time_error" class="text-red-500 text-xs hidden mt-1 font-medium"></p>
@@ -195,7 +195,7 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Total Hours</label>
-                        <input type="number" step="0.5" name="hours" id="hours" readonly class="w-full px-4 py-2.5 bg-gray-100 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-600 dark:border-gray-500 dark:text-gray-300 transition-all shadow-sm">
+                        <input type="number" step="0.5" name="hours" id="hours" readonly class="w-full px-4 py-2.5 text-gray-900 bg-gray-100 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-600 dark:border-gray-500 dark:text-gray-300 transition-all shadow-sm">
                     </div>
                 </div>
             </div>
@@ -234,23 +234,7 @@
         validateOT();
     }
 
-    function updateTimeConstraints() {
-        const dateInput = document.getElementById('overtime_date');
-        const startTimeInput = document.getElementById('start_time');
-        
-        if (!dateInput.value) return;
-        
-        const today = new Date();
-        const selectedDate = new Date(dateInput.value);
-        
-        if (selectedDate.toDateString() === today.toDateString()) {
-            const hours = String(today.getHours()).padStart(2, '0');
-            const minutes = String(today.getMinutes()).padStart(2, '0');
-            startTimeInput.min = `${hours}:${minutes}`;
-        } else {
-            startTimeInput.removeAttribute('min');
-        }
-    }
+
 
     function calculateHoursAndAmount() {
         const startTimeStr = document.getElementById('start_time').value;
@@ -292,16 +276,7 @@
 
         if (!dateVal || !startVal) return;
 
-        // 1. Past time validation
-        const today = new Date();
-        const startDateTime = new Date(`${dateVal}T${startVal}`);
-        
-        if (startDateTime < today) {
-            errorEl.innerText = "Cannot assign overtime for a time that has already passed.";
-            errorEl.classList.remove('hidden');
-            saveBtn.disabled = true;
-            return;
-        }
+
 
         if (!endVal) return;
 
@@ -327,8 +302,10 @@
             for (let ot of allAssignments) {
                 if (empsToCheck.includes(ot.EmpID.toString()) && ot.OvertimeDate === dateVal && ot.OvertimeID != currentId && !['Cancelled', 'Rejected'].includes(ot.Status)) {
                     if (!ot.StartTime || !ot.EndTime) continue;
-                    const exStart = new Date(`1970-01-01T${ot.StartTime}`).getTime();
-                    let exEnd = new Date(`1970-01-01T${ot.EndTime}`).getTime();
+                    const otStartTimeStr = ot.StartTime.includes(' ') ? ot.StartTime.split(' ')[1] : ot.StartTime;
+                    const otEndTimeStr = ot.EndTime.includes(' ') ? ot.EndTime.split(' ')[1] : ot.EndTime;
+                    const exStart = new Date(`1970-01-01T${otStartTimeStr}`).getTime();
+                    let exEnd = new Date(`1970-01-01T${otEndTimeStr}`).getTime();
                     if (exEnd <= exStart) exEnd += 86400000;
 
                     if (startUnix < exEnd && endUnix > exStart) {
@@ -378,8 +355,18 @@
         
         document.getElementById('emp_id').value = data.EmpID;
         document.getElementById('overtime_date').value = data.OvertimeDate;
-        document.getElementById('start_time').value = data.StartTime || '';
-        document.getElementById('end_time').value = data.EndTime || '';
+        
+        let startStr = '';
+        if (data.StartTime) {
+            startStr = data.StartTime.includes(' ') ? data.StartTime.split(' ')[1].substring(0, 5) : data.StartTime.substring(0, 5);
+        }
+        let endStr = '';
+        if (data.EndTime) {
+            endStr = data.EndTime.includes(' ') ? data.EndTime.split(' ')[1].substring(0, 5) : data.EndTime.substring(0, 5);
+        }
+        
+        document.getElementById('start_time').value = startStr;
+        document.getElementById('end_time').value = endStr;
         document.getElementById('hours').value = data.TotalHours;
         document.getElementById('assignmentModal').classList.remove('hidden');
     }

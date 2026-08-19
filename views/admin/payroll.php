@@ -43,7 +43,7 @@ else $currentMonthName = $monthNames[(int)$data['selectedMonth']];
             <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
                 <!-- Filters Form -->
                 <form method="GET" action="/payrollsystem/admin/payroll" class="flex flex-wrap items-center gap-2">
-                    <select name="emp_id" onchange="this.form.submit()" class="rounded-xl bg-darker/70 border border-violet-700/30 text-white text-xs py-2.5 px-3 focus:ring-2 focus:ring-violet-500 cursor-pointer shadow-inner">
+                    <select name="emp_id" onchange="this.form.submit()" class="rounded-xl bg-white dark:bg-gray-800 border border-gray-300 dark:border-violet-700/30 text-gray-900 dark:text-white text-xs py-2.5 px-3 focus:ring-2 focus:ring-violet-500 cursor-pointer shadow-inner">
                         <option value="">All Employees</option>
                         <?php foreach($data['employees'] as $emp): ?>
                             <option value="<?= $emp['EmpID'] ?>" <?= ($data['selectedEmpId'] ?? '') == $emp['EmpID'] ? 'selected' : '' ?>>
@@ -51,7 +51,7 @@ else $currentMonthName = $monthNames[(int)$data['selectedMonth']];
                             </option>
                         <?php endforeach; ?>
                     </select>
-                    <select name="month" onchange="this.form.submit()" class="rounded-xl bg-darker/70 border border-violet-700/30 text-white text-xs py-2.5 px-3 focus:ring-2 focus:ring-violet-500 cursor-pointer shadow-inner">
+                    <select name="month" onchange="this.form.submit()" class="rounded-xl bg-white dark:bg-gray-800 border border-gray-300 dark:border-violet-700/30 text-gray-900 dark:text-white text-xs py-2.5 px-3 focus:ring-2 focus:ring-violet-500 cursor-pointer shadow-inner">
                         <option value="all" <?= $data['selectedMonth'] === 'all' ? 'selected' : '' ?>>All Months</option>
                         <option value="yearly" <?= $data['selectedMonth'] === 'yearly' ? 'selected' : '' ?>>Yearly Total</option>
                         <?php foreach($monthNames as $m => $name): ?>
@@ -78,46 +78,46 @@ else $currentMonthName = $monthNames[(int)$data['selectedMonth']];
     </div>
 
     <!-- Search Toolbar -->
-    <div class="card-glass rounded-2xl p-4 border border-violet-500/20 flex items-center justify-between shadow-lg" data-aos="fade-up">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-200 dark:border-violet-500/20 flex items-center justify-between shadow-lg" data-aos="fade-up">
         <div class="relative w-full md:w-80">
-            <div class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-violet-400">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-violet-600 dark:text-violet-400">
                 <i class="fa-solid fa-magnifying-glass text-xs"></i>
             </div>
             <input type="text" x-model="searchQuery" 
-                   class="bg-darker/60 border border-violet-700/30 text-white text-xs rounded-xl focus:ring-2 focus:ring-violet-500 block w-full pl-9 p-2.5 placeholder-gray-500 shadow-inner" 
+                   class="bg-gray-50 dark:bg-gray-900/60 border border-gray-300 dark:border-violet-700/30 text-gray-900 dark:text-white text-xs rounded-xl focus:ring-2 focus:ring-violet-500 block w-full pl-9 p-2.5 placeholder-gray-500 shadow-inner" 
                    placeholder="Quick search employee name in table...">
         </div>
-        <div class="text-xs text-gray-400 font-mono hidden sm:block">
-            Found <span class="text-emerald-400 font-bold"><?= count($data['payrolls'] ?? []) ?></span> records
+        <div class="text-xs text-gray-600 dark:text-gray-400 font-mono hidden sm:block">
+            Found <span class="text-emerald-600 dark:text-emerald-400 font-bold"><?= count($data['payrolls'] ?? []) ?></span> records
         </div>
     </div>
 
     <!-- Data Table -->
-    <div class="card-glass rounded-3xl overflow-hidden border border-violet-500/20 mb-8 shadow-xl" data-aos="fade-up" data-aos-delay="100">
+    <div class="bg-white dark:bg-gray-800 rounded-3xl overflow-hidden border border-gray-200 dark:border-violet-500/20 mb-8 shadow-xl" data-aos="fade-up" data-aos-delay="100">
         <div class="overflow-x-auto">
-            <table class="w-full text-sm text-left text-gray-400 whitespace-nowrap">
-                <thead class="text-xs uppercase bg-surface/80 text-violet-300/80 border-b border-violet-900/40">
+            <table class="w-full text-sm text-left text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                <thead class="text-xs uppercase bg-gray-50 dark:bg-gray-900/80 text-violet-700 dark:text-violet-300/80 border-b border-gray-200 dark:border-violet-900/40">
                     <tr>
                         <?php if ($data['selectedMonth'] === 'all'): ?>
-                            <th class="px-4 py-4 font-bold text-cyan-300">Payroll Month</th>
+                            <th class="px-4 py-4 font-bold text-cyan-600 dark:text-cyan-300">Payroll Month</th>
                         <?php endif; ?>
                         <th class="px-4 py-4 font-semibold tracking-wider">Employee</th>
                         <th class="px-4 py-4 font-semibold tracking-wider">Emp Code</th>
                         <th class="px-4 py-4">Department</th>
                         <th class="px-4 py-4">Position</th>
-                        <th class="px-4 py-4 bg-violet-950/40 text-violet-200">Basic Salary</th>
+                        <th class="px-4 py-4 bg-gray-100 dark:bg-violet-950/40 text-violet-800 dark:text-violet-200">Basic Salary</th>
                         <th class="px-4 py-4 text-center">Present</th>
                         <th class="px-4 py-4 text-center">Leave</th>
-                        <th class="px-4 py-4 text-rose-400 text-center font-bold">FD Absent</th>
-                        <th class="px-4 py-4 text-amber-400 text-center font-bold">HD Absent</th>
+                        <th class="px-4 py-4 text-rose-600 dark:text-rose-400 text-center font-bold">FD Absent</th>
+                        <th class="px-4 py-4 text-amber-600 dark:text-amber-400 text-center font-bold">HD Absent</th>
                         <th class="px-4 py-4 text-center">Late</th>
                         <th class="px-4 py-4 text-center">OT Hrs</th>
-                        <th class="px-4 py-4 text-amber-400 font-bold">OT Pay</th>
-                        <th class="px-4 py-4 text-emerald-400 font-bold">Bonus</th>
-                        <th class="px-4 py-4 text-rose-400 font-bold">Leave Ded</th>
-                        <th class="px-4 py-4 text-rose-400 font-bold">Late Ded</th>
-                        <th class="px-4 py-4 bg-violet-950/50 text-violet-300 font-bold">Gross (MMK)</th>
-                        <th class="px-4 py-4 bg-emerald-950/30 text-emerald-400 font-extrabold text-base">Net Salary (MMK)</th>
+                        <th class="px-4 py-4 text-amber-600 dark:text-amber-400 font-bold">OT Pay</th>
+                        <th class="px-4 py-4 text-emerald-600 dark:text-emerald-400 font-bold">Bonus</th>
+                        <th class="px-4 py-4 text-rose-600 dark:text-rose-400 font-bold">Leave Ded</th>
+                        <th class="px-4 py-4 text-rose-600 dark:text-rose-400 font-bold">Late Ded</th>
+                        <th class="px-4 py-4 bg-violet-100 dark:bg-violet-950/50 text-violet-800 dark:text-violet-300 font-bold">Gross (MMK)</th>
+                        <th class="px-4 py-4 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 font-extrabold text-base">Net Salary (MMK)</th>
                         <th class="px-4 py-4 text-center">Status</th>
                         <th class="px-4 py-4 text-right">Actions</th>
                     </tr>
@@ -126,54 +126,54 @@ else $currentMonthName = $monthNames[(int)$data['selectedMonth']];
                     <?php if(empty($data['payrolls'])): ?>
                     <tr>
                         <td colspan="20" class="px-4 py-12 text-center text-gray-500">
-                            <div class="w-12 h-12 mx-auto bg-surface rounded-2xl border border-violet-900/40 flex items-center justify-center mb-2 text-violet-400">
+                            <div class="w-12 h-12 mx-auto bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-violet-900/40 flex items-center justify-center mb-2 text-violet-600 dark:text-violet-400">
                                 <i class="fa-solid fa-folder-open text-2xl"></i>
                             </div>
-                            <p class="font-semibold text-gray-300">No payroll generated for this period</p>
+                            <p class="font-semibold text-gray-900 dark:text-gray-300">No payroll generated for this period</p>
                             <p class="text-xs text-gray-500 mt-0.5">Click "Calculate Salary" above to process attendance and generate monthly payroll.</p>
                         </td>
                     </tr>
                     <?php else: ?>
                         <?php foreach($data['payrolls'] as $p): ?>
-                        <tr x-show="searchQuery === '' || '<?= strtolower(addslashes($p['FirstName'] . ' ' . $p['LastName'])) ?>'.includes(searchQuery.toLowerCase())" class="hover:bg-violet-950/20 transition-colors group">
+                        <tr x-show="searchQuery === '' || '<?= strtolower(addslashes($p['FirstName'] . ' ' . $p['LastName'])) ?>'.includes(searchQuery.toLowerCase())" class="hover:bg-gray-50 dark:hover:bg-violet-950/20 transition-colors group">
                             <?php if ($data['selectedMonth'] === 'all'): ?>
-                                <td class="px-4 py-3.5 font-bold text-white">
-                                    <i class="fa-regular fa-calendar-alt text-cyan-400 mr-1.5"></i><?= htmlspecialchars($p['PayrollMonth']) ?>
+                                <td class="px-4 py-3.5 font-bold text-gray-900 dark:text-white">
+                                    <i class="fa-regular fa-calendar-alt text-cyan-600 dark:text-cyan-400 mr-1.5"></i><?= htmlspecialchars($p['PayrollMonth']) ?>
                                 </td>
                             <?php endif; ?>
                             <td class="px-4 py-3.5">
                                 <div class="flex items-center gap-2.5">
-                                    <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-600/30 to-cyan-500/30 text-cyan-300 border border-violet-500/30 flex items-center justify-center font-extrabold text-xs shadow-inner">
+                                    <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-600/30 to-cyan-500/30 text-cyan-700 dark:text-cyan-300 border border-violet-200 dark:border-violet-500/30 flex items-center justify-center font-extrabold text-xs shadow-inner">
                                         <?= strtoupper(substr($p['FirstName'] ?? 'A',0,1) . substr($p['LastName'] ?? 'B',0,1)) ?>
                                     </div>
                                     <div>
-                                        <div class="font-bold text-white group-hover:text-violet-300 transition-colors"><?= htmlspecialchars(($p['FirstName'] ?? '') . ' ' . ($p['LastName'] ?? '')) ?></div>
+                                        <div class="font-bold text-gray-900 dark:text-white group-hover:text-violet-600 dark:group-hover:text-violet-300 transition-colors"><?= htmlspecialchars(($p['FirstName'] ?? '') . ' ' . ($p['LastName'] ?? '')) ?></div>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-4 py-3.5 font-mono text-xs text-gray-400">
+                            <td class="px-4 py-3.5 font-mono text-xs text-gray-600 dark:text-gray-400">
                                 EMP-<?= htmlspecialchars($p['employee_code'] ?? str_pad($p['EmpID'] ?? 0, 4, '0', STR_PAD_LEFT)) ?>
                             </td>
-                            <td class="px-4 py-3.5 text-xs text-gray-300"><?= htmlspecialchars($p['DeptName'] ?? '—') ?></td>
-                            <td class="px-4 py-3.5 text-xs text-violet-400"><?= htmlspecialchars($p['PositionName'] ?? '—') ?></td>
-                            <td class="px-4 py-3.5 bg-darker/40 font-mono text-gray-200"><?= number_format($p['BasicSalary']) ?></td>
+                            <td class="px-4 py-3.5 text-xs text-gray-700 dark:text-gray-300"><?= htmlspecialchars($p['DeptName'] ?? '—') ?></td>
+                            <td class="px-4 py-3.5 text-xs text-violet-600 dark:text-violet-400"><?= htmlspecialchars($p['PositionName'] ?? '—') ?></td>
+                            <td class="px-4 py-3.5 bg-gray-50 dark:bg-gray-800 font-mono text-gray-800 dark:text-gray-200"><?= number_format($p['BasicSalary']) ?></td>
                             
-                            <td class="px-4 py-3.5 text-center font-mono text-xs text-gray-300"><?= $p['present_days'] ?></td>
-                            <td class="px-4 py-3.5 text-center font-mono text-xs text-gray-300"><?= $p['leave_days'] ?></td>
-                            <td class="px-4 py-3.5 text-center font-mono text-xs text-rose-400 font-bold"><?= $p['absent_days'] ?></td>
-                            <td class="px-4 py-3.5 text-center font-mono text-xs text-amber-400 font-bold"><?= $p['half_days'] ?></td>
-                            <td class="px-4 py-3.5 text-center font-mono text-xs text-gray-300"><?= $p['late_days'] ?></td>
-                            <td class="px-4 py-3.5 text-center font-mono text-xs text-gray-300"><?= number_format($p['ot_hours'] ?? 0, 1) ?></td>
+                            <td class="px-4 py-3.5 text-center font-mono text-xs text-gray-700 dark:text-gray-300"><?= $p['present_days'] ?></td>
+                            <td class="px-4 py-3.5 text-center font-mono text-xs text-gray-700 dark:text-gray-300"><?= $p['leave_days'] ?></td>
+                            <td class="px-4 py-3.5 text-center font-mono text-xs text-rose-600 dark:text-rose-400 font-bold"><?= $p['absent_days'] ?></td>
+                            <td class="px-4 py-3.5 text-center font-mono text-xs text-amber-600 dark:text-amber-400 font-bold"><?= $p['half_days'] ?></td>
+                            <td class="px-4 py-3.5 text-center font-mono text-xs text-gray-700 dark:text-gray-300"><?= $p['late_days'] ?></td>
+                            <td class="px-4 py-3.5 text-center font-mono text-xs text-gray-700 dark:text-gray-300"><?= number_format($p['ot_hours'] ?? 0, 1) ?></td>
                             
-                            <td class="px-4 py-3.5 font-mono text-amber-400 font-bold">+<?= number_format($p['OvertimeAmount']) ?></td>
-                            <td class="px-4 py-3.5 font-mono text-emerald-400 font-bold">+<?= number_format($p['BonousAmount']) ?></td>
+                            <td class="px-4 py-3.5 font-mono text-amber-600 dark:text-amber-400 font-bold">+<?= number_format($p['OvertimeAmount']) ?></td>
+                            <td class="px-4 py-3.5 font-mono text-emerald-600 dark:text-emerald-400 font-bold">+<?= number_format($p['BonousAmount']) ?></td>
                             
-                            <td class="px-4 py-3.5 font-mono text-rose-400 font-bold">-<?= number_format($p['LeaveDeductionAmount'] ?? 0) ?></td>
-                            <td class="px-4 py-3.5 font-mono text-rose-400 font-bold">-<?= number_format($p['late_deduction_amount'] ?? 0) ?></td>
+                            <td class="px-4 py-3.5 font-mono text-rose-600 dark:text-rose-400 font-bold">-<?= number_format($p['LeaveDeductionAmount'] ?? 0) ?></td>
+                            <td class="px-4 py-3.5 font-mono text-rose-600 dark:text-rose-400 font-bold">-<?= number_format($p['late_deduction_amount'] ?? 0) ?></td>
                             
                             <?php $grossSalary = $p['BasicSalary'] + $p['OvertimeAmount'] + $p['BonousAmount']; ?>
-                            <td class="px-4 py-3.5 bg-darker/50 font-mono font-bold text-violet-300"><?= number_format($grossSalary) ?></td>
-                            <td class="px-4 py-3.5 bg-emerald-950/20 font-mono font-extrabold text-emerald-400 text-sm"><?= number_format($p['NetSalary']) ?></td>
+                            <td class="px-4 py-3.5 bg-gray-100 dark:bg-gray-800 font-mono font-bold text-violet-700 dark:text-violet-300"><?= number_format($grossSalary) ?></td>
+                            <td class="px-4 py-3.5 bg-emerald-50 dark:bg-emerald-950/20 font-mono font-extrabold text-emerald-700 dark:text-emerald-400 text-sm"><?= number_format($p['NetSalary']) ?></td>
                             
                             <td class="px-4 py-3.5 text-center">
                                 <?php if($p['Status'] === 'N/A'): ?>
@@ -210,13 +210,13 @@ else $currentMonthName = $monthNames[(int)$data['selectedMonth']];
     </div>
 
     <!-- Payment Modal -->
-    <div x-show="paymentModal" class="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto overflow-x-hidden bg-gray-950/80 backdrop-blur-md p-4" x-cloak>
-        <div @click.away="paymentModal = false" class="relative w-full max-w-md card-glass rounded-3xl shadow-2xl border border-violet-500/30 overflow-hidden" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
-            <div class="flex items-center justify-between p-5 border-b border-violet-900/40 bg-surface/80">
-                <h3 class="text-lg font-extrabold text-white flex items-center gap-2 font-outfit">
-                    <i class="fa-solid fa-wallet text-emerald-400"></i> Settle Salary Payment
+    <div x-show="paymentModal" class="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto overflow-x-hidden bg-gray-900/50 dark:bg-gray-950/80 backdrop-blur-md p-4" x-cloak>
+        <div @click.away="paymentModal = false" class="relative w-full max-w-md bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-violet-500/30 overflow-hidden" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
+            <div class="flex items-center justify-between p-5 border-b border-gray-200 dark:border-violet-900/40 bg-gray-50 dark:bg-gray-900/80">
+                <h3 class="text-lg font-extrabold text-gray-900 dark:text-white flex items-center gap-2 font-outfit">
+                    <i class="fa-solid fa-wallet text-emerald-600 dark:text-emerald-400"></i> Settle Salary Payment
                 </h3>
-                <button @click="paymentModal = false" type="button" class="w-8 h-8 rounded-xl bg-surface text-gray-400 hover:text-white border border-violet-900/40 flex items-center justify-center transition-colors">
+                <button @click="paymentModal = false" type="button" class="w-8 h-8 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border border-gray-200 dark:border-violet-900/40 flex items-center justify-center transition-colors">
                     <i class="fa-solid fa-xmark text-xs"></i>
                 </button>
             </div>
@@ -227,18 +227,18 @@ else $currentMonthName = $monthNames[(int)$data['selectedMonth']];
                 <input type="hidden" name="month" value="<?= $data['selectedMonth'] ?>">
                 <input type="hidden" name="year" value="<?= $data['selectedYear'] ?>">
                 
-                <div class="mb-5 bg-darker/60 p-4 rounded-2xl border border-violet-700/30 shadow-inner">
-                    <p class="text-[11px] font-bold uppercase tracking-wider text-violet-300 mb-1">Paying Salary For</p>
-                    <p class="text-base font-extrabold text-white" x-text="empName"></p>
-                    <div class="mt-3 pt-3 border-t border-violet-900/40 flex justify-between items-center">
-                        <span class="text-xs text-gray-400">Net Amount:</span>
-                        <span class="text-xl font-extrabold text-emerald-400 font-mono"><span x-text="new Intl.NumberFormat().format(netSalary)"></span> MMK</span>
+                <div class="mb-5 bg-gray-50 dark:bg-gray-900/60 p-4 rounded-2xl border border-gray-200 dark:border-violet-700/30 shadow-inner">
+                    <p class="text-[11px] font-bold uppercase tracking-wider text-violet-700 dark:text-violet-300 mb-1">Paying Salary For</p>
+                    <p class="text-base font-extrabold text-gray-900 dark:text-white" x-text="empName"></p>
+                    <div class="mt-3 pt-3 border-t border-gray-200 dark:border-violet-900/40 flex justify-between items-center">
+                        <span class="text-xs text-gray-600 dark:text-gray-400">Net Amount:</span>
+                        <span class="text-xl font-extrabold text-emerald-600 dark:text-emerald-400 font-mono"><span x-text="new Intl.NumberFormat().format(netSalary)"></span> MMK</span>
                     </div>
                 </div>
 
                 <div class="mb-5">
-                    <label class="block mb-2 text-xs font-bold uppercase tracking-wider text-violet-300">Disbursement Method</label>
-                    <select name="payment_method" required class="bg-darker/80 border border-violet-700/30 text-white text-xs rounded-xl focus:ring-2 focus:ring-violet-500 block w-full p-3 shadow-inner cursor-pointer">
+                    <label class="block mb-2 text-xs font-bold uppercase tracking-wider text-violet-700 dark:text-violet-300">Disbursement Method</label>
+                    <select name="payment_method" required class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-violet-700/30 text-gray-900 dark:text-white text-xs rounded-xl focus:ring-2 focus:ring-violet-500 block w-full p-3 shadow-inner cursor-pointer">
                         <option value="">Select Payment Method</option>
                         <option value="Cash">Cash</option>
                         <option value="KBZ Bank">KBZ Bank</option>

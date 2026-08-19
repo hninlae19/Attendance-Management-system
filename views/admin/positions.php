@@ -11,13 +11,13 @@
                     <?= count($data['positions'] ?? []) ?> Job Roles
                 </span>
             </div>
-            <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-outfit">
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight font-outfit">
                 Position & <span class="gradient-text">Role</span> Profiles
             </h1>
-            <p class="text-gray-300 text-xs sm:text-sm mt-1">Configure job positions, associate department designations, and assign baseline salary standards.</p>
+            <p class="text-gray-700 dark:text-gray-300 text-xs sm:text-sm mt-1">Configure job positions, associate department designations, and assign baseline salary standards.</p>
         </div>
         <button onclick="document.getElementById('addModal').classList.remove('hidden')" 
-                class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-extrabold shadow-lg shadow-violet-600/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
+                class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-gray-900 dark:text-white text-xs font-extrabold shadow-lg shadow-violet-600/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
             <i class="fa-solid fa-plus"></i>
             <span>Add Position</span>
         </button>
@@ -34,10 +34,10 @@
 <?php endif; ?>
 
 <!-- Table -->
-<div class="card-glass rounded-3xl overflow-hidden border border-violet-500/20 mb-8 shadow-xl" data-aos="fade-up" data-aos-delay="100">
+<div class="bg-white dark:bg-gray-800 rounded-3xl overflow-hidden border border-gray-200 dark:border-violet-500/20 mb-8 shadow-xl" data-aos="fade-up" data-aos-delay="100">
     <div class="overflow-x-auto">
-        <table class="w-full text-sm text-left text-gray-400">
-            <thead class="text-xs uppercase bg-surface/80 text-violet-300/80 border-b border-violet-900/40">
+        <table class="w-full text-sm text-left text-gray-600 dark:text-gray-400">
+            <thead class="text-xs uppercase bg-gray-50 dark:bg-gray-900/80 text-violet-700 dark:text-violet-300/80 border-b border-gray-200 dark:border-violet-900/40">
                 <tr>
                     <th scope="col" class="px-6 py-4 font-semibold tracking-wider">#</th>
                     <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Department</th>
@@ -50,10 +50,10 @@
                 <?php if(empty($data['positions'])): ?>
                     <tr>
                         <td colspan="5" class="px-6 py-12 text-center text-gray-500">
-                            <div class="w-12 h-12 mx-auto bg-surface rounded-2xl border border-violet-900/40 flex items-center justify-center mb-2 text-violet-400">
+                            <div class="w-12 h-12 mx-auto bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-violet-900/40 flex items-center justify-center mb-2 text-violet-400">
                                 <i class="fa-solid fa-id-badge text-2xl"></i>
                             </div>
-                            <p class="font-semibold text-gray-300">No positions found</p>
+                            <p class="font-semibold text-gray-700 dark:text-gray-300">No positions found</p>
                         </td>
                     </tr>
                 <?php else: ?>
@@ -65,7 +65,7 @@
                                 <?= htmlspecialchars($pos['DeptName']) ?>
                             </span>
                         </td>
-                        <td class="px-6 py-4 font-bold text-white group-hover:text-violet-300 transition-colors">
+                        <td class="px-6 py-4 font-bold text-gray-900 dark:text-gray-900 dark:text-white group-hover:text-violet-600 dark:group-hover:text-violet-300 transition-colors">
                             <?= htmlspecialchars($pos['PositionName']) ?>
                         </td>
                         <td class="px-6 py-4 font-extrabold text-emerald-400 font-mono">
@@ -98,11 +98,11 @@
 <!-- Add Modal -->
 <div id="addModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4">
     <div class="card-glass rounded-3xl max-w-md w-full shadow-2xl border border-violet-500/30 overflow-hidden">
-        <div class="px-6 py-4 border-b border-violet-900/40 flex justify-between items-center bg-surface/80">
-            <h3 class="text-base font-extrabold text-white flex items-center gap-2 font-outfit">
+        <div class="px-6 py-4 border-b border-violet-900/40 flex justify-between items-center bg-gray-50 dark:bg-gray-800/80">
+            <h3 class="text-base font-extrabold text-gray-900 dark:text-white flex items-center gap-2 font-outfit">
                 <i class="fa-solid fa-plus text-secondary"></i> Add Position
             </h3>
-            <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')" class="w-8 h-8 rounded-xl bg-surface text-gray-400 hover:text-white border border-violet-900/40 flex items-center justify-center transition-colors">
+            <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')" class="w-8 h-8 rounded-xl bg-surface text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:text-white border border-gray-200 dark:border-violet-900/40 flex items-center justify-center transition-colors">
                 <i class="fa-solid fa-xmark text-xs"></i>
             </button>
         </div>
@@ -111,7 +111,7 @@
             <input type="hidden" name="action" value="add">
             <div>
                 <label for="department_id" class="block text-xs font-bold uppercase tracking-wider text-violet-300 mb-1.5">Department</label>
-                <select name="department_id" id="department_id" required class="w-full px-3.5 py-2.5 bg-darker/70 border border-violet-700/30 text-white rounded-xl focus:ring-2 focus:ring-violet-500 text-xs shadow-inner cursor-pointer">
+                <select name="department_id" id="department_id" required class="w-full px-3.5 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-violet-700/30 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-violet-500 text-xs shadow-inner cursor-pointer">
                     <option value="">Select Department</option>
                     <?php foreach($data['departments'] as $dept): ?>
                         <option value="<?= $dept['DeptID'] ?>"><?= htmlspecialchars($dept['DeptName']) ?></option>
@@ -120,15 +120,15 @@
             </div>
             <div>
                 <label for="name" class="block text-xs font-bold uppercase tracking-wider text-violet-300 mb-1.5">Position Name</label>
-                <input type="text" name="name" id="name" required class="w-full px-3.5 py-2.5 bg-darker/70 border border-violet-700/30 text-white rounded-xl focus:ring-2 focus:ring-violet-500 text-xs shadow-inner" placeholder="e.g. Lead Software Engineer">
+                <input type="text" name="name" id="name" required class="w-full px-3.5 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-violet-700/30 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-violet-500 text-xs shadow-inner" placeholder="e.g. Lead Software Engineer">
             </div>
             <div>
                 <label for="basic_salary" class="block text-xs font-bold uppercase tracking-wider text-violet-300 mb-1.5">Baseline Salary (MMK)</label>
-                <input type="number" step="0.01" min="0" name="basic_salary" id="basic_salary" value="0.00" required class="w-full px-3.5 py-2.5 bg-darker/70 border border-violet-700/30 text-white rounded-xl focus:ring-2 focus:ring-violet-500 text-xs shadow-inner font-mono">
+                <input type="number" step="0.01" min="0" name="basic_salary" id="basic_salary" value="0.00" required class="w-full px-3.5 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-violet-700/30 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-violet-500 text-xs shadow-inner font-mono">
             </div>
             <div class="flex justify-end gap-3 mt-6">
-                <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')" class="px-4 py-2 text-xs font-bold text-gray-400 bg-surface border border-violet-900/40 rounded-xl hover:text-white transition-colors">Cancel</button>
-                <button type="submit" class="px-5 py-2 text-xs font-extrabold text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 rounded-xl shadow-lg shadow-violet-600/30 transition-all">Save Position</button>
+                <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')" class="px-4 py-2 text-xs font-bold text-gray-600 dark:text-gray-400 bg-surface border border-gray-200 dark:border-violet-900/40 rounded-xl hover:text-gray-900 dark:text-white transition-colors">Cancel</button>
+                <button type="submit" class="px-5 py-2 text-xs font-extrabold text-gray-900 dark:text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 rounded-xl shadow-lg shadow-violet-600/30 transition-all">Save Position</button>
             </div>
         </form>
     </div>
@@ -137,11 +137,11 @@
 <!-- Edit Modal -->
 <div id="editModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-4">
     <div class="card-glass rounded-3xl max-w-md w-full shadow-2xl border border-violet-500/30 overflow-hidden">
-        <div class="px-6 py-4 border-b border-violet-900/40 flex justify-between items-center bg-surface/80">
-            <h3 class="text-base font-extrabold text-white flex items-center gap-2 font-outfit">
+        <div class="px-6 py-4 border-b border-violet-900/40 flex justify-between items-center bg-gray-50 dark:bg-gray-800/80">
+            <h3 class="text-base font-extrabold text-gray-900 dark:text-white flex items-center gap-2 font-outfit">
                 <i class="fa-solid fa-pen-to-square text-secondary"></i> Edit Position
             </h3>
-            <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="w-8 h-8 rounded-xl bg-surface text-gray-400 hover:text-white border border-violet-900/40 flex items-center justify-center transition-colors">
+            <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="w-8 h-8 rounded-xl bg-surface text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:text-white border border-gray-200 dark:border-violet-900/40 flex items-center justify-center transition-colors">
                 <i class="fa-solid fa-xmark text-xs"></i>
             </button>
         </div>
@@ -151,7 +151,7 @@
             <input type="hidden" name="id" id="edit_id">
             <div>
                 <label for="edit_department_id" class="block text-xs font-bold uppercase tracking-wider text-violet-300 mb-1.5">Department</label>
-                <select name="department_id" id="edit_department_id" required class="w-full px-3.5 py-2.5 bg-darker/70 border border-violet-700/30 text-white rounded-xl focus:ring-2 focus:ring-violet-500 text-xs shadow-inner cursor-pointer">
+                <select name="department_id" id="edit_department_id" required class="w-full px-3.5 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-violet-700/30 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-violet-500 text-xs shadow-inner cursor-pointer">
                     <?php foreach($data['departments'] as $dept): ?>
                         <option value="<?= $dept['DeptID'] ?>"><?= htmlspecialchars($dept['DeptName']) ?></option>
                     <?php endforeach; ?>
@@ -159,15 +159,15 @@
             </div>
             <div>
                 <label for="edit_name" class="block text-xs font-bold uppercase tracking-wider text-violet-300 mb-1.5">Position Name</label>
-                <input type="text" name="name" id="edit_name" required class="w-full px-3.5 py-2.5 bg-darker/70 border border-violet-700/30 text-white rounded-xl focus:ring-2 focus:ring-violet-500 text-xs shadow-inner">
+                <input type="text" name="name" id="edit_name" required class="w-full px-3.5 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-violet-700/30 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-violet-500 text-xs shadow-inner">
             </div>
             <div>
                 <label for="edit_basic_salary" class="block text-xs font-bold uppercase tracking-wider text-violet-300 mb-1.5">Baseline Salary (MMK)</label>
-                <input type="number" step="0.01" min="0" name="basic_salary" id="edit_basic_salary" required class="w-full px-3.5 py-2.5 bg-darker/70 border border-violet-700/30 text-white rounded-xl focus:ring-2 focus:ring-violet-500 text-xs shadow-inner font-mono">
+                <input type="number" step="0.01" min="0" name="basic_salary" id="edit_basic_salary" required class="w-full px-3.5 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-violet-700/30 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-violet-500 text-xs shadow-inner font-mono">
             </div>
             <div class="flex justify-end gap-3 mt-6">
-                <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="px-4 py-2 text-xs font-bold text-gray-400 bg-surface border border-violet-900/40 rounded-xl hover:text-white transition-colors">Cancel</button>
-                <button type="submit" class="px-5 py-2 text-xs font-extrabold text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 rounded-xl shadow-lg shadow-violet-600/30 transition-all">Update Position</button>
+                <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="px-4 py-2 text-xs font-bold text-gray-600 dark:text-gray-400 bg-surface border border-gray-200 dark:border-violet-900/40 rounded-xl hover:text-gray-900 dark:text-white transition-colors">Cancel</button>
+                <button type="submit" class="px-5 py-2 text-xs font-extrabold text-gray-900 dark:text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 rounded-xl shadow-lg shadow-violet-600/30 transition-all">Update Position</button>
             </div>
         </form>
     </div>

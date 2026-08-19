@@ -108,7 +108,7 @@ class OvertimeAssign {
 
     public function getMonthlyHours($emp_id, $year, $month, $exclude_id = null) {
         $query = "SELECT SUM(TotalHours) as total_hours FROM " . $this->table . " 
-                  WHERE EmpID = :emp_id AND YEAR(OvertimeDate) = :year AND MONTH(OvertimeDate) = :month AND Status = 'Approved'";
+                  WHERE EmpID = :emp_id AND YEAR(OvertimeDate) = :year AND MONTH(OvertimeDate) = :month AND Status = 'Completed'";
         if ($exclude_id) {
             $query .= " AND OvertimeID != :exclude_id";
         }
@@ -163,5 +163,39 @@ class OvertimeAssign {
             $stmt->bindParam(':app_by', $approvedBy);
         }
         return $stmt->execute();
+    }
+
+    public function accept($id, $empId) {
+        $query = "UPDATE " . $this->table . " SET Status = 'Accepted' WHERE OvertimeID = :id AND EmpID = :emp_id AND Status = 'Pending'";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(':emp_id', $empId);
+        return $stmt->execute();
+    }
+
+    public function reject($id, $empId) {
+        $query = "UPDATE " . $this->table . " SET Status = 'Rejected' WHERE OvertimeID = :id AND EmpID = :emp_id AND Status = 'Pending'";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(':emp_id', $empId);
+        return $stmt->execute();
+    }
+
+    public function checkIn($id, $empId) {
+        // Can only check in if Accepted and within valid time range (-10 mins before StartTime)
+        // Wait, the validation logic is better off being handled partially in PHP or directly in SQL. 
+        // We'll let SQL handle the time boundary to be safe: 
+        // StartTime <= NOW() + INTERVAL 10 MINUTE and EndTime > NOW()
+        
+        $query = "UPDATE " . $this->table . " 
+                  SET Status = 'InProgress' 
+                  WHERE OvertimeID = :id AND EmpID = :emp_id AND Status = 'Accepted' 
+                  AND (StartTime - INTERVAL 10 MINUTE) <= NOW() AND EndTime > NOW()";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(':emp_id', $empId);
+        $stmt->execute();
+        
+        return $stmt->rowCount() > 0;
     }
 }

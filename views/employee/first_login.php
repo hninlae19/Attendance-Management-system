@@ -21,8 +21,6 @@
                     colors: {
                         primary: '#6366f1',
                         secondary: '#0ea5e9',
-                        dark: '#0f172a',
-                        darker: '#f1f5f9',
                         surface: '#ffffff',
                     }
                 }
@@ -54,7 +52,7 @@
     <div class="w-full max-w-md bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl overflow-hidden border border-indigo-100/80 animate__animated animate__fadeInUp">
         
         <!-- Header Banner with Vibrant Hero Gradient -->
-        <div class="bg-gradient-to-r from-indigo-600 via-violet-600 to-cyan-500 p-8 text-center text-white relative overflow-hidden shadow-lg">
+        <div class="bg-gradient-to-r from-indigo-600 via-violet-600 to-cyan-500 p-8 text-center text-gray-900 dark:text-white relative overflow-hidden shadow-lg">
             <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
             
             <div class="w-20 h-20 mx-auto mb-3 rounded-2xl overflow-hidden shadow-xl border-2 border-white/40 p-1 bg-white/20 backdrop-blur-md animate__animated animate__bounceIn flex items-center justify-center">
@@ -63,7 +61,7 @@
                 </div>
             </div>
             
-            <h2 class="text-2xl font-extrabold tracking-tight font-outfit text-white drop-shadow-sm">Security <span class="gradient-gold font-extrabold">Update</span></h2>
+            <h2 class="text-2xl font-extrabold tracking-tight font-outfit text-gray-900 dark:text-white drop-shadow-sm">Security <span class="gradient-gold font-extrabold">Update</span></h2>
             <p class="text-[11px] uppercase tracking-[0.22em] text-cyan-200 font-extrabold mt-0.5">Required Action</p>
             <p class="text-xs text-indigo-100 mt-2 font-medium">Please change your default password before accessing your portal.</p>
         </div>
@@ -100,7 +98,7 @@
                 </div>
 
                 <div class="animate__animated animate__fadeInUp pt-2" style="animation-delay: 0.3s;">
-                    <button type="submit" id="submitBtn" class="relative w-full flex justify-center py-3.5 px-4 rounded-xl shadow-lg shadow-indigo-500/25 text-xs font-extrabold text-white bg-gradient-to-r from-indigo-600 via-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] overflow-hidden group">
+                    <button type="submit" id="submitBtn" class="relative w-full flex justify-center py-3.5 px-4 rounded-xl shadow-lg shadow-indigo-500/25 text-xs font-extrabold text-gray-900 dark:text-white bg-gradient-to-r from-indigo-600 via-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] overflow-hidden group">
                         <span class="relative flex items-center gap-2 tracking-wider uppercase">
                             <span>UPDATE PASSWORD & CONTINUE</span>
                             <i class="fa-solid fa-arrow-right text-xs"></i>

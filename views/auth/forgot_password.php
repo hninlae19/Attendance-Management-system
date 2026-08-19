@@ -21,8 +21,6 @@
                     colors: {
                         primary: '#6366f1',
                         secondary: '#0ea5e9',
-                        dark: '#0f172a',
-                        darker: '#f1f5f9',
                         surface: '#ffffff',
                     }
                 }
