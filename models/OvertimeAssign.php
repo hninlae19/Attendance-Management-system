@@ -25,7 +25,7 @@ class OvertimeAssign {
         $query = "SELECT oa.*, e.FirstName, e.LastName
                   FROM " . $this->table . " oa
                   LEFT JOIN Employee e ON oa.EmpID = e.EmpID
-                  ORDER BY oa.OvertimeDate DESC, oa.OvertimeID DESC";
+                  ORDER BY oa.OvertimeID DESC";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -80,16 +80,20 @@ class OvertimeAssign {
     }
 
     public function delete($id) {
-        $query = "DELETE FROM " . $this->table . " WHERE OvertimeID = :id";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':id', $id);
-        return $stmt->execute();
+        try {
+            $query = "DELETE FROM " . $this->table . " WHERE OvertimeID = :id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':id', $id);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            return false;
+        }
     }
 
     public function getByEmployee($emp_id) {
         $query = "SELECT * FROM " . $this->table . " 
                   WHERE EmpID = :emp_id 
-                  ORDER BY OvertimeDate DESC, OvertimeID DESC";
+                  ORDER BY OvertimeID DESC";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':emp_id', $emp_id);
         $stmt->execute();

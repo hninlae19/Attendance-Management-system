@@ -1,90 +1,107 @@
-<div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4" data-aos="fade-down">
-    <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Overtime Assignments</h1>
-        <p class="text-gray-500 text-sm mt-1">Manage and assign overtime to employees.</p>
+<!-- ============ HEADER BANNER ============ -->
+<div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600 via-violet-600 to-cyan-600 p-6 lg:p-7 mb-8 shadow-xl" data-aos="fade-down">
+    <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-2 mb-2">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 border border-white/30 text-white text-xs font-bold uppercase tracking-wider backdrop-blur-md">
+                    <i class="fa-solid fa-business-time"></i>
+                    <span>Shift Management</span>
+                </span>
+                <span class="inline-flex items-center px-3 py-1 rounded-full bg-white/20 border border-white/30 text-white text-xs font-bold uppercase tracking-wider backdrop-blur-md font-mono">
+                    <?= count($data['assignments'] ?? []) ?> Assignments
+                </span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-outfit">
+                Overtime <span class="gradient-text">Assignments</span>
+            </h1>
+            <p class="text-indigo-100 text-xs sm:text-sm mt-1">Schedule and manage overtime work shifts for individual staff or whole departments.</p>
+        </div>
+        <button onclick="openModal()" 
+                class="px-5 py-2.5 rounded-xl bg-white text-indigo-700 hover:bg-slate-50 text-xs font-extrabold shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
+            <i class="fa-solid fa-plus text-indigo-600"></i>
+            <span>Assign Overtime</span>
+        </button>
     </div>
-    <button onclick="openModal()" class="inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium text-white bg-primary rounded-xl hover:bg-indigo-600 focus:ring-4 focus:ring-primary/20 transition-all shadow-sm">
-        <i class="fa-solid fa-plus mr-2"></i> Assign Overtime
-    </button>
 </div>
 
 <?php if(isset($data['error'])): ?>
-    <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-        <span class="block sm:inline"><?= htmlspecialchars($data['error']) ?></span>
+    <div class="mb-6 p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs font-semibold flex items-center gap-3 shadow-sm" data-aos="fade-up">
+        <i class="fa-solid fa-circle-exclamation text-base text-rose-500"></i>
+        <span><?= htmlspecialchars($data['error']) ?></span>
     </div>
 <?php endif; ?>
 
-<div class="bg-surface dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden" data-aos="fade-up" data-aos-delay="50">
+<div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden mb-8" data-aos="fade-up" data-aos-delay="50">
     <div class="overflow-x-auto">
-        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-            <thead class="text-xs text-gray-500 uppercase bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-700">
+        <table class="w-full text-sm text-left text-slate-600 dark:text-slate-300">
+            <thead class="text-xs uppercase bg-slate-50 dark:bg-slate-900/80 text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700 font-bold tracking-wider">
                 <tr>
-                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Employee</th>
-                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Date</th>
-                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Time</th>
-                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Hours</th>
-                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Rate/Hr</th>
-                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Total Amount</th>
-                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider">Status</th>
-                    <th scope="col" class="px-6 py-4 font-semibold tracking-wider text-right">Actions</th>
+                    <th scope="col" class="px-6 py-4">Employee</th>
+                    <th scope="col" class="px-6 py-4">Date</th>
+                    <th scope="col" class="px-6 py-4">Time</th>
+                    <th scope="col" class="px-6 py-4">Hours</th>
+                    <th scope="col" class="px-6 py-4">Rate/Hr</th>
+                    <th scope="col" class="px-6 py-4">Total Amount</th>
+                    <th scope="col" class="px-6 py-4">Status</th>
+                    <th scope="col" class="px-6 py-4 text-right">Actions</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-700/60">
                 <?php if(empty($data['assignments'])): ?>
-                    <tr class="bg-surface dark:bg-gray-800">
-                        <td colspan="6" class="px-6 py-12 text-center text-gray-500">
-                            <div class="w-16 h-16 mx-auto bg-gray-50 dark:bg-gray-700 rounded-full flex items-center justify-center mb-3">
-                                <i class="fa-solid fa-clipboard-list text-2xl text-gray-300 dark:text-gray-500"></i>
+                    <tr class="bg-white dark:bg-slate-800">
+                        <td colspan="8" class="px-6 py-12 text-center text-slate-500 dark:text-slate-400">
+                            <div class="w-14 h-14 mx-auto bg-slate-100 dark:bg-slate-700 rounded-2xl flex items-center justify-center mb-3 text-indigo-500">
+                                <i class="fa-solid fa-business-time text-2xl"></i>
                             </div>
-                            <p class="font-medium text-gray-900 dark:text-white">No overtime assignments found.</p>
+                            <p class="font-bold text-slate-900 dark:text-white text-sm">No overtime assignments found</p>
                         </td>
                     </tr>
                 <?php else: ?>
                     <?php foreach($data['assignments'] as $ot): ?>
-                    <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors group">
-                        <td class="px-6 py-3">
+                    <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-700/40 transition-colors group">
+                        <td class="px-6 py-3.5">
                             <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-full bg-gradient-to-br from-primary/20 to-blue-500/20 text-primary dark:text-blue-400 flex items-center justify-center font-bold text-xs ring-2 ring-white dark:ring-gray-800 group-hover:ring-primary/20 transition-all shadow-sm">
+                                <div class="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-sky-500 text-white flex items-center justify-center font-bold text-xs shadow-sm">
                                     <?= strtoupper(substr($ot['FirstName'],0,1) . substr($ot['LastName'],0,1)) ?>
                                 </div>
                                 <div>
-                                    <div class="font-bold text-gray-900 dark:text-white"><?= htmlspecialchars($ot['FirstName'] . ' ' . $ot['LastName']) ?></div>
-                                    <div class="text-xs text-primary font-medium">EMP-<?= str_pad($ot['EmpID'], 5, '0', STR_PAD_LEFT) ?></div>
+                                    <div class="font-bold text-slate-900 dark:text-white text-xs"><?= htmlspecialchars($ot['FirstName'] . ' ' . $ot['LastName']) ?></div>
+                                    <div class="text-[11px] text-indigo-600 dark:text-sky-400 font-mono font-semibold">EMP-<?= str_pad($ot['EmpID'], 4, '0', STR_PAD_LEFT) ?></div>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-4 font-medium text-gray-900 dark:text-gray-300">
+                        <td class="px-6 py-3.5 font-semibold text-slate-900 dark:text-white text-xs">
                             <?= date('M j, Y', strtotime($ot['OvertimeDate'])) ?>
                         </td>
-                        <td class="px-6 py-4 font-medium text-gray-900 dark:text-gray-300">
+                        <td class="px-6 py-3.5 font-mono text-xs text-slate-700 dark:text-slate-300">
                             <?php if ($ot['StartTime'] && $ot['EndTime']): ?>
                                 <?= date('h:i A', strtotime($ot['StartTime'])) ?> - <?= date('h:i A', strtotime($ot['EndTime'])) ?>
                             <?php else: ?>
-                                <span class="text-gray-400 italic">N/A</span>
+                                <span class="text-slate-400 italic">N/A</span>
                             <?php endif; ?>
                         </td>
-                        <td class="px-6 py-4">
-                            <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-indigo-50 text-indigo-700 border border-violet-700 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800/30">
+                        <td class="px-6 py-3.5">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold font-mono bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-950/50 dark:text-indigo-300 dark:border-indigo-800">
                                 <?= $ot['TotalHours'] ?> Hrs
                             </span>
                         </td>
-                        <td class="px-6 py-4 font-medium text-gray-900 dark:text-gray-300">
+                        <td class="px-6 py-3.5 font-mono font-semibold text-xs text-slate-800 dark:text-slate-200">
                             <?= number_format($ot['RateMultiplier'], 1) ?>x
                         </td>
-                        <td class="px-6 py-4 font-bold text-emerald-600 dark:text-emerald-400">
+                        <td class="px-6 py-3.5 font-mono font-bold text-emerald-600 dark:text-emerald-400 text-xs">
                             <?= number_format($ot['OTAmount'], 2) ?> MMK
                         </td>
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-3.5">
                             <?php 
                                 $statusColors = [
-                                    'Assigned' => 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800/30',
-                                    'Accepted' => 'bg-indigo-50 text-indigo-700 border-violet-700 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800/30',
-                                    'Rejected' => 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800/30',
-                                    'In Progress' => 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800/30',
-                                    'Completed' => 'bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-900/30 dark:text-teal-400 dark:border-teal-800/30',
-                                    'Approved' => 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800/30',
-                                    'No Show' => 'bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-800/30 dark:text-gray-400 dark:border-gray-700/30',
-                                    'Cancelled' => 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800/30'
+                                    'Assigned' => 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/50 dark:text-sky-300 dark:border-sky-800',
+                                    'Accepted' => 'bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-950/50 dark:text-indigo-300 dark:border-indigo-800',
+                                    'Rejected' => 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800',
+                                    'In Progress' => 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800',
+                                    'Completed' => 'bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-950/50 dark:text-teal-300 dark:border-teal-800',
+                                    'Approved' => 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800',
+                                    'No Show' => 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600',
+                                    'Cancelled' => 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800'
                                 ];
                                 $colorClass = $statusColors[$ot['Status']] ?? $statusColors['Assigned'];
                             ?>
@@ -93,29 +110,40 @@
                             </span>
                         </td>
 
-                        <td class="px-6 py-4 text-right">
-                            <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <td class="px-6 py-3.5 text-right">
+                            <div class="flex items-center justify-end gap-1.5">
                                 <?php if (($ot['Status'] ?? 'Assigned') === 'Completed'): ?>
                                     <form action="/payrollsystem/admin/overtime_assignments" method="POST" class="inline m-0 p-0" onsubmit="return confirm('Approve this overtime?');">
                                         <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
                                         <input type="hidden" name="action" value="approve">
                                         <input type="hidden" name="id" value="<?= $ot['OvertimeID'] ?>">
-                                        <button type="submit" class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-100 transition-colors tooltip" title="Approve">
-                                            <i class="fa-solid fa-check"></i>
+                                        <button type="submit" class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-950/50 dark:text-emerald-400 dark:hover:bg-emerald-900/60 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center transition-colors shadow-sm" title="Approve">
+                                            <i class="fa-solid fa-check text-xs"></i>
                                         </button>
                                     </form>
                                 <?php endif; ?>
                                 
                                 <?php if (!in_array($ot['Status'] ?? 'Assigned', ['Approved', 'Completed', 'Cancelled', 'No Show'])): ?>
-                                <button onclick="editModal(<?= htmlspecialchars(json_encode($ot)) ?>)" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-100 transition-colors tooltip" title="Edit">
-                                    <i class="fa-solid fa-pen"></i>
+                                <button onclick="editModal(<?= htmlspecialchars(json_encode($ot)) ?>)" class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:bg-indigo-950/50 dark:text-indigo-400 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800 flex items-center justify-center transition-colors shadow-sm" title="Edit">
+                                    <i class="fa-solid fa-pen text-xs"></i>
                                 </button>
+                                <?php endif; ?>
+                                
+                                <?php if (!in_array($ot['Status'] ?? 'Assigned', ['Completed', 'Cancelled', 'No Show'])): ?>
                                 <form action="/payrollsystem/admin/overtime_assignments" method="POST" class="inline m-0 p-0" onsubmit="return confirm('Cancel this assignment?');">
                                     <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
                                     <input type="hidden" name="action" value="cancel">
                                     <input type="hidden" name="id" value="<?= $ot['OvertimeID'] ?>">
-                                    <button type="submit" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center hover:bg-rose-100 transition-colors tooltip" title="Cancel">
-                                        <i class="fa-solid fa-ban"></i>
+                                    <button type="submit" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-950/50 dark:text-rose-400 dark:hover:bg-rose-900/60 border border-rose-200 dark:border-rose-800 flex items-center justify-center transition-colors shadow-sm" title="Cancel">
+                                        <i class="fa-solid fa-ban text-xs"></i>
+                                    </button>
+                                </form>
+                                <form action="/payrollsystem/admin/overtime_assignments" method="POST" class="inline m-0 p-0" onsubmit="return confirm('Mark this assignment as No Show?');">
+                                    <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+                                    <input type="hidden" name="action" value="no_show">
+                                    <input type="hidden" name="id" value="<?= $ot['OvertimeID'] ?>">
+                                    <button type="submit" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 flex items-center justify-center transition-colors shadow-sm" title="No Show">
+                                        <i class="fa-solid fa-user-slash text-xs"></i>
                                     </button>
                                 </form>
                                 <?php endif; ?>
@@ -130,12 +158,14 @@
 </div>
 
 <!-- Add/Edit Modal -->
-<div id="assignmentModal" class="hidden fixed inset-0 z-[100] overflow-y-auto bg-gray-900/50 backdrop-blur-sm flex items-center justify-center p-4 transition-all">
-    <div class="bg-surface dark:bg-gray-800 rounded-2xl max-w-md w-full shadow-2xl overflow-hidden transform transition-all">
-        <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50">
-            <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center" id="modalTitle"><i class="fa-solid fa-clipboard-list text-primary mr-3"></i> Assign Overtime</h3>
-            <button type="button" onclick="closeModal()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 flex items-center justify-center transition-colors">
-                <i class="fa-solid fa-xmark"></i>
+<div id="assignmentModal" class="hidden fixed inset-0 z-[100] overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 transition-all">
+    <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700 transform transition-all animate__animated animate__fadeInUp">
+        <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
+            <h3 class="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2 font-outfit" id="modalTitle">
+                <i class="fa-solid fa-business-time text-indigo-500"></i> Assign Overtime
+            </h3>
+            <button type="button" onclick="closeModal()" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white flex items-center justify-center transition-colors">
+                <i class="fa-solid fa-xmark text-xs"></i>
             </button>
         </div>
         <form action="/payrollsystem/admin/overtime_assignments" method="POST" class="p-6">
@@ -144,20 +174,20 @@
             <input type="hidden" name="id" id="assignment_id" value="">
             
             <div class="space-y-4">
-                <div class="flex items-center gap-4 mb-4">
-                    <label class="inline-flex items-center">
-                        <input type="radio" name="assign_type" value="individual" checked onchange="toggleAssignType()" class="form-radio text-primary focus:ring-primary h-4 w-4">
-                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Individual Employee</span>
+                <div class="flex items-center gap-4 p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input type="radio" name="assign_type" value="individual" checked onchange="toggleAssignType()" class="form-radio text-indigo-600 focus:ring-indigo-500 h-4 w-4">
+                        <span class="ml-2 text-xs font-bold text-slate-700 dark:text-slate-300">Individual Employee</span>
                     </label>
-                    <label class="inline-flex items-center">
-                        <input type="radio" name="assign_type" value="department" onchange="toggleAssignType()" class="form-radio text-primary focus:ring-primary h-4 w-4">
-                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Entire Department</span>
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input type="radio" name="assign_type" value="department" onchange="toggleAssignType()" class="form-radio text-indigo-600 focus:ring-indigo-500 h-4 w-4">
+                        <span class="ml-2 text-xs font-bold text-slate-700 dark:text-slate-300">Entire Department</span>
                     </label>
                 </div>
 
                 <div id="dept_container" class="hidden">
-                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Select Department</label>
-                    <select name="assign_dept_id" id="assign_dept_id" onchange="validateOT()" class="w-full px-4 py-2.5 text-gray-900 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">Select Department</label>
+                    <select name="assign_dept_id" id="assign_dept_id" onchange="validateOT()" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-xs shadow-sm cursor-pointer">
                         <option value="">Select a Department</option>
                         <?php foreach($data['departments'] as $dept): ?>
                             <option value="<?= $dept['DeptID'] ?>"><?= htmlspecialchars($dept['DeptName']) ?></option>
@@ -166,45 +196,45 @@
                 </div>
 
                 <div id="emp_container">
-                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Employee</label>
-                    <select name="emp_id" id="emp_id" onchange="validateOT()" class="w-full px-4 py-2.5 text-gray-900 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">Employee</label>
+                    <select name="emp_id" id="emp_id" onchange="validateOT()" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-xs shadow-sm cursor-pointer">
                         <option value="">Select Employee</option>
                         <?php foreach($data['employees'] as $emp): ?>
-                            <option value="<?= $emp['EmpID'] ?>" data-dept="<?= $emp['DeptID'] ?>"><?= htmlspecialchars($emp['FirstName'] . ' ' . $emp['LastName']) ?> (EMP-<?= str_pad($emp['EmpID'], 5, '0', STR_PAD_LEFT) ?>) <?= $emp['Status'] !== 'Active' ? '[Inactive]' : '' ?></option>
+                            <option value="<?= $emp['EmpID'] ?>" data-dept="<?= $emp['DeptID'] ?>"><?= htmlspecialchars($emp['FirstName'] . ' ' . $emp['LastName']) ?> (EMP-<?= str_pad($emp['EmpID'], 4, '0', STR_PAD_LEFT) ?>) <?= $emp['Status'] !== 'Active' ? '[Inactive]' : '' ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Date</label>
-                    <input type="date" name="overtime_date" id="overtime_date" min="<?= date('Y-m-d') ?>" required onchange="validateOT()" class="w-full px-4 py-2.5 text-gray-900 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">Date</label>
+                    <input type="date" name="overtime_date" id="overtime_date" min="<?= date('Y-m-d') ?>" required onchange="validateOT()" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-xs shadow-sm">
                 </div>
                 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-3.5">
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Start Time</label>
-                        <input type="time" name="start_time" id="start_time" required onchange="calculateHoursAndAmount(); validateOT();" class="w-full px-4 py-2.5 text-gray-900 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">Start Time</label>
+                        <input type="time" name="start_time" id="start_time" required onchange="calculateHoursAndAmount(); validateOT();" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-xs shadow-sm">
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">End Time</label>
-                        <input type="time" name="end_time" id="end_time" required onchange="calculateHoursAndAmount(); validateOT();" class="w-full px-4 py-2.5 text-gray-900 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all shadow-sm">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">End Time</label>
+                        <input type="time" name="end_time" id="end_time" required onchange="calculateHoursAndAmount(); validateOT();" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-xs shadow-sm">
                     </div>
                 </div>
-                <p id="time_error" class="text-red-500 text-xs hidden mt-1 font-medium"></p>
+                <p id="time_error" class="text-rose-500 text-xs hidden mt-1 font-bold"></p>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-3.5">
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Total Hours</label>
-                        <input type="number" step="0.5" name="hours" id="hours" readonly class="w-full px-4 py-2.5 text-gray-900 bg-gray-100 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary dark:bg-gray-600 dark:border-gray-500 dark:text-gray-300 transition-all shadow-sm">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">Total Hours</label>
+                        <input type="number" step="0.5" name="hours" id="hours" readonly class="w-full px-3.5 py-2.5 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl text-xs font-mono font-bold shadow-inner">
                     </div>
                 </div>
             </div>
             
-            <div class="mt-6 pt-5 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-3">
-                <button type="button" onclick="closeModal()" class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 transition-colors">
+            <div class="mt-6 pt-5 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-3">
+                <button type="button" onclick="closeModal()" class="px-5 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
                     Cancel
                 </button>
-                <button type="submit" id="save_btn" class="px-5 py-2.5 text-sm font-medium text-white bg-primary rounded-xl hover:bg-indigo-600 hover:-translate-y-0.5 transition-all shadow-lg shadow-primary/30 disabled:opacity-50 disabled:cursor-not-allowed">
+                <button type="submit" id="save_btn" class="px-5 py-2.5 text-xs font-extrabold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 rounded-xl shadow-lg shadow-indigo-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                     Assign OT
                 </button>
             </div>

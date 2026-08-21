@@ -51,10 +51,26 @@ class LeaveType {
     }
 
     public function delete($id) {
-        $query = "DELETE FROM " . $this->table . " WHERE LeaveTypeID = :id";
+        try {
+            $query = "DELETE FROM " . $this->table . " WHERE LeaveTypeID = :id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':id', $id);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    public function hasUsage($id) {
+        $query = "SELECT (
+            (SELECT COUNT(*) FROM LeaveRequests WHERE LeaveTypeID = :id1) + 
+            (SELECT COUNT(*) FROM LeaveBalances WHERE LeaveTypeID = :id2)
+        ) as total";
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':id', $id);
-        return $stmt->execute();
+        $stmt->bindParam(':id1', $id);
+        $stmt->bindParam(':id2', $id);
+        $stmt->execute();
+        return (int)$stmt->fetchColumn() > 0;
     }
 
     public function nameExists($name, $excludeId = null) {

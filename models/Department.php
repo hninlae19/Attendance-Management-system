@@ -36,10 +36,22 @@ class Department {
     }
 
     public function delete($id) {
-        $query = "DELETE FROM " . $this->table . " WHERE DeptID = :id";
+        try {
+            $query = "DELETE FROM " . $this->table . " WHERE DeptID = :id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':id', $id);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    public function hasPositions($id) {
+        $query = "SELECT COUNT(*) FROM Position WHERE DeptID = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':id', $id);
-        return $stmt->execute();
+        $stmt->execute();
+        return $stmt->fetchColumn() > 0;
     }
 
     public function nameExists($name, $excludeId = null) {

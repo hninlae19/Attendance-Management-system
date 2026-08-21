@@ -42,9 +42,13 @@ class EmpBonous {
     }
 
     public function delete($id) {
-        $query = "DELETE FROM " . $this->table . " WHERE EmpBonousID = :id";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':id', $id);
-        return $stmt->execute();
+        try {
+            $query = "DELETE FROM " . $this->table . " WHERE EmpBonousID = :id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':id', $id);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            return false;
+        }
     }
 }

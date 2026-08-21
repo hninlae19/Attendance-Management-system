@@ -144,7 +144,14 @@ class AdminController extends Controller {
                     $departmentModel->DeptName = $_POST['name'];
                     $departmentModel->update();
                 } elseif ($_POST['action'] === 'delete') {
-                    $departmentModel->delete($_POST['id']);
+                    if ($departmentModel->hasPositions($_POST['id'])) {
+                        $this->redirect('/payrollsystem/admin/departments?error=in_use');
+                        return;
+                    }
+                    if (!$departmentModel->delete($_POST['id'])) {
+                        $this->redirect('/payrollsystem/admin/departments?error=in_use');
+                        return;
+                    }
                 }
             }
             $this->redirect('/payrollsystem/admin/departments');
@@ -186,7 +193,14 @@ class AdminController extends Controller {
                     $positionModel->BasicSalary = $_POST['basic_salary'] ?? 0;
                     $positionModel->update();
                 } elseif ($_POST['action'] === 'delete') {
-                    $positionModel->delete($_POST['id']);
+                    if ($positionModel->hasEmployees($_POST['id'])) {
+                        $this->redirect('/payrollsystem/admin/positions?error=in_use');
+                        return;
+                    }
+                    if (!$positionModel->delete($_POST['id'])) {
+                        $this->redirect('/payrollsystem/admin/positions?error=in_use');
+                        return;
+                    }
                 }
             }
             $this->redirect('/payrollsystem/admin/positions');
@@ -602,7 +616,14 @@ class AdminController extends Controller {
                     $leaveTypeModel->DurationMonths = (int)($_POST['duration_months'] ?? 0);
                     $leaveTypeModel->update();
                 } elseif ($_POST['action'] === 'delete') {
-                    $leaveTypeModel->delete($_POST['id']);
+                    if ($leaveTypeModel->hasUsage($_POST['id'])) {
+                        $this->redirect('/payrollsystem/admin/leave_types?error=in_use');
+                        return;
+                    }
+                    if (!$leaveTypeModel->delete($_POST['id'])) {
+                        $this->redirect('/payrollsystem/admin/leave_types?error=in_use');
+                        return;
+                    }
                 }
             }
             $this->redirect('/payrollsystem/admin/leave_types');
@@ -791,8 +812,12 @@ class AdminController extends Controller {
                             $overtimeModel->update();
                         }
                     }
-                } elseif ($_POST['action'] === 'approve' || $_POST['action'] === 'cancel') {
-                    $status = $_POST['action'] === 'approve' ? 'Approved' : 'Cancelled';
+                } elseif ($_POST['action'] === 'approve' || $_POST['action'] === 'cancel' || $_POST['action'] === 'no_show') {
+                    $status = 'Assigned';
+                    if ($_POST['action'] === 'approve') $status = 'Approved';
+                    elseif ($_POST['action'] === 'cancel') $status = 'Cancelled';
+                    elseif ($_POST['action'] === 'no_show') $status = 'No Show';
+
                     $appBy = $_POST['action'] === 'approve' ? $_SESSION['user_id'] : null;
                     $overtimeModel->updateStatus($_POST['id'], $status, $appBy);
                 } elseif ($_POST['action'] === 'delete') {

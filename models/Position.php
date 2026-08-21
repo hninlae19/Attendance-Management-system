@@ -47,10 +47,22 @@ class Position {
     }
 
     public function delete($id) {
-        $query = "DELETE FROM " . $this->table . " WHERE PositionID = :id";
+        try {
+            $query = "DELETE FROM " . $this->table . " WHERE PositionID = :id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':id', $id);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    public function hasEmployees($id) {
+        $query = "SELECT COUNT(*) FROM Employee WHERE PositionID = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':id', $id);
-        return $stmt->execute();
+        $stmt->execute();
+        return $stmt->fetchColumn() > 0;
     }
 
     public function nameExists($name, $excludeId = null) {
