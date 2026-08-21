@@ -107,4 +107,31 @@ class HolidayHelper {
         
         return $count;
     }
+
+    /**
+     * Counts the number of working days in a given month (Monday to Friday, excluding public holidays).
+     * Optionally takes a joinDate to only count working days on or after the joinDate.
+     */
+    public static function getWorkingDaysCountInMonth($year, $month, $joinDate = null) {
+        $count = 0;
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, (int)$month, (int)$year);
+        $joinTime = $joinDate ? strtotime($joinDate) : 0;
+        
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            $date = sprintf('%04d-%02d-%02d', (int)$year, (int)$month, $day);
+            $timestamp = strtotime($date);
+            
+            // If employee joined after this day, don't count it
+            if ($joinTime > 0 && $timestamp < $joinTime) {
+                continue;
+            }
+            
+            if (self::isWorkingDay($date)) {
+                $count++;
+            }
+        }
+        
+        return $count > 0 ? $count : 22; // Fallback to 22 if month has 0 working days
+    }
 }
+

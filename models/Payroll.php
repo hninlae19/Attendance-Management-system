@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../core/HolidayHelper.php';
+require_once __DIR__ . '/Attendance.php';
 
 class Payroll {
     private $conn;
@@ -22,7 +24,7 @@ class Payroll {
     }
 
     public function getAll() {
-        $query = "SELECT p.*, e.FirstName, e.LastName, pos.PositionName, d.DeptName 
+        $query = "SELECT p.*, e.FirstName, e.LastName, e.JoinDate, pos.PositionName, d.DeptName 
                   FROM " . $this->table . " p
                   LEFT JOIN Employee e ON p.EmpID = e.EmpID
                   LEFT JOIN Position pos ON e.PositionID = pos.PositionID
@@ -35,7 +37,7 @@ class Payroll {
     }
 
     public function getByEmployee($emp_id) {
-        $query = "SELECT p.*, e.FirstName, e.LastName, pos.PositionName, d.DeptName 
+        $query = "SELECT p.*, e.FirstName, e.LastName, e.JoinDate, pos.PositionName, d.DeptName 
                   FROM " . $this->table . " p
                   LEFT JOIN Employee e ON p.EmpID = e.EmpID
                   LEFT JOIN Position pos ON e.PositionID = pos.PositionID
@@ -50,7 +52,7 @@ class Payroll {
     }
 
     public function getById($id) {
-        $query = "SELECT p.*, e.FirstName, e.LastName, pos.PositionName, d.DeptName 
+        $query = "SELECT p.*, e.FirstName, e.LastName, e.JoinDate, pos.PositionName, d.DeptName 
                   FROM " . $this->table . " p
                   LEFT JOIN Employee e ON p.EmpID = e.EmpID
                   LEFT JOIN Position pos ON e.PositionID = pos.PositionID
@@ -89,23 +91,68 @@ class Payroll {
             $endDate = date("Y-m-t", strtotime($startDate));
             $empId = $p['EmpID'];
             
-            // Attendance stats
+            // Working days & salary rates
+            $workingDaysCount = HolidayHelper::getWorkingDaysCountInMonth($year, $month, $p['JoinDate'] ?? null);
+            $basicSalary = (float)($p['BasicSalary'] ?? 0);
+            $dailySalary = $workingDaysCount > 0 ? ($basicSalary / $workingDaysCount) : 0;
+            $hourlyRate = $dailySalary / 8;
+            
+            $p['working_days_count'] = $workingDaysCount;
+            $p['daily_salary'] = round($dailySalary, 2);
+            $p['hourly_rate'] = round($hourlyRate, 2);
+            
+            // Attendance stats & Late minutes
             $stmt = $this->conn->prepare("
-                SELECT 
-                    SUM(CASE WHEN CheckInTime IS NOT NULL THEN 1 ELSE 0 END) as present_days,
-                    SUM(CASE WHEN Status = 'Full-Day Absence' THEN 1 ELSE 0 END) as absent_days,
-                    SUM(CASE WHEN Status = 'Half-Day Absence' THEN 1 ELSE 0 END) as half_days,
-                    SUM(CASE WHEN Status = 'Late' THEN 1 ELSE 0 END) as late_days
+                SELECT CheckInTime, CheckOutTime, Status 
                 FROM attendance 
                 WHERE EmpID = :emp AND AttendanceDate BETWEEN :sd AND :ed
             ");
             $stmt->execute([':emp' => $empId, ':sd' => $startDate, ':ed' => $endDate]);
-            $attStats = $stmt->fetch(PDO::FETCH_ASSOC);
+            $attendanceRecords = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            $p['present_days'] = $attStats['present_days'] ?: 0;
-            $p['absent_days'] = $attStats['absent_days'] ?: 0;
-            $p['half_days'] = $attStats['half_days'] ?: 0;
-            $p['late_days'] = $attStats['late_days'] ?: 0;
+            $presentDays = 0;
+            $absentDays = 0;
+            $halfDays = 0;
+            $lateDays = 0;
+            $totalLateMinutes = 0;
+            
+            foreach ($attendanceRecords as $att) {
+                $st = $att['Status'];
+                if ($st === 'Present') {
+                    $presentDays++;
+                } elseif (in_array($st, ['Absent', 'Full-Day Absence', 'Full-day absent'])) {
+                    $absentDays++;
+                } elseif (in_array($st, ['Half Day', 'Half-Day Absence', 'Half-day absent'])) {
+                    $halfDays++;
+                } elseif ($st === 'Late') {
+                    $lateDays++;
+                }
+                
+                // Calculate dynamic late minutes from CheckInTime relative to 09:00 AM
+                if (!empty($att['CheckInTime'])) {
+                    $totalLateMinutes += Attendance::calculateLateMinutes($att['CheckInTime']);
+                }
+            }
+            
+            $p['present_days'] = $presentDays;
+            $p['absent_days'] = $absentDays;
+            $p['half_days'] = $halfDays;
+            $p['late_days'] = $lateDays;
+            $p['late_minutes'] = $totalLateMinutes;
+            
+            $lateHours = $totalLateMinutes / 60;
+            $p['late_hours'] = round($lateHours, 2);
+            
+            // Deductions
+            $lateDeduction = round($hourlyRate * $lateHours, 2);
+            $halfDayDeduction = round($halfDays * ($dailySalary * 0.5), 2);
+            $fullDayDeduction = round($absentDays * $dailySalary, 2);
+            $totalAttendanceDeduction = $lateDeduction + $halfDayDeduction + $fullDayDeduction;
+            
+            $p['late_deduction'] = $lateDeduction;
+            $p['half_day_deduction'] = $halfDayDeduction;
+            $p['full_day_deduction'] = $fullDayDeduction;
+            $p['total_attendance_deduction'] = $totalAttendanceDeduction;
             
             // OT stats
             $stmt = $this->conn->prepare("SELECT SUM(TotalHours) as ot_hours FROM overtimeassign WHERE EmpID = :emp AND OvertimeDate BETWEEN :sd AND :ed AND Status = 'Completed'");
@@ -133,3 +180,4 @@ class Payroll {
         return $payrolls;
     }
 }
+

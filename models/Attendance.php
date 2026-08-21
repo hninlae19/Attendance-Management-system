@@ -67,6 +67,22 @@ class Attendance {
         }
     }
 
+    public static function calculateLateMinutes($checkInTime) {
+        if (empty($checkInTime)) {
+            return 0;
+        }
+
+        $inTimeStr = date('H:i:s', strtotime($checkInTime));
+        $targetTime = strtotime('09:00:00');
+        $actualTime = strtotime($inTimeStr);
+
+        if ($actualTime > $targetTime) {
+            return (int)floor(($actualTime - $targetTime) / 60);
+        }
+
+        return 0;
+    }
+
     public function processAutoCheckouts() {
         // First ensure the column exists (safe to run once)
         try {

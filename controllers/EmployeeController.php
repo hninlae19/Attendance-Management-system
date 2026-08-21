@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/../models/Attendance.php';
+require_once __DIR__ . '/../core/HolidayHelper.php';
+
 class EmployeeController extends Controller {
     public function __construct() {
         if(!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'Employee') {
@@ -296,6 +299,13 @@ class EmployeeController extends Controller {
             'title' => 'My Salary History',
             'content' => 'employee/salary_history',
             'payrolls' => $payrolls
+        ]);
+    }
+
+    public function rules() {
+        $this->view('layouts/main', [
+            'title' => 'Company Rules & Policies',
+            'content' => 'employee/rules'
         ]);
     }
 

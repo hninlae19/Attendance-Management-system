@@ -65,7 +65,8 @@
 <?php 
 $p = $data['payroll']; 
 $grossSalary = $p['BasicSalary'] + $p['OvertimeAmount'] + $p['BonousAmount'];
-$totalDeductions = ($p['LeaveDeductionAmount'] ?? 0) + ($p['late_deduction_amount'] ?? 0);
+$totalDeductions = (float)($p['LeaveDeductionAmount'] ?? 0);
+$leaveOnlyDeduction = max(0, $totalDeductions - ($p['total_attendance_deduction'] ?? 0));
 ?>
 
 <div class="slip-container">
@@ -97,7 +98,7 @@ $totalDeductions = ($p['LeaveDeductionAmount'] ?? 0) + ($p['late_deduction_amoun
     <div class="grid grid-cols-2 gap-6 mb-6">
         <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
             <h3 class="font-bold text-slate-700 uppercase text-[11px] tracking-wider mb-3 pb-1 border-b border-slate-200 flex items-center gap-1.5">
-                <i class="fa-solid fa-user-tie text-indigo-500"></i> Employee Information
+                <i class="fa-solid fa-user-tie text-indigo-500"></i> Employee Information & Rates
             </h3>
             <div class="space-y-1.5 text-xs">
                 <div class="flex justify-between">
@@ -109,12 +110,16 @@ $totalDeductions = ($p['LeaveDeductionAmount'] ?? 0) + ($p['late_deduction_amoun
                     <span class="font-bold text-slate-900"><?= htmlspecialchars($p['FirstName'] . ' ' . $p['LastName']) ?></span>
                 </div>
                 <div class="flex justify-between">
-                    <span class="text-slate-500">Department:</span>
-                    <span class="font-semibold text-slate-800"><?= htmlspecialchars($p['DeptName'] ?? 'N/A') ?></span>
+                    <span class="text-slate-500">Department / Position:</span>
+                    <span class="font-semibold text-slate-800"><?= htmlspecialchars(($p['DeptName'] ?? 'N/A') . ' • ' . ($p['PositionName'] ?? 'N/A')) ?></span>
+                </div>
+                <div class="flex justify-between pt-1 border-t border-slate-200">
+                    <span class="text-slate-500">Working Days / Daily Rate:</span>
+                    <span class="font-bold text-indigo-700 font-mono"><?= $p['working_days_count'] ?? $p['PayableDays'] ?> Days (<?= number_format($p['daily_salary'] ?? 0, 2) ?> MMK/day)</span>
                 </div>
                 <div class="flex justify-between">
-                    <span class="text-slate-500">Position:</span>
-                    <span class="font-semibold text-slate-800"><?= htmlspecialchars($p['PositionName'] ?? 'N/A') ?></span>
+                    <span class="text-slate-500">Hourly Rate (Daily ÷ 8):</span>
+                    <span class="font-bold text-indigo-700 font-mono"><?= number_format($p['hourly_rate'] ?? 0, 2) ?> MMK/hr</span>
                 </div>
             </div>
         </div>
@@ -133,10 +138,18 @@ $totalDeductions = ($p['LeaveDeductionAmount'] ?? 0) + ($p['late_deduction_amoun
                     <span class="font-semibold text-indigo-600 font-mono"><?= $p['leave_days'] ?> Days</span>
                 </div>
                 <div class="flex justify-between">
-                    <span class="text-slate-500">Absences (Full/Half):</span>
-                    <span class="font-bold text-rose-600 font-mono"><?= $p['absent_days'] ?> FD / <?= $p['half_days'] ?> HD</span>
+                    <span class="text-slate-500">Full-Day Absences:</span>
+                    <span class="font-bold text-rose-600 font-mono"><?= $p['absent_days'] ?> Days</span>
                 </div>
                 <div class="flex justify-between">
+                    <span class="text-slate-500">Half-Day Absences:</span>
+                    <span class="font-bold text-amber-600 font-mono"><?= $p['half_days'] ?> Days</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Late Arrivals:</span>
+                    <span class="font-bold text-amber-700 font-mono"><?= $p['late_days'] ?> Shifts (<?= $p['late_minutes'] ?? 0 ?> mins / <?= number_format($p['late_hours'] ?? 0, 2) ?> hrs)</span>
+                </div>
+                <div class="flex justify-between pt-1 border-t border-slate-200">
                     <span class="text-slate-500">Overtime Hours:</span>
                     <span class="font-bold text-amber-600 font-mono"><?= number_format($p['ot_hours'] ?? 0, 1) ?> hrs</span>
                 </div>
@@ -164,7 +177,7 @@ $totalDeductions = ($p['LeaveDeductionAmount'] ?? 0) + ($p['late_deduction_amoun
                     <span class="font-mono font-bold text-emerald-600">+<?= number_format($p['BonousAmount']) ?> MMK</span>
                 </div>
                 
-                <div class="flex justify-between pt-2 border-t border-slate-200 font-bold text-slate-900 text-xs">
+                <div class="flex justify-between pt-3 border-t border-slate-200 font-bold text-slate-900 text-xs">
                     <span>Total Gross Pay</span>
                     <span class="font-mono text-indigo-700"><?= number_format($grossSalary) ?> MMK</span>
                 </div>
@@ -175,17 +188,27 @@ $totalDeductions = ($p['LeaveDeductionAmount'] ?? 0) + ($p['late_deduction_amoun
             <h3 class="font-bold text-rose-700 uppercase text-[11px] tracking-wider mb-3 pb-1 border-b border-rose-200 flex items-center gap-1.5">
                 <i class="fa-solid fa-minus-circle text-rose-500"></i> Deductions
             </h3>
-            <div class="space-y-2 text-xs">
-                <div class="flex justify-between py-1">
-                    <span class="text-slate-600">Unpaid Leave Deductions</span>
-                    <span class="font-mono font-bold text-rose-600">-<?= number_format($p['LeaveDeductionAmount'] ?? 0) ?> MMK</span>
+            <div class="space-y-1.5 text-xs">
+                <div class="flex justify-between py-0.5">
+                    <span class="text-slate-600">Full-Day Absence (<?= $p['absent_days'] ?>d &times; <?= number_format($p['daily_salary'] ?? 0) ?>)</span>
+                    <span class="font-mono font-bold text-rose-600">-<?= number_format($p['full_day_deduction'] ?? 0) ?> MMK</span>
                 </div>
-                <div class="flex justify-between py-1">
-                    <span class="text-slate-600">Late Attendance Deductions</span>
-                    <span class="font-mono font-bold text-rose-600">-<?= number_format($p['late_deduction_amount'] ?? 0) ?> MMK</span>
+                <div class="flex justify-between py-0.5">
+                    <span class="text-slate-600">Half-Day Absence (<?= $p['half_days'] ?>d &times; <?= number_format(($p['daily_salary'] ?? 0) * 0.5) ?>)</span>
+                    <span class="font-mono font-bold text-rose-600">-<?= number_format($p['half_day_deduction'] ?? 0) ?> MMK</span>
                 </div>
+                <div class="flex justify-between py-0.5">
+                    <span class="text-slate-600">Late Arrival (<?= number_format($p['late_hours'] ?? 0, 2) ?>h &times; <?= number_format($p['hourly_rate'] ?? 0) ?>)</span>
+                    <span class="font-mono font-bold text-rose-600">-<?= number_format($p['late_deduction'] ?? 0) ?> MMK</span>
+                </div>
+                <?php if ($leaveOnlyDeduction > 0): ?>
+                <div class="flex justify-between py-0.5">
+                    <span class="text-slate-600">Unpaid / Excess Leave Deductions</span>
+                    <span class="font-mono font-bold text-rose-600">-<?= number_format($leaveOnlyDeduction) ?> MMK</span>
+                </div>
+                <?php endif; ?>
                 
-                <div class="flex justify-between pt-7 border-t border-slate-200 font-bold text-slate-900 text-xs">
+                <div class="flex justify-between pt-2 border-t border-slate-200 font-bold text-slate-900 text-xs">
                     <span>Total Deductions</span>
                     <span class="font-mono text-rose-600">-<?= number_format($totalDeductions) ?> MMK</span>
                 </div>
@@ -197,7 +220,7 @@ $totalDeductions = ($p['LeaveDeductionAmount'] ?? 0) + ($p['late_deduction_amoun
     <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl p-5 flex justify-between items-center border border-emerald-200 mb-8 shadow-sm">
         <div>
             <h2 class="text-base font-extrabold text-emerald-950 font-outfit">Take-Home Net Salary</h2>
-            <p class="text-xs text-emerald-700">Final disbursed amount after all earnings and deductions</p>
+            <p class="text-xs text-emerald-700">Final disbursed amount after attendance deductions, overtime, and bonuses</p>
         </div>
         <div class="text-2xl sm:text-3xl font-black text-emerald-600 font-mono">
             <?= number_format($p['NetSalary']) ?> <span class="text-base font-bold text-emerald-800">MMK</span>

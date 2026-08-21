@@ -114,8 +114,8 @@ else $currentMonthName = $monthNames[(int)$data['selectedMonth']];
                         <th class="px-4 py-4 text-center">OT Hrs</th>
                         <th class="px-4 py-4 text-amber-600 dark:text-amber-400 font-bold">OT Pay</th>
                         <th class="px-4 py-4 text-emerald-600 dark:text-emerald-400 font-bold">Bonus</th>
+                        <th class="px-4 py-4 text-rose-600 dark:text-rose-400 font-bold">Att. Ded</th>
                         <th class="px-4 py-4 text-rose-600 dark:text-rose-400 font-bold">Leave Ded</th>
-                        <th class="px-4 py-4 text-rose-600 dark:text-rose-400 font-bold">Late Ded</th>
                         <th class="px-4 py-4 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-800 dark:text-indigo-300 font-bold">Gross (MMK)</th>
                         <th class="px-4 py-4 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-extrabold">Net Salary (MMK)</th>
                         <th class="px-4 py-4 text-center">Status</th>
@@ -162,14 +162,16 @@ else $currentMonthName = $monthNames[(int)$data['selectedMonth']];
                             <td class="px-4 py-3.5 text-center font-mono text-xs text-slate-700 dark:text-slate-300"><?= $p['leave_days'] ?></td>
                             <td class="px-4 py-3.5 text-center font-mono text-xs text-rose-600 dark:text-rose-400 font-bold"><?= $p['absent_days'] ?></td>
                             <td class="px-4 py-3.5 text-center font-mono text-xs text-amber-600 dark:text-amber-400 font-bold"><?= $p['half_days'] ?></td>
-                            <td class="px-4 py-3.5 text-center font-mono text-xs text-slate-700 dark:text-slate-300"><?= $p['late_days'] ?></td>
+                            <td class="px-4 py-3.5 text-center font-mono text-xs text-slate-700 dark:text-slate-300">
+                                <?= $p['late_days'] ?> <span class="text-[10px] text-slate-400 font-normal">(<?= $p['late_minutes'] ?? 0 ?>m)</span>
+                            </td>
                             <td class="px-4 py-3.5 text-center font-mono text-xs text-slate-700 dark:text-slate-300"><?= number_format($p['ot_hours'] ?? 0, 1) ?></td>
                             
                             <td class="px-4 py-3.5 font-mono text-amber-600 dark:text-amber-400 font-bold text-xs">+<?= number_format($p['OvertimeAmount']) ?></td>
                             <td class="px-4 py-3.5 font-mono text-emerald-600 dark:text-emerald-400 font-bold text-xs">+<?= number_format($p['BonousAmount']) ?></td>
                             
-                            <td class="px-4 py-3.5 font-mono text-rose-600 dark:text-rose-400 font-bold text-xs">-<?= number_format($p['LeaveDeductionAmount'] ?? 0) ?></td>
-                            <td class="px-4 py-3.5 font-mono text-rose-600 dark:text-rose-400 font-bold text-xs">-<?= number_format($p['late_deduction_amount'] ?? 0) ?></td>
+                            <td class="px-4 py-3.5 font-mono text-rose-600 dark:text-rose-400 font-bold text-xs" title="Late: <?= number_format($p['late_deduction'] ?? 0) ?> | Half: <?= number_format($p['half_day_deduction'] ?? 0) ?> | Full: <?= number_format($p['full_day_deduction'] ?? 0) ?>">-<?= number_format($p['total_attendance_deduction'] ?? 0) ?></td>
+                            <td class="px-4 py-3.5 font-mono text-rose-600 dark:text-rose-400 font-bold text-xs">-<?= number_format(max(0, ($p['LeaveDeductionAmount'] ?? 0) - ($p['total_attendance_deduction'] ?? 0))) ?></td>
                             
                             <?php $grossSalary = $p['BasicSalary'] + $p['OvertimeAmount'] + $p['BonousAmount']; ?>
                             <td class="px-4 py-3.5 bg-indigo-50/50 dark:bg-indigo-950/20 font-mono font-bold text-indigo-700 dark:text-indigo-300 text-xs"><?= number_format($grossSalary) ?></td>

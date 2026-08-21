@@ -53,7 +53,7 @@ class NotificationController extends Controller {
                 }
 
                 // 2. Pending Overtime Assignments (Admin view)
-                $stmt = $conn->query("SELECT OvertimeID, OvertimeDate FROM overtimeassign WHERE Status = 'Pending' AND EmployeeResponse != 'None'");
+                $stmt = $conn->query("SELECT OvertimeID, OvertimeDate FROM overtimeassign WHERE Status IN ('Pending', 'Accepted')");
                 $pendingOT = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 foreach ($pendingOT as $ot) {
                     $key = "admin_ot_" . $ot['OvertimeID'];
@@ -122,9 +122,9 @@ class NotificationController extends Controller {
                 }
 
                 // =========================================================
-                // 2. OVERTIME ASSIGNMENTS: Trigger on Pending or Approved
+                // 2. OVERTIME ASSIGNMENTS: Trigger on Pending, Accepted or Completed
                 // =========================================================
-                $stmt = $conn->prepare("SELECT OvertimeID, OvertimeDate, Status, EmployeeResponse FROM overtimeassign WHERE EmpID = ? AND (Status = 'Pending' AND EmployeeResponse = 'None' OR Status IN ('Approved', 'Accepted')) ORDER BY OvertimeID DESC");
+                $stmt = $conn->prepare("SELECT OvertimeID, OvertimeDate, Status FROM overtimeassign WHERE EmpID = ? AND Status IN ('Pending', 'Accepted', 'Completed') ORDER BY OvertimeID DESC");
                 $stmt->execute([$userId]);
                 $overtimes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 foreach ($overtimes as $ot) {

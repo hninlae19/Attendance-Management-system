@@ -545,6 +545,7 @@ $isActive = function($path) use ($currentPath) {
                         'items' => [
                             ['href' => '/payrollsystem/employee', 'icon' => 'fa-chart-pie', 'label' => 'Dashboard', 'exact' => true],
                             ['href' => '/payrollsystem/employee/attendance', 'icon' => 'fa-clock-rotate-left', 'label' => 'My Attendance', 'match' => '/attendance'],
+                            ['href' => '/payrollsystem/employee/salary_history', 'icon' => 'fa-file-invoice-dollar', 'label' => 'Salary History', 'match' => '/salary_history'],
                         ]
                     ],
                     [
@@ -552,6 +553,12 @@ $isActive = function($path) use ($currentPath) {
                         'items' => [
                             ['href' => '/payrollsystem/employee/leaves', 'icon' => 'fa-calendar-minus', 'label' => 'My Leaves', 'match' => '/leaves'],
                             ['href' => '/payrollsystem/employee/overtime', 'icon' => 'fa-clipboard-list', 'label' => 'Overtime Assign', 'match' => '/overtime'],
+                        ]
+                    ],
+                    [
+                        'label' => 'Guidelines & Policies',
+                        'items' => [
+                            ['href' => '/payrollsystem/employee/rules', 'icon' => 'fa-book-bookmark', 'label' => 'Rules & Policies', 'match' => '/rules'],
                         ]
                     ]
                 ];
@@ -561,27 +568,30 @@ $isActive = function($path) use ($currentPath) {
                         'label' => 'Main Console',
                         'items' => [
                             ['href' => '/payrollsystem/admin', 'icon' => 'fa-chart-pie', 'label' => 'Dashboard', 'exact' => true],
+                            ['href' => '/payrollsystem/admin/rules', 'icon' => 'fa-book-bookmark', 'label' => 'Rules & Policies', 'match' => '/rules'],
                         ]
                     ],
                     [
-                        'label' => 'Workforce & Teams',
+                        'label' => 'Organization Management',
                         'items' => [
-                            ['href' => '/payrollsystem/admin/employees', 'icon' => 'fa-users', 'label' => 'Employees Directory', 'match' => '/employees'],
+                           
                             ['href' => '/payrollsystem/admin/departments','icon' => 'fa-sitemap', 'label' => 'Departments', 'match' => '/departments'],
                             ['href' => '/payrollsystem/admin/positions',  'icon' => 'fa-id-badge','label' => 'Positions',   'match' => '/positions'],
+                             ['href' => '/payrollsystem/admin/employees', 'icon' => 'fa-users', 'label' => 'Employees Directory', 'match' => '/employees'],
                         ]
                     ],
                     [
-                        'label' => 'Time & Attendance',
+                        'label' => 'Attendance Management',
                         'items' => [
                             ['href' => '/payrollsystem/admin/attendance', 'icon' => 'fa-clock-rotate-left', 'label' => 'Attendance Logs', 'match' => '/attendance'],
                         ]
                     ],
                     [
-                        'label' => 'Leaves & Time Off',
+                        'label' => 'Leaves Management',
                         'items' => [
+                            ['href' => '/payrollsystem/admin/leave_types', 'icon' => 'fa-list-check',       'label' => 'Leave Types', 'match' => '/leave_types'],
                             ['href' => '/payrollsystem/admin/leaves',      'icon' => 'fa-calendar-minus',  'label' => 'Leave Requests', 'match' => '/leaves'],
-                            ['href' => '/payrollsystem/admin/leave_types', 'icon' => 'fa-list-check',       'label' => 'Leave Policies', 'match' => '/leave_types'],
+                            
                         ]
                     ],
                     [
@@ -591,10 +601,11 @@ $isActive = function($path) use ($currentPath) {
                         ]
                     ],
                     [
-                        'label' => 'Payroll & Compensation',
+                        'label' => 'Payroll Management',
                         'items' => [
-                            ['href' => '/payrollsystem/admin/payroll',     'icon' => 'fa-file-invoice-dollar','label' => 'Monthly Payroll',   'match' => '/payroll'],
-                            ['href' => '/payrollsystem/admin/bonuses',     'icon' => 'fa-gift',               'label' => 'Bonuses & Incentives', 'match' => '/bonuses'],
+                             ['href' => '/payrollsystem/admin/bonuses',     'icon' => 'fa-gift',               'label' => 'Bonuses', 'match' => '/bonuses'],
+                            ['href' => '/payrollsystem/admin/payroll',     'icon' => 'fa-file-invoice-dollar','label' => 'Calculate Salary',   'match' => '/payroll'],
+                           
                         ]
                     ],
                     [

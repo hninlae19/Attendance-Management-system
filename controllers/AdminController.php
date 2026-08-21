@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/../models/Attendance.php';
+require_once __DIR__ . '/../core/HolidayHelper.php';
+
 class AdminController extends Controller {
     public function __construct() {
         if(!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'Admin') {
@@ -158,11 +161,26 @@ class AdminController extends Controller {
         }
 
         $departments = $departmentModel->getAll();
+        
+        // Server-side sorting support
+        $sort = $_GET['sort'] ?? 'id';
+        $order = strtolower($_GET['order'] ?? 'desc'); // Default to ID descending
+        
+        usort($departments, function($a, $b) use ($sort, $order) {
+            if ($sort === 'name') {
+                $cmp = strcasecmp($a['DeptName'], $b['DeptName']);
+            } else {
+                $cmp = (int)$a['DeptID'] <=> (int)$b['DeptID'];
+            }
+            return $order === 'desc' ? -$cmp : $cmp;
+        });
 
         $this->view('layouts/main', [
             'title' => 'Departments',
             'content' => 'admin/departments',
-            'departments' => $departments
+            'departments' => $departments,
+            'currentSort' => $sort,
+            'currentOrder' => $order
         ]);
     }
     
@@ -208,12 +226,31 @@ class AdminController extends Controller {
 
         $positions = $positionModel->getAll();
         $departments = $departmentModel->getAll();
+        
+        // Server-side sorting support
+        $sort = $_GET['sort'] ?? 'id';
+        $order = strtolower($_GET['order'] ?? 'desc'); // Default to ID descending
+        
+        usort($positions, function($a, $b) use ($sort, $order) {
+            if ($sort === 'name' || $sort === 'position_name') {
+                $cmp = strcasecmp($a['PositionName'], $b['PositionName']);
+            } elseif ($sort === 'dept' || $sort === 'dept_name') {
+                $cmp = strcasecmp($a['DeptName'] ?? '', $b['DeptName'] ?? '');
+            } elseif ($sort === 'salary') {
+                $cmp = (float)$a['BasicSalary'] <=> (float)$b['BasicSalary'];
+            } else {
+                $cmp = (int)$a['PositionID'] <=> (int)$b['PositionID'];
+            }
+            return $order === 'desc' ? -$cmp : $cmp;
+        });
 
         $this->view('layouts/main', [
             'title' => 'Positions',
             'content' => 'admin/positions',
             'positions' => $positions,
-            'departments' => $departments
+            'departments' => $departments,
+            'currentSort' => $sort,
+            'currentOrder' => $order
         ]);
     }
     
@@ -459,7 +496,7 @@ class AdminController extends Controller {
                 'working_hours' => $working_hours,
                 'ot_hours' => $ot_hours, 
                 'status' => $calculated_status,
-                'late_minutes' => 0
+                'late_minutes' => Attendance::calculateLateMinutes($record['CheckInTime'])
             ];
         }
         
@@ -813,10 +850,10 @@ class AdminController extends Controller {
                         }
                     }
                 } elseif ($_POST['action'] === 'approve' || $_POST['action'] === 'cancel' || $_POST['action'] === 'no_show') {
-                    $status = 'Assigned';
-                    if ($_POST['action'] === 'approve') $status = 'Approved';
+                    $status = 'Completed';
+                    if ($_POST['action'] === 'approve') $status = 'Completed';
                     elseif ($_POST['action'] === 'cancel') $status = 'Cancelled';
-                    elseif ($_POST['action'] === 'no_show') $status = 'No Show';
+                    elseif ($_POST['action'] === 'no_show') $status = 'NoOT';
 
                     $appBy = $_POST['action'] === 'approve' ? $_SESSION['user_id'] : null;
                     $overtimeModel->updateStatus($_POST['id'], $status, $appBy);
@@ -1013,27 +1050,59 @@ class AdminController extends Controller {
                         }
                     }
                     
-                    // Attendance stats
+                    // Working Days, Daily Salary, Hourly Rate Calculation
+                    $workingDaysCount = HolidayHelper::getWorkingDaysCountInMonth($year, $month, $emp['JoinDate'] ?? null);
+                    $dailySalary = $workingDaysCount > 0 ? ($basicSalary / $workingDaysCount) : 0;
+                    $hourlyRate = $dailySalary / 8;
+                    
+                    // Attendance Records, Absences & Dynamic Late Minutes
                     $stmt = $conn->prepare("
-                        SELECT 
-                            SUM(CASE WHEN CheckInTime IS NOT NULL THEN 1 ELSE 0 END) as present_days,
-                            SUM(CASE WHEN Status = 'Full-Day Absence' THEN 1 ELSE 0 END) as absent_days,
-                            SUM(CASE WHEN Status = 'Half-Day Absence' THEN 1 ELSE 0 END) as half_days
+                        SELECT CheckInTime, CheckOutTime, Status 
                         FROM attendance 
                         WHERE EmpID = :emp AND AttendanceDate BETWEEN :sd AND :ed
                     ");
                     $stmt->execute([':emp' => $empId, ':sd' => $startDate, ':ed' => $endDate]);
-                    $attStats = $stmt->fetch(PDO::FETCH_ASSOC);
+                    $attendanceRecords = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    
+                    $presentDays = 0;
+                    $absentDays = 0;
+                    $halfDays = 0;
+                    $lateDays = 0;
+                    $totalLateMinutes = 0;
+                    
+                    foreach ($attendanceRecords as $att) {
+                        $st = $att['Status'];
+                        if ($st === 'Present') {
+                            $presentDays++;
+                        } elseif (in_array($st, ['Absent', 'Full-Day Absence', 'Full-day absent'])) {
+                            $absentDays++;
+                        } elseif (in_array($st, ['Half Day', 'Half-Day Absence', 'Half-day absent'])) {
+                            $halfDays++;
+                        } elseif ($st === 'Late') {
+                            $lateDays++;
+                        }
+                        
+                        if (!empty($att['CheckInTime'])) {
+                            $totalLateMinutes += Attendance::calculateLateMinutes($att['CheckInTime']);
+                        }
+                    }
+                    
+                    $lateHours = $totalLateMinutes / 60;
+                    $lateDeduction = round($hourlyRate * $lateHours, 2);
+                    $halfDayDeduction = round($halfDays * ($dailySalary * 0.5), 2);
+                    $fullDayDeduction = round($absentDays * $dailySalary, 2);
+                    $totalAttendanceDeduction = $lateDeduction + $halfDayDeduction + $fullDayDeduction;
                     
                     // Overtime stats
-                    $stmt = $conn->prepare("SELECT SUM(TotalHours) as ot_hours, SUM(OTAmount) as ot_amount FROM overtimeassign WHERE EmpID = :emp AND OvertimeDate BETWEEN :sd AND :ed AND Status = 'Approved'");
+                    $stmt = $conn->prepare("SELECT SUM(TotalHours) as ot_hours, SUM(OTAmount) as ot_amount FROM overtimeassign WHERE EmpID = :emp AND OvertimeDate BETWEEN :sd AND :ed AND Status = 'Completed'");
                     $stmt->execute([':emp' => $empId, ':sd' => $startDate, ':ed' => $endDate]);
                     $otStats = $stmt->fetch(PDO::FETCH_ASSOC);
+                    $otAmount = (float)($otStats['ot_amount'] ?: 0);
                     
                     // Bonus stats
                     $stmt = $conn->prepare("SELECT SUM(Amount) as bonus_amount FROM empbonous WHERE EmpID = :emp AND BonusDate BETWEEN :sd AND :ed");
                     $stmt->execute([':emp' => $empId, ':sd' => $startDate, ':ed' => $endDate]);
-                    $bonusAmount = $stmt->fetchColumn() ?: 0;
+                    $bonusAmount = (float)($stmt->fetchColumn() ?: 0);
                     
                     // Leave Deduction Logic
                     $leaveDeductionAmount = 0;
@@ -1065,9 +1134,9 @@ class AdminController extends Controller {
                     
                     // For each type, check limit and calculate deduction
                     foreach($usedByThisMonthType as $typeId => $daysThisMonth) {
-                        $lt = $leaveTypes[$typeId];
+                        $lt = $leaveTypes[$typeId] ?? null;
+                        if (!$lt) continue;
                         
-                        // We also need total days used in the year BEFORE this month to know if limit is already exceeded
                         $yearStart = "$year-01-01";
                         $priorMonthEnd = date("Y-m-d", strtotime($startDate . " -1 day"));
                         
@@ -1082,7 +1151,6 @@ class AdminController extends Controller {
                         
                         // Check if it's strictly unpaid leave
                         if ($lt['IsPaid'] == 0) {
-                            // All days taken are deducted at the DeductionRate
                             $leaveDeductionAmount += $daysThisMonth * $lt['DeductionRate'];
                             continue;
                         }
@@ -1092,22 +1160,19 @@ class AdminController extends Controller {
                             continue; 
                         }
                         
-                        // How many days available coming into this month?
                         $available = max(0, $limit - $priorDays);
                         $excessDays = max(0, $daysThisMonth - $available);
                         
                         if ($excessDays > 0) {
-                            // Treat DeductionRate as a flat currency amount per excess day
                             $deduction = $excessDays * $lt['DeductionRate'];
                             $leaveDeductionAmount += $deduction;
                         }
                     }
                     
-                    // Calculate Basic Pay based on Calendar Days
-                    $calculatedBasicPay = round(($basicSalary / $daysInTargetMonth) * $payableDays);
-                    
-                    $grossSalary = $calculatedBasicPay + ($otStats['ot_amount'] ?: 0) + $bonusAmount;
-                    $netSalary = $grossSalary - $leaveDeductionAmount;
+                    // Net Salary Calculation
+                    $totalDeductions = $totalAttendanceDeduction + $leaveDeductionAmount;
+                    $grossSalary = $basicSalary + $otAmount + $bonusAmount;
+                    $netSalary = max(0, $grossSalary - $totalDeductions);
                     
                     // Insert Payroll
                     $stmt = $conn->prepare("
@@ -1123,12 +1188,12 @@ class AdminController extends Controller {
                     ");
                     $stmt->execute([
                         ':emp' => $empId,
-                        ':bs' => $calculatedBasicPay,
+                        ':bs' => $basicSalary,
                         ':pm' => $payrollMonthStr,
-                        ':pd' => $payableDays,
+                        ':pd' => $workingDaysCount,
                         ':ba' => $bonusAmount,
-                        ':oa' => $otStats['ot_amount'] ?: 0,
-                        ':lda' => $leaveDeductionAmount,
+                        ':oa' => $otAmount,
+                        ':lda' => $totalDeductions,
                         ':ns' => $netSalary,
                         ':ec' => str_pad($empId, 4, '0', STR_PAD_LEFT)
                     ]);
@@ -1287,6 +1352,13 @@ class AdminController extends Controller {
         $this->view('admin/payroll_slip', [
             'title' => 'Payroll Slip',
             'payroll' => $payrollData
+        ]);
+    }
+
+    public function rules() {
+        $this->view('layouts/main', [
+            'title' => 'Company Rules & Policies',
+            'content' => 'employee/rules'
         ]);
     }
 }

@@ -24,6 +24,14 @@
     <?php unset($_SESSION['flash_success']); ?>
 <?php endif; ?>
 
+<?php if (isset($_SESSION['flash_error'])): ?>
+    <div class="mb-6 p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs font-semibold flex items-center gap-3" data-aos="fade-up">
+        <i class="fa-solid fa-circle-exclamation text-base text-rose-500"></i>
+        <span><?= htmlspecialchars($_SESSION['flash_error']) ?></span>
+    </div>
+    <?php unset($_SESSION['flash_error']); ?>
+<?php endif; ?>
+
 <!-- ============ SUMMARY STATS ============ -->
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8" data-aos="fade-up" data-aos-delay="50">
     <div class="bg-white dark:bg-slate-800 rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm hover:-translate-y-1 transition-all">
@@ -137,7 +145,7 @@
                                 $colorClass = $statusColors[$ot['Status']] ?? 'bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600';
                             ?>
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold <?= $colorClass ?>">
-                                <?php if($ot['Status'] == 'InProgress') echo '<i class="fa-solid fa-spinner fa-spin mr-1"></i> In Progress'; else echo $ot['Status']; ?>
+                                <?php if($ot['Status'] == 'InProgress') echo '<i class="fa-solid fa-spinner fa-spin mr-1"></i> In Progress'; elseif($ot['Status'] == 'NoOT') echo 'No OT'; else echo htmlspecialchars($ot['Status']); ?>
                             </span>
                         </td>
                         <td class="px-6 py-4 text-right">
@@ -148,22 +156,34 @@
                                     <button type="submit" name="action" value="reject" class="px-3 py-1.5 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 dark:bg-rose-950/50 dark:text-rose-300 dark:hover:bg-rose-900/60 border border-rose-200 dark:border-rose-800 font-bold text-xs transition-all shadow-sm">Reject</button>
                                     <button type="submit" name="action" value="accept" class="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/50 dark:text-emerald-300 dark:hover:bg-emerald-900/60 border border-emerald-200 dark:border-emerald-800 font-bold text-xs transition-all shadow-sm">Accept</button>
                                 </form>
-                            <?php elseif ($ot['Status'] === 'Accepted'): ?>
+                            <?php elseif (in_array($ot['Status'], ['Accepted', 'Approved', 'Assigned'])): ?>
                                 <?php 
-                                    $startTimeTime = strtotime($ot['OvertimeDate'] . ' ' . $ot['StartTime']);
-                                    $endTimeTime = strtotime($ot['OvertimeDate'] . ' ' . $ot['EndTime']);
+                                    $rawStart = trim($ot['StartTime'] ?? '');
+                                    $rawEnd = trim($ot['EndTime'] ?? '');
+                                    $startTimeTime = (strpos($rawStart, '-') !== false || strpos($rawStart, ' ') !== false) ? strtotime($rawStart) : strtotime($ot['OvertimeDate'] . ' ' . $rawStart);
+                                    $endTimeTime = (strpos($rawEnd, '-') !== false || strpos($rawEnd, ' ') !== false) ? strtotime($rawEnd) : strtotime($ot['OvertimeDate'] . ' ' . $rawEnd);
+                                    if ($endTimeTime <= $startTimeTime) {
+                                        $endTimeTime += 86400; // Overnight overtime
+                                    }
                                     $now = time();
-                                    $isWithinWindow = ($now >= ($startTimeTime - 600) && $now < $endTimeTime);
+                                    $isWithinWindow = ($now >= ($startTimeTime - 600) && $now <= $endTimeTime);
+                                    $isPast = ($now > $endTimeTime);
                                 ?>
                                 <form method="POST" action="/payrollsystem/employee/overtime" class="inline-block">
                                     <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
                                     <input type="hidden" name="id" value="<?= $ot['OvertimeID'] ?>">
                                     <?php if ($isWithinWindow): ?>
-                                        <button type="submit" name="action" value="checkin" class="px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-extrabold text-xs transition-all shadow-md shadow-indigo-500/25">Check In</button>
+                                        <button type="submit" name="action" value="checkin" class="px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-extrabold text-xs transition-all shadow-md shadow-indigo-500/25 hover:scale-105">Check In</button>
+                                    <?php elseif ($isPast): ?>
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-xs font-semibold">Shift Ended</span>
                                     <?php else: ?>
-                                        <button type="button" class="px-4 py-1.5 rounded-xl bg-slate-100 text-slate-400 border border-slate-200 dark:bg-slate-800 dark:text-slate-500 dark:border-slate-700 font-bold text-xs cursor-not-allowed" title="Check-in available 10 mins before start time">Check In</button>
+                                        <button type="button" class="px-4 py-1.5 rounded-xl bg-slate-100 text-slate-400 border border-slate-200 dark:bg-slate-800 dark:text-slate-500 dark:border-slate-700 font-bold text-xs cursor-not-allowed" title="Check-in available at <?= date('h:i A', $startTimeTime - 600) ?>">Check In</button>
                                     <?php endif; ?>
                                 </form>
+                            <?php elseif ($ot['Status'] === 'InProgress'): ?>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800 text-xs font-bold font-mono animate-pulse">
+                                    <i class="fa-solid fa-clock text-amber-500"></i> Active Shift
+                                </span>
                             <?php else: ?>
                                 <span class="text-xs text-slate-400 font-mono italic">Processed</span>
                             <?php endif; ?>

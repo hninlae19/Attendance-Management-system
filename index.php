@@ -7,14 +7,15 @@ require_once __DIR__ . '/core/Controller.php';
 require_once __DIR__ . '/core/Router.php';
 
 require_once __DIR__ . '/core/HolidayHelper.php';
+require_once __DIR__ . '/models/Attendance.php';
+
+// Run background auto-checkout and absence processing tasks
+$attendanceModel = new Attendance();
+$attendanceModel->processAutoCheckouts();
+$attendanceModel->processFullDayAbsences();
 
 // Initialize the core Router
 $router = new Router();
 
-// Run background auto-checkout task
-require_once __DIR__ . '/models/Attendance.php';
-$attendanceModel = new Attendance();
-$attendanceModel->processAutoCheckouts();
-$attendanceModel->processFullDayAbsences();
 
 

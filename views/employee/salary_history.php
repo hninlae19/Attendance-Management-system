@@ -56,11 +56,11 @@
                     <?php foreach ($data['payrolls'] as $pr): ?>
                     <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-700/40 transition-colors">
                         <td class="px-6 py-4 font-bold text-slate-900 dark:text-white text-xs font-mono"><?= htmlspecialchars($pr['PayrollMonth']) ?></td>
-                        <td class="px-6 py-4 font-mono text-xs text-slate-700 dark:text-slate-300"><?= number_format($pr['BaseSalary'], 2) ?></td>
-                        <td class="px-6 py-4 font-mono font-bold text-amber-600 dark:text-amber-400 text-xs">+<?= number_format($pr['OTPay'], 2) ?></td>
-                        <td class="px-6 py-4 font-mono font-bold text-emerald-600 dark:text-emerald-400 text-xs">+<?= number_format($pr['Bonus'] ?? 0, 2) ?></td>
-                        <td class="px-6 py-4 font-mono font-bold text-rose-600 dark:text-rose-400 text-xs">-<?= number_format($pr['TotalDeductions'] ?? 0, 2) ?></td>
-                        <td class="px-6 py-4 font-mono font-black text-emerald-600 dark:text-emerald-400 text-xs"><?= number_format($pr['NetSalary'], 2) ?> <span class="text-xs text-slate-400 font-normal">MMK</span></td>
+                        <td class="px-6 py-4 font-mono text-xs text-slate-700 dark:text-slate-300"><?= number_format($pr['BasicSalary'] ?? 0, 2) ?></td>
+                        <td class="px-6 py-4 font-mono font-bold text-amber-600 dark:text-amber-400 text-xs">+<?= number_format($pr['OvertimeAmount'] ?? 0, 2) ?></td>
+                        <td class="px-6 py-4 font-mono font-bold text-emerald-600 dark:text-emerald-400 text-xs">+<?= number_format($pr['BonousAmount'] ?? 0, 2) ?></td>
+                        <td class="px-6 py-4 font-mono font-bold text-rose-600 dark:text-rose-400 text-xs">-<?= number_format($pr['LeaveDeductionAmount'] ?? $pr['total_attendance_deduction'] ?? 0, 2) ?></td>
+                        <td class="px-6 py-4 font-mono font-black text-emerald-600 dark:text-emerald-400 text-xs"><?= number_format($pr['NetSalary'] ?? 0, 2) ?> <span class="text-xs text-slate-400 font-normal">MMK</span></td>
                         <td class="px-6 py-4">
                             <?php if ($pr['Status'] === 'Paid'): ?>
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span> Paid</span>

@@ -164,7 +164,7 @@ CREATE TABLE `overtimeassign` (
    `TotalHours` decimal(5,2) NOT NULL DEFAULT '0.00', 
    `RateMultiplier` decimal(3,2) NOT NULL DEFAULT '1.00', 
    `OTAmount` decimal(12,2) NOT NULL DEFAULT '0.00', 
-   `Status` enum('Pending','Approved','Rejected') NOT NULL DEFAULT 'Pending', 
+   `Status` enum('Pending','Accepted','Rejected','InProgress','Completed','NoOT','Cancelled','No Show') NOT NULL DEFAULT 'Pending', 
    `ApprovedBy` varchar(100) DEFAULT NULL, 
    `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
    PRIMARY KEY (`OvertimeID`), 

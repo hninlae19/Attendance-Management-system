@@ -24,10 +24,23 @@
     </div>
 </div>
 
-<?php if(isset($data['error'])): ?>
-    <div class="mb-6 p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs font-semibold flex items-center gap-3 shadow-sm" data-aos="fade-up">
+<!-- ============ ERROR & SUCCESS ALERTS ============ -->
+<?php 
+$errorMsg = $data['error'] ?? $_GET['error'] ?? null;
+if (!empty($errorMsg)): 
+?>
+    <div class="mb-6 p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs font-semibold flex items-center gap-3 shadow-sm animate__animated animate__shakeX">
         <i class="fa-solid fa-circle-exclamation text-base text-rose-500"></i>
-        <span><?= htmlspecialchars($data['error']) ?></span>
+        <div>
+            <span class="font-bold">Overtime Rule Violation:</span> <?= htmlspecialchars($errorMsg) ?>
+        </div>
+    </div>
+<?php elseif(isset($_GET['msg'])): ?>
+    <div class="mb-6 p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs font-semibold flex items-center gap-3 shadow-sm" data-aos="fade-up">
+        <i class="fa-solid fa-circle-check text-base text-emerald-500"></i>
+        <div>
+            <span class="font-bold">Success:</span> Overtime operation completed successfully.
+        </div>
     </div>
 <?php endif; ?>
 
@@ -94,42 +107,51 @@
                         <td class="px-6 py-3.5">
                             <?php 
                                 $statusColors = [
+                                    'Pending' => 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800',
                                     'Assigned' => 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/50 dark:text-sky-300 dark:border-sky-800',
                                     'Accepted' => 'bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-950/50 dark:text-indigo-300 dark:border-indigo-800',
                                     'Rejected' => 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800',
+                                    'InProgress' => 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800',
                                     'In Progress' => 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800',
                                     'Completed' => 'bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-950/50 dark:text-teal-300 dark:border-teal-800',
                                     'Approved' => 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800',
+                                    'NoOT' => 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600',
+                                    'No OT' => 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600',
                                     'No Show' => 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600',
                                     'Cancelled' => 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800'
                                 ];
-                                $colorClass = $statusColors[$ot['Status']] ?? $statusColors['Assigned'];
+                                $st = $ot['Status'] ?? 'Pending';
+                                $colorClass = $statusColors[$st] ?? 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600';
                             ?>
                             <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold border <?= $colorClass ?>">
-                                <?= $ot['Status'] ?? 'Assigned' ?>
+                                <?php 
+                                    if ($st === 'NoOT') echo 'No OT';
+                                    elseif ($st === 'InProgress') echo 'In Progress';
+                                    else echo htmlspecialchars($st);
+                                ?>
                             </span>
                         </td>
 
                         <td class="px-6 py-3.5 text-right">
                             <div class="flex items-center justify-end gap-1.5">
-                                <?php if (($ot['Status'] ?? 'Assigned') === 'Completed'): ?>
-                                    <form action="/payrollsystem/admin/overtime_assignments" method="POST" class="inline m-0 p-0" onsubmit="return confirm('Approve this overtime?');">
+                                <?php if (!in_array($ot['Status'] ?? 'Pending', ['Completed', 'Cancelled', 'No Show', 'NoOT', 'No OT', 'Rejected'])): ?>
+                                    <form action="/payrollsystem/admin/overtime_assignments" method="POST" class="inline m-0 p-0" onsubmit="return confirm('Approve this overtime assignment as Completed?');">
                                         <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
                                         <input type="hidden" name="action" value="approve">
                                         <input type="hidden" name="id" value="<?= $ot['OvertimeID'] ?>">
-                                        <button type="submit" class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-950/50 dark:text-emerald-400 dark:hover:bg-emerald-900/60 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center transition-colors shadow-sm" title="Approve">
+                                        <button type="submit" class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-950/50 dark:text-emerald-400 dark:hover:bg-emerald-900/60 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center transition-colors shadow-sm" title="Approve as Completed">
                                             <i class="fa-solid fa-check text-xs"></i>
                                         </button>
                                     </form>
                                 <?php endif; ?>
                                 
-                                <?php if (!in_array($ot['Status'] ?? 'Assigned', ['Approved', 'Completed', 'Cancelled', 'No Show'])): ?>
+                                <?php if (!in_array($ot['Status'] ?? 'Pending', ['Approved', 'Completed', 'Cancelled', 'No Show', 'NoOT', 'No OT'])): ?>
                                 <button onclick="editModal(<?= htmlspecialchars(json_encode($ot)) ?>)" class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:bg-indigo-950/50 dark:text-indigo-400 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800 flex items-center justify-center transition-colors shadow-sm" title="Edit">
                                     <i class="fa-solid fa-pen text-xs"></i>
                                 </button>
                                 <?php endif; ?>
                                 
-                                <?php if (!in_array($ot['Status'] ?? 'Assigned', ['Completed', 'Cancelled', 'No Show'])): ?>
+                                <?php if (!in_array($ot['Status'] ?? 'Pending', ['Completed', 'Cancelled', 'No Show', 'NoOT', 'No OT', 'Rejected'])): ?>
                                 <form action="/payrollsystem/admin/overtime_assignments" method="POST" class="inline m-0 p-0" onsubmit="return confirm('Cancel this assignment?');">
                                     <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
                                     <input type="hidden" name="action" value="cancel">
@@ -207,25 +229,32 @@
                 
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">Date</label>
-                    <input type="date" name="overtime_date" id="overtime_date" min="<?= date('Y-m-d') ?>" required onchange="validateOT()" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-xs shadow-sm">
+                    <input type="date" name="overtime_date" id="overtime_date" min="<?= date('Y-m-d') ?>" required onchange="calculateHoursAndAmount(); validateOT();" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-xs shadow-sm transition-all">
+                    <p id="date_rule_hint" class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 font-medium flex items-center gap-1">
+                        <i class="fa-solid fa-circle-info text-indigo-500"></i>
+                        <span>Select a date to view overtime hours rule.</span>
+                    </p>
                 </div>
                 
                 <div class="grid grid-cols-2 gap-3.5">
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">Start Time</label>
-                        <input type="time" name="start_time" id="start_time" required onchange="calculateHoursAndAmount(); validateOT();" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-xs shadow-sm">
+                        <input type="time" name="start_time" id="start_time" required onchange="calculateHoursAndAmount(); validateOT();" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-xs shadow-sm transition-all">
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">End Time</label>
-                        <input type="time" name="end_time" id="end_time" required onchange="calculateHoursAndAmount(); validateOT();" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-xs shadow-sm">
+                        <input type="time" name="end_time" id="end_time" required onchange="calculateHoursAndAmount(); validateOT();" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-xs shadow-sm transition-all">
                     </div>
                 </div>
-                <p id="time_error" class="text-rose-500 text-xs hidden mt-1 font-bold"></p>
+                <div id="time_error" class="hidden p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-400 text-xs font-bold flex items-start gap-2 animate__animated animate__fadeIn">
+                    <i class="fa-solid fa-circle-exclamation mt-0.5"></i>
+                    <span id="time_error_text"></span>
+                </div>
 
                 <div class="grid grid-cols-2 gap-3.5">
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">Total Hours</label>
-                        <input type="number" step="0.5" name="hours" id="hours" readonly class="w-full px-3.5 py-2.5 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl text-xs font-mono font-bold shadow-inner">
+                        <input type="number" step="0.1" name="hours" id="hours" readonly class="w-full px-3.5 py-2.5 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl text-xs font-mono font-bold shadow-inner">
                     </div>
                 </div>
             </div>
@@ -243,6 +272,27 @@
 </div>
 
 <script>
+    const fixedHolidays = ['01-04', '02-12', '03-02', '03-27', '05-01', '07-19', '12-25'];
+    const dynamicHolidays = ['2026-04-13', '2026-04-14', '2026-04-15', '2026-04-16', '2026-04-17'];
+    const allAssignments = <?= json_encode($data['assignments'] ?? []) ?>;
+
+    function isPublicHoliday(dateStr) {
+        if (!dateStr) return false;
+        const monthDay = dateStr.substring(5); // MM-DD
+        return fixedHolidays.includes(monthDay) || dynamicHolidays.includes(dateStr);
+    }
+
+    function isWeekend(dateStr) {
+        if (!dateStr) return false;
+        const d = new Date(dateStr + 'T00:00:00');
+        const day = d.getDay(); // 0 = Sunday, 6 = Saturday
+        return day === 0 || day === 6;
+    }
+
+    function isWorkingDay(dateStr) {
+        return !isWeekend(dateStr) && !isPublicHoliday(dateStr);
+    }
+
     function toggleAssignType() {
         const type = document.querySelector('input[name="assign_type"]:checked').value;
         const empContainer = document.getElementById('emp_container');
@@ -264,8 +314,6 @@
         validateOT();
     }
 
-
-
     function calculateHoursAndAmount() {
         const startTimeStr = document.getElementById('start_time').value;
         const endTimeStr = document.getElementById('end_time').value;
@@ -282,16 +330,15 @@
             const diffMs = end - start;
             const diffHours = diffMs / (1000 * 60 * 60);
             
-            hoursInput.value = diffHours > 0 ? diffHours.toFixed(2) : '';
+            hoursInput.value = diffHours > 0 ? diffHours.toFixed(2) : '0.00';
         } else {
             hoursInput.value = '';
         }
     }
 
-    const allAssignments = <?= json_encode($data['assignments']) ?>;
-
     function validateOT() {
         const errorEl = document.getElementById('time_error');
+        const errorText = document.getElementById('time_error_text');
         const saveBtn = document.getElementById('save_btn');
         const dateVal = document.getElementById('overtime_date').value;
         const startVal = document.getElementById('start_time').value;
@@ -299,18 +346,63 @@
         const empId = document.getElementById('emp_id').value;
         const currentId = document.getElementById('assignment_id').value;
         const type = document.querySelector('input[name="assign_type"]:checked').value;
+        const dateHint = document.getElementById('date_rule_hint');
         
         errorEl.classList.add('hidden');
-        errorEl.innerText = '';
+        errorText.innerText = '';
         saveBtn.disabled = false;
 
-        if (!dateVal || !startVal) return;
+        if (!dateVal) {
+            dateHint.innerHTML = `<i class="fa-solid fa-circle-info text-indigo-500"></i> <span>Select a date to view overtime hours rule.</span>`;
+            return;
+        }
 
+        const workingDay = isWorkingDay(dateVal);
+        if (workingDay) {
+            dateHint.innerHTML = `<i class="fa-solid fa-clock text-amber-500"></i> <span class="text-amber-600 dark:text-amber-400 font-bold">Working Day: Overtime strictly allowed from 5:00 PM (17:00) to 9:00 PM (21:00). Max 4h.</span>`;
+        } else {
+            dateHint.innerHTML = `<i class="fa-solid fa-calendar-check text-emerald-500"></i> <span class="text-emerald-600 dark:text-emerald-400 font-bold">Weekend / Holiday: Overtime strictly allowed from 9:00 AM (09:00) to 5:00 PM (17:00). Max 4h.</span>`;
+        }
 
+        if (!startVal || !endVal) return;
 
-        if (!endVal) return;
+        // 1. Time Window Rule Check
+        if (workingDay) {
+            if (startVal < '17:00' || startVal > '21:00' || endVal > '21:00' || endVal < '17:00') {
+                errorText.innerText = "Overtime rule violation: On working days, overtime is only allowed between 5:00 PM (17:00) and 9:00 PM (21:00).";
+                errorEl.classList.remove('hidden');
+                saveBtn.disabled = true;
+                return;
+            }
+        } else {
+            if (startVal < '09:00' || startVal > '17:00' || endVal > '17:00' || endVal < '09:00') {
+                errorText.innerText = "Overtime rule violation: On weekends/holidays, overtime is only allowed between 9:00 AM (09:00) and 5:00 PM (17:00).";
+                errorEl.classList.remove('hidden');
+                saveBtn.disabled = true;
+                return;
+            }
+        }
 
-        // 2. Overlap validation
+        // 2. End time must be after start time
+        if (endVal <= startVal) {
+            errorText.innerText = "Invalid time range: End time must be after start time.";
+            errorEl.classList.remove('hidden');
+            saveBtn.disabled = true;
+            return;
+        }
+
+        // 3. Maximum 4 Hours Rule
+        const start = new Date(`2000-01-01T${startVal}`);
+        let end = new Date(`2000-01-01T${endVal}`);
+        const diffHours = (end - start) / (1000 * 60 * 60);
+        if (diffHours > 4) {
+            errorText.innerText = `Daily overtime limit exceeded: Maximum allowed is 4 hours (Selected: ${diffHours.toFixed(1)} hrs).`;
+            errorEl.classList.remove('hidden');
+            saveBtn.disabled = true;
+            return;
+        }
+
+        // 4. Overlap & Duplicate validation
         const startUnix = new Date(`1970-01-01T${startVal}`).getTime();
         let endUnix = new Date(`1970-01-01T${endVal}`).getTime();
         if (endUnix <= startUnix) endUnix += 86400000;
@@ -340,9 +432,9 @@
 
                     if (startUnix < exEnd && endUnix > exStart) {
                         if (type === 'department') {
-                            errorEl.innerText = "Overtime schedule overlaps with an existing assignment for one or more employees in this department.";
+                            errorText.innerText = "Duplicate / Overlap rule violation: Overtime schedule overlaps with an existing assignment for staff in this department.";
                         } else {
-                            errorEl.innerText = "Overtime schedule overlaps with an existing assignment for this employee.";
+                            errorText.innerText = "Duplicate / Overlap rule violation: This employee already has an overtime assignment during this time.";
                         }
                         errorEl.classList.remove('hidden');
                         saveBtn.disabled = true;
@@ -354,12 +446,11 @@
     }
 
     function openModal() {
-        document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-clipboard-list text-primary mr-3"></i> Assign Overtime';
+        document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-clipboard-list text-indigo-500 mr-2"></i> Assign Overtime';
         document.getElementById('formAction').value = 'add';
         document.getElementById('assignment_id').value = '';
         document.querySelector('input[name="assign_type"][value="individual"]').checked = true;
         
-        // Disable type change for edit
         document.querySelectorAll('input[name="assign_type"]').forEach(el => el.disabled = false);
         
         toggleAssignType();
@@ -369,17 +460,18 @@
         document.getElementById('start_time').value = '';
         document.getElementById('end_time').value = '';
         document.getElementById('hours').value = '';
-        document.getElementById('hours').value = '';
+        document.getElementById('time_error').classList.add('hidden');
+        document.getElementById('date_rule_hint').innerHTML = `<i class="fa-solid fa-circle-info text-indigo-500"></i> <span>Select a date to view overtime hours rule.</span>`;
+        document.getElementById('save_btn').disabled = false;
         document.getElementById('assignmentModal').classList.remove('hidden');
     }
 
     function editModal(data) {
-        document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-pen text-primary mr-3"></i> Edit Assignment';
+        document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-pen text-indigo-500 mr-2"></i> Edit Assignment';
         document.getElementById('formAction').value = 'edit';
         document.getElementById('assignment_id').value = data.OvertimeID;
         
         document.querySelector('input[name="assign_type"][value="individual"]').checked = true;
-        // Lock to individual during edit
         document.querySelectorAll('input[name="assign_type"]').forEach(el => el.disabled = true);
         toggleAssignType();
         
@@ -398,12 +490,13 @@
         document.getElementById('start_time').value = startStr;
         document.getElementById('end_time').value = endStr;
         document.getElementById('hours').value = data.TotalHours;
+        document.getElementById('time_error').classList.add('hidden');
+        document.getElementById('save_btn').disabled = false;
+        validateOT();
         document.getElementById('assignmentModal').classList.remove('hidden');
     }
 
     function closeModal() {
         document.getElementById('assignmentModal').classList.add('hidden');
     }
-
-
 </script>

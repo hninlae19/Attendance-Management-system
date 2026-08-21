@@ -35,6 +35,7 @@
                     <option value="daily">Daily</option>
                     <option value="weekly">Weekly</option>
                     <option value="monthly">Monthly</option>
+                    <option value="yearly">Yearly</option>
                     <option value="custom">Custom Range</option>
                 </select>
             </div>
@@ -435,6 +436,13 @@ document.addEventListener('alpine:init', () => {
             } else if (this.filters.view_type === 'monthly') {
                 const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
                 const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                
+                this.filters.date_start = getLocalISODate(firstDay);
+                this.filters.date_end = getLocalISODate(lastDay);
+                this.fetchData(1);
+            } else if (this.filters.view_type === 'yearly') {
+                const firstDay = new Date(today.getFullYear(), 0, 1);
+                const lastDay = new Date(today.getFullYear(), 11, 31);
                 
                 this.filters.date_start = getLocalISODate(firstDay);
                 this.filters.date_end = getLocalISODate(lastDay);

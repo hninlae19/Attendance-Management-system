@@ -260,18 +260,29 @@
                                 <td class="px-4 py-3.5">
                                     <?php 
                                         $statusColors = [
+                                            'Pending' => 'bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800',
                                             'Assigned' => 'bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800',
                                             'Accepted' => 'bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-950/50 dark:text-indigo-300 dark:border-indigo-800',
                                             'Rejected' => 'bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800',
+                                            'InProgress' => 'bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800',
                                             'In Progress' => 'bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800',
                                             'Completed' => 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800',
                                             'Approved' => 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800',
+                                            'NoOT' => 'bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600',
+                                            'No OT' => 'bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600',
                                             'No Show' => 'bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600',
                                             'Cancelled' => 'bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800'
                                         ];
-                                        $color = $statusColors[$ot['Status']] ?? 'bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800';
+                                        $st = $ot['Status'] ?? 'Pending';
+                                        $color = $statusColors[$st] ?? 'bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800';
                                     ?>
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold <?= $color ?>"><?= $ot['Status'] ?></span>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold <?= $color ?>">
+                                        <?php 
+                                            if ($st === 'NoOT') echo 'No OT';
+                                            elseif ($st === 'InProgress') echo 'In Progress';
+                                            else echo htmlspecialchars($st);
+                                        ?>
+                                    </span>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
