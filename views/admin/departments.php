@@ -100,9 +100,19 @@
 }" class="space-y-6" data-aos="fade-up" data-aos-delay="100">
 
     <!-- Controls Bar -->
-    <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col lg:flex-row items-center justify-between gap-4">
         
-        <!-- Search Input -->
+        <div class="flex items-center bg-slate-100 dark:bg-slate-900/50 p-1 rounded-xl w-full lg:w-auto">
+            <a href="?view=active" class="flex-1 lg:flex-none text-center px-4 py-2 rounded-lg text-xs font-bold transition-all <?= ($data['viewMode'] ?? 'active') === 'active' ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-sky-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200' ?>">
+                <i class="fa-solid fa-check-circle mr-1"></i> Active
+            </a>
+            <a href="?view=inactive" class="flex-1 lg:flex-none text-center px-4 py-2 rounded-lg text-xs font-bold transition-all <?= ($data['viewMode'] ?? 'active') === 'inactive' ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-sky-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200' ?>">
+                <i class="fa-solid fa-archive mr-1"></i> Archived
+            </a>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+            <!-- Search Input -->
         <div class="relative w-full sm:w-80">
             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                 <i class="fa-solid fa-magnifying-glass text-xs"></i>
@@ -129,6 +139,7 @@
                 <option value="DeptName-asc" :selected="sortField === 'DeptName' && sortDir === 'asc'">Department Name (A - Z)</option>
                 <option value="DeptName-desc" :selected="sortField === 'DeptName' && sortDir === 'desc'">Department Name (Z - A)</option>
             </select>
+        </div>
         </div>
     </div>
 
@@ -193,18 +204,29 @@
                             </td>
                             <td class="px-6 py-4 text-right">
                                 <div class="flex items-center justify-end gap-2">
-                                    <button @click="editDepartment(dept.DeptID, dept.DeptName)" 
-                                            class="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-600 dark:bg-indigo-950/50 dark:hover:bg-indigo-900/60 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 font-bold text-xs transition-all hover:scale-105 shadow-sm">
-                                        <i class="fa-solid fa-pen-to-square mr-1"></i> Edit
-                                    </button>
-                                    <form action="/payrollsystem/admin/departments" method="POST" class="inline m-0 p-0" onsubmit="return confirm('Are you sure you want to delete this department?');">
-                                        <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
-                                        <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="id" :value="dept.DeptID">
-                                        <button type="submit" class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950/50 dark:hover:bg-rose-900/60 dark:text-rose-400 border border-rose-200 dark:border-rose-800 font-bold text-xs transition-all hover:scale-105 shadow-sm">
-                                            <i class="fa-solid fa-trash mr-1"></i> Delete
+                                    <?php if(($data['viewMode'] ?? 'active') === 'active'): ?>
+                                        <button @click="editDepartment(dept.DeptID, dept.DeptName)" 
+                                                class="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-600 dark:bg-indigo-950/50 dark:hover:bg-indigo-900/60 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 font-bold text-xs transition-all hover:scale-105 shadow-sm">
+                                            <i class="fa-solid fa-pen-to-square mr-1"></i> Edit
                                         </button>
-                                    </form>
+                                        <form action="/payrollsystem/admin/departments?view=active" method="POST" class="inline m-0 p-0" onsubmit="return confirm('Are you sure you want to delete this department?');">
+                                            <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+                                            <input type="hidden" name="action" value="delete">
+                                            <input type="hidden" name="id" :value="dept.DeptID">
+                                            <button type="submit" class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950/50 dark:hover:bg-rose-900/60 dark:text-rose-400 border border-rose-200 dark:border-rose-800 font-bold text-xs transition-all hover:scale-105 shadow-sm">
+                                                <i class="fa-solid fa-trash mr-1"></i> Delete
+                                            </button>
+                                        </form>
+                                    <?php else: ?>
+                                        <form action="/payrollsystem/admin/departments?view=inactive" method="POST" class="inline m-0 p-0" onsubmit="return confirm('Are you sure you want to restore this department?');">
+                                            <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+                                            <input type="hidden" name="action" value="restore">
+                                            <input type="hidden" name="id" :value="dept.DeptID">
+                                            <button type="submit" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-600 dark:bg-emerald-950/50 dark:hover:bg-emerald-900/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 font-bold text-xs transition-all hover:scale-105 shadow-sm">
+                                                <i class="fa-solid fa-rotate-left mr-1"></i> Restore
+                                            </button>
+                                        </form>
+                                    <?php endif; ?>
                                 </div>
                             </td>
                         </tr>

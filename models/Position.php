@@ -15,11 +15,17 @@ class Position {
         $this->conn = $database->getConnection();
     }
 
-    public function getAll() {
+    public function getAll($status = 'Active') {
         $query = "SELECT p.*, d.DeptName FROM " . $this->table . " p
-                  LEFT JOIN Department d ON p.DeptID = d.DeptID
-                  ORDER BY p.PositionID ASC";
+                  LEFT JOIN Department d ON p.DeptID = d.DeptID";
+        if ($status !== 'All') {
+            $query .= " WHERE p.Status = :status";
+        }
+        $query .= " ORDER BY p.PositionID ASC";
         $stmt = $this->conn->prepare($query);
+        if ($status !== 'All') {
+            $stmt->bindParam(':status', $status);
+        }
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -48,7 +54,18 @@ class Position {
 
     public function delete($id) {
         try {
-            $query = "DELETE FROM " . $this->table . " WHERE PositionID = :id";
+            $query = "UPDATE " . $this->table . " SET Status = 'Inactive' WHERE PositionID = :id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':id', $id);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    public function restore($id) {
+        try {
+            $query = "UPDATE " . $this->table . " SET Status = 'Active' WHERE PositionID = :id";
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(':id', $id);
             return $stmt->execute();

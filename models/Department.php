@@ -13,9 +13,16 @@ class Department {
         $this->conn = $database->getConnection();
     }
 
-    public function getAll() {
-        $query = "SELECT * FROM " . $this->table . " ORDER BY DeptName";
+    public function getAll($status = 'Active') {
+        $query = "SELECT * FROM " . $this->table;
+        if ($status !== 'All') {
+            $query .= " WHERE Status = :status";
+        }
+        $query .= " ORDER BY DeptName";
         $stmt = $this->conn->prepare($query);
+        if ($status !== 'All') {
+            $stmt->bindParam(':status', $status);
+        }
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -37,7 +44,18 @@ class Department {
 
     public function delete($id) {
         try {
-            $query = "DELETE FROM " . $this->table . " WHERE DeptID = :id";
+            $query = "UPDATE " . $this->table . " SET Status = 'Inactive' WHERE DeptID = :id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':id', $id);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    public function restore($id) {
+        try {
+            $query = "UPDATE " . $this->table . " SET Status = 'Active' WHERE DeptID = :id";
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(':id', $id);
             return $stmt->execute();

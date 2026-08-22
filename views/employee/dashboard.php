@@ -1,14 +1,19 @@
-<!-- ============ EMPLOYEE HERO BANNER WITH 3D MASCOT ============ -->
+<?php
+$profilePhoto = !empty($data['employee']['ProfilePhoto']) ? '/payrollsystem/' . ltrim($data['employee']['ProfilePhoto'], '/') : null;
+$hasPhoto = !empty($profilePhoto);
+?>
+
+<!-- ============ EMPLOYEE HERO BANNER WITH AVATAR / 3D MASCOT ============ -->
 <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600 via-violet-600 to-cyan-600 p-6 lg:p-8 mb-8 shadow-xl" data-aos="fade-down">
     <div class="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-6">
         <!-- Left Greeting & Badges -->
-        <div class="max-w-2xl text-center lg:text-left space-y-3">
+        <div class="max-w-2xl text-center lg:text-left space-y-3.5">
             <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 border border-white/30 text-white text-xs font-bold uppercase tracking-wider backdrop-blur-md">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 border border-white/30 text-white text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow-sm">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
                     <span>Employee Portal</span>
                 </span>
-                <span class="inline-flex items-center px-3 py-1 rounded-full bg-white/20 border border-white/30 text-white text-xs font-bold uppercase tracking-wider backdrop-blur-md font-mono">
+                <span class="inline-flex items-center px-3 py-1 rounded-full bg-white/20 border border-white/30 text-white text-xs font-bold uppercase tracking-wider backdrop-blur-md font-mono shadow-sm">
                     EMP-<?= str_pad($data['employee']['EmpID'], 4, '0', STR_PAD_LEFT) ?>
                 </span>
             </div>
@@ -21,27 +26,40 @@
                 Welcome to your self-service portal. Track your daily attendance, submit leave requests, monitor your overtime schedules, and download your monthly salary slips.
             </p>
 
-            <!-- Department & Position Tags -->
-            <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2 pt-1 text-xs">
-                <span class="px-3 py-1.5 rounded-xl bg-white/10 border border-white/20 text-white flex items-center gap-2 backdrop-blur-md font-medium">
-                    <i class="fa-solid fa-building-user text-cyan-300"></i>
-                    <span>Dept: <strong class="text-white"><?= htmlspecialchars($data['employee']['DeptName'] ?? 'General') ?></strong></span>
-                </span>
-                <span class="px-3 py-1.5 rounded-xl bg-white/10 border border-white/20 text-white flex items-center gap-2 backdrop-blur-md font-medium">
-                    <i class="fa-solid fa-id-badge text-amber-300"></i>
-                    <span>Role: <strong class="text-white"><?= htmlspecialchars($data['employee']['PositionName'] ?? 'Staff') ?></strong></span>
-                </span>
+            <!-- Department & Position Tags (Full Text, No Truncation) -->
+            <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 pt-1 text-xs">
+                <div class="px-3.5 py-2 rounded-2xl bg-white/15 border border-white/30 text-white flex items-center gap-2.5 backdrop-blur-md font-medium shadow-md hover:bg-white/20 transition-all">
+                    <div class="w-6 h-6 rounded-lg bg-cyan-400/30 flex items-center justify-center text-cyan-200">
+                        <i class="fa-solid fa-building-user text-xs"></i>
+                    </div>
+                    <span>Department: <strong class="text-white font-bold tracking-wide"><?= htmlspecialchars($data['employee']['DeptName'] ?? 'General') ?></strong></span>
+                </div>
+                <div class="px-3.5 py-2 rounded-2xl bg-white/15 border border-white/30 text-white flex items-center gap-2.5 backdrop-blur-md font-medium shadow-md hover:bg-white/20 transition-all">
+                    <div class="w-6 h-6 rounded-lg bg-amber-400/30 flex items-center justify-center text-amber-200">
+                        <i class="fa-solid fa-id-badge text-xs"></i>
+                    </div>
+                    <span>Position: <strong class="text-white font-bold tracking-wide"><?= htmlspecialchars($data['employee']['PositionName'] ?? 'Staff') ?></strong></span>
+                </div>
             </div>
         </div>
 
-        <!-- Right 3D Cartoon Employee Mascot -->
+        <!-- Right Visual: Employee Profile Photo or 3D Mascot -->
         <div class="flex flex-col sm:flex-row lg:flex-col items-center gap-4 flex-shrink-0">
             <div class="relative group">
                 <div class="absolute -inset-1 rounded-3xl bg-gradient-to-r from-violet-600 via-cyan-500 to-amber-500 opacity-60 blur-lg group-hover:opacity-100 transition-opacity"></div>
-                <div class="relative w-36 h-36 sm:w-40 sm:h-40 rounded-3xl overflow-hidden border-2 border-white/40 shadow-2xl bg-white/10">
-                    <img src="/payrollsystem/assets/img/employee_hero_mascot.jpg" 
-                         alt="Employee Mascot" 
-                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                <div class="relative w-36 h-36 sm:w-40 sm:h-40 rounded-3xl overflow-hidden border-2 border-white/40 shadow-2xl bg-white/10 flex items-center justify-center">
+                    <?php if ($hasPhoto): ?>
+                        <img src="<?= htmlspecialchars($profilePhoto) ?>" 
+                             alt="<?= htmlspecialchars($data['employee']['FirstName']) ?>'s Profile" 
+                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                        <div class="absolute bottom-2 right-2 px-2 py-0.5 rounded-lg bg-black/60 backdrop-blur-md border border-white/30 text-[10px] text-white font-bold">
+                            <i class="fa-solid fa-camera mr-1 text-cyan-300"></i>Photo
+                        </div>
+                    <?php else: ?>
+                        <img src="/payrollsystem/assets/img/employee_hero_mascot.jpg" 
+                             alt="Employee Mascot" 
+                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -73,7 +91,7 @@
                 </div>
 
                 <!-- Digital Real-Time Clock -->
-                <div class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mb-6 shadow-inner relative group">
+                <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mb-6 shadow-inner relative group">
                     <div class="text-[11px] uppercase font-bold tracking-wider text-slate-500 dark:text-slate-400 mb-1">Current Server Time</div>
                     <div class="text-4xl sm:text-5xl font-mono font-black text-indigo-600 dark:text-sky-400 tracking-wider" id="realTimeClock">
                         <?= date('H:i:s') ?>
@@ -181,38 +199,60 @@
         </div>
     </div>
 
-    <!-- Quick Navigation & Tables -->
+    <!-- Quick Navigation & Information Grid -->
     <div class="lg:col-span-2 space-y-6" data-aos="fade-up" data-aos-delay="200">
         
-        <!-- Quick Stat Pills -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="bg-white dark:bg-slate-800 rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex items-center group hover:-translate-y-1 transition-all">
-                <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 flex items-center justify-center text-xl mr-4 group-hover:scale-110 transition-transform">
-                    <i class="fa-solid fa-fingerprint"></i>
+        <!-- Enhanced Department & Position Visual Showcase Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            
+            <!-- Employee Identity Card -->
+            <div class="bg-white dark:bg-slate-800 rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex items-start group hover:-translate-y-1 hover:shadow-md transition-all">
+                <div class="relative flex-shrink-0 mr-4">
+                    <?php if ($hasPhoto): ?>
+                        <div class="w-12 h-12 rounded-2xl overflow-hidden border-2 border-indigo-500/40 shadow-md group-hover:scale-105 transition-transform">
+                            <img src="<?= htmlspecialchars($profilePhoto) ?>" alt="Avatar" class="w-full h-full object-cover">
+                        </div>
+                    <?php else: ?>
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-fingerprint"></i>
+                        </div>
+                    <?php endif; ?>
+                    <span class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 border-2 border-white dark:border-slate-800 rounded-full" title="Active"></span>
                 </div>
-                <div>
-                    <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Employee ID</p>
-                    <p class="text-base font-extrabold text-slate-900 dark:text-white font-mono">EMP-<?= str_pad($data['employee']['EmpID'], 4, '0', STR_PAD_LEFT) ?></p>
+                <div class="min-w-0 flex-1">
+                    <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-400">Employee ID</p>
+                    <p class="text-base font-black text-slate-900 dark:text-white font-mono mt-0.5">EMP-<?= str_pad($data['employee']['EmpID'], 4, '0', STR_PAD_LEFT) ?></p>
+                    <span class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Active Staff
+                    </span>
                 </div>
             </div>
             
-            <div class="bg-white dark:bg-slate-800 rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex items-center group hover:-translate-y-1 transition-all">
-                <div class="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-950/50 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-800 flex items-center justify-center text-xl mr-4 group-hover:scale-110 transition-transform">
+            <!-- Department Card (Full Text, Clean Design) -->
+            <div class="bg-white dark:bg-slate-800 rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex items-start group hover:-translate-y-1 hover:shadow-md transition-all">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-50 to-cyan-50 dark:from-sky-950/60 dark:to-cyan-950/40 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-800 flex items-center justify-center text-xl mr-4 flex-shrink-0 group-hover:scale-110 transition-transform shadow-sm">
                     <i class="fa-solid fa-building-user"></i>
                 </div>
-                <div>
-                    <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Department</p>
-                    <p class="text-sm font-bold text-slate-900 dark:text-white truncate max-w-[140px]"><?= htmlspecialchars($data['employee']['DeptName'] ?? 'General') ?></p>
+                <div class="min-w-0 flex-1">
+                    <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-400">Department</p>
+                    <p class="text-sm font-bold text-slate-900 dark:text-white mt-0.5 leading-snug break-words">
+                        <?= htmlspecialchars($data['employee']['DeptName'] ?? 'General') ?>
+                    </p>
+                    
                 </div>
             </div>
             
-            <div class="bg-white dark:bg-slate-800 rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex items-center group hover:-translate-y-1 transition-all">
-                <div class="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800 flex items-center justify-center text-xl mr-4 group-hover:scale-110 transition-transform">
+            <!-- Position Card (Full Text, Clean Design) -->
+            <div class="bg-white dark:bg-slate-800 rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex items-start group hover:-translate-y-1 hover:shadow-md transition-all">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/60 dark:to-yellow-950/40 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800 flex items-center justify-center text-xl mr-4 flex-shrink-0 group-hover:scale-110 transition-transform shadow-sm">
                     <i class="fa-solid fa-briefcase"></i>
                 </div>
-                <div>
-                    <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Position</p>
-                    <p class="text-sm font-bold text-slate-900 dark:text-white truncate max-w-[140px]"><?= htmlspecialchars($data['employee']['PositionName'] ?? 'Staff') ?></p>
+                <div class="min-w-0 flex-1">
+                    <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-400">Position / Role</p>
+                    <p class="text-sm font-bold text-slate-900 dark:text-white mt-0.5 leading-snug break-words">
+                        <?= htmlspecialchars($data['employee']['PositionName'] ?? 'Staff') ?>
+                    </p>
+                   
                 </div>
             </div>
         </div>

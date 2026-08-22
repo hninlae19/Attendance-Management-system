@@ -147,20 +147,18 @@ class AdminController extends Controller {
                     $departmentModel->DeptName = $_POST['name'];
                     $departmentModel->update();
                 } elseif ($_POST['action'] === 'delete') {
-                    if ($departmentModel->hasPositions($_POST['id'])) {
-                        $this->redirect('/payrollsystem/admin/departments?error=in_use');
-                        return;
-                    }
-                    if (!$departmentModel->delete($_POST['id'])) {
-                        $this->redirect('/payrollsystem/admin/departments?error=in_use');
-                        return;
-                    }
+                    $departmentModel->delete($_POST['id']);
+                } elseif ($_POST['action'] === 'restore') {
+                    $departmentModel->restore($_POST['id']);
                 }
             }
-            $this->redirect('/payrollsystem/admin/departments');
+            $viewMode = $_GET['view'] ?? 'active';
+            $this->redirect('/payrollsystem/admin/departments?view=' . $viewMode);
         }
 
-        $departments = $departmentModel->getAll();
+        $viewMode = $_GET['view'] ?? 'active';
+        $statusFilter = $viewMode === 'inactive' ? 'Inactive' : 'Active';
+        $departments = $departmentModel->getAll($statusFilter);
         
         // Server-side sorting support
         $sort = $_GET['sort'] ?? 'id';
@@ -180,7 +178,8 @@ class AdminController extends Controller {
             'content' => 'admin/departments',
             'departments' => $departments,
             'currentSort' => $sort,
-            'currentOrder' => $order
+            'currentOrder' => $order,
+            'viewMode' => $viewMode
         ]);
     }
     
@@ -211,21 +210,19 @@ class AdminController extends Controller {
                     $positionModel->BasicSalary = $_POST['basic_salary'] ?? 0;
                     $positionModel->update();
                 } elseif ($_POST['action'] === 'delete') {
-                    if ($positionModel->hasEmployees($_POST['id'])) {
-                        $this->redirect('/payrollsystem/admin/positions?error=in_use');
-                        return;
-                    }
-                    if (!$positionModel->delete($_POST['id'])) {
-                        $this->redirect('/payrollsystem/admin/positions?error=in_use');
-                        return;
-                    }
+                    $positionModel->delete($_POST['id']);
+                } elseif ($_POST['action'] === 'restore') {
+                    $positionModel->restore($_POST['id']);
                 }
             }
-            $this->redirect('/payrollsystem/admin/positions');
+            $viewMode = $_GET['view'] ?? 'active';
+            $this->redirect('/payrollsystem/admin/positions?view=' . $viewMode);
         }
 
-        $positions = $positionModel->getAll();
-        $departments = $departmentModel->getAll();
+        $viewMode = $_GET['view'] ?? 'active';
+        $statusFilter = $viewMode === 'inactive' ? 'Inactive' : 'Active';
+        $positions = $positionModel->getAll($statusFilter);
+        $departments = $departmentModel->getAll('Active');
         
         // Server-side sorting support
         $sort = $_GET['sort'] ?? 'id';
@@ -250,7 +247,8 @@ class AdminController extends Controller {
             'positions' => $positions,
             'departments' => $departments,
             'currentSort' => $sort,
-            'currentOrder' => $order
+            'currentOrder' => $order,
+            'viewMode' => $viewMode
         ]);
     }
     
@@ -887,7 +885,10 @@ class AdminController extends Controller {
             
             if (isset($_POST['action'])) {
                 if ($_POST['action'] === 'add') {
-                    $empId = $_POST['employee_id'];
+                    $assignType = $_POST['assign_type'] ?? 'individual';
+                    $empIdInput = $_POST['employee_id'] ?? null;
+                    $deptIdInput = $_POST['assign_dept_id'] ?? null;
+                    
                     $amount = $_POST['amount'];
                     $date = $_POST['date'];
                     $type = $_POST['type'];
@@ -909,12 +910,30 @@ class AdminController extends Controller {
                         $bonusId = $conn->lastInsertId();
                     }
                     
-                    $empBonousModel->EmpID = $empId;
-                    $empBonousModel->Amount = $amount;
-                    $empBonousModel->BonusDate = $date;
-                    $empBonousModel->BonousID = $bonusId;
+                    $employeesToProcess = [];
+                    $employeeModel = $this->model('Employee');
+                    $employeesList = $employeeModel->getAll();
                     
-                    $empBonousModel->create();
+                    if ($assignType === 'department') {
+                        foreach ($employeesList as $e) {
+                            if ($e['DeptID'] == $deptIdInput && $e['Status'] === 'Active') {
+                                $employeesToProcess[] = $e['EmpID'];
+                            }
+                        }
+                    } else {
+                        if ($empIdInput) {
+                            $employeesToProcess[] = $empIdInput;
+                        }
+                    }
+                    
+                    foreach ($employeesToProcess as $eId) {
+                        $empBonousModel->EmpID = $eId;
+                        $empBonousModel->Amount = $amount;
+                        $empBonousModel->BonusDate = $date;
+                        $empBonousModel->BonousID = $bonusId;
+                        
+                        $empBonousModel->create();
+                    }
                     
                 } elseif ($_POST['action'] === 'delete') {
                     $empBonousModel->delete($_POST['id']);
@@ -929,12 +948,16 @@ class AdminController extends Controller {
         
         $employeeModel = $this->model('Employee');
         $employees = $employeeModel->getAll();
+        
+        $departmentModel = $this->model('Department');
+        $departments = $departmentModel->getAll();
 
         $this->view('layouts/main', [
             'title' => 'Bonus Management',
             'content' => 'admin/bonuses',
             'bonuses' => $bonuses,
-            'employees' => $employees
+            'employees' => $employees,
+            'departments' => $departments
         ]);
     }
 

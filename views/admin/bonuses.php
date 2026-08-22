@@ -108,7 +108,21 @@
             <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
             <input type="hidden" name="action" value="add">
             
-            <div>
+            <div class="mb-4">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">Assign To</label>
+                <div class="flex gap-4">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="assign_type" value="individual" checked class="text-indigo-600 focus:ring-indigo-500" onchange="document.getElementById('indiv_select').classList.remove('hidden'); document.getElementById('dept_select').classList.add('hidden'); document.getElementById('employee_id').required=true; document.getElementById('assign_dept_id').required=false;">
+                        <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Individual Employee</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="assign_type" value="department" class="text-indigo-600 focus:ring-indigo-500" onchange="document.getElementById('indiv_select').classList.add('hidden'); document.getElementById('dept_select').classList.remove('hidden'); document.getElementById('employee_id').required=false; document.getElementById('assign_dept_id').required=true;">
+                        <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Entire Department</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div id="indiv_select">
                 <label for="employee_id" class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">Select Employee</label>
                 <select name="employee_id" id="employee_id" required class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-xs shadow-sm cursor-pointer">
                     <option value="">Choose Employee...</option>
@@ -116,6 +130,16 @@
                         <?php if($emp['Status'] === 'Active'): ?>
                             <option value="<?= $emp['EmpID'] ?>"><?= htmlspecialchars($emp['FirstName'] . ' ' . $emp['LastName']) ?> (EMP-<?= str_pad($emp['EmpID'], 4, '0', STR_PAD_LEFT) ?>)</option>
                         <?php endif; ?>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            
+            <div id="dept_select" class="hidden">
+                <label for="assign_dept_id" class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">Select Department</label>
+                <select name="assign_dept_id" id="assign_dept_id" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-xs shadow-sm cursor-pointer">
+                    <option value="">Choose Department...</option>
+                    <?php foreach($data['departments'] as $dept): ?>
+                        <option value="<?= $dept['DeptID'] ?>"><?= htmlspecialchars($dept['DeptName']) ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>

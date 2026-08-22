@@ -108,49 +108,60 @@
     <!-- Controls Bar -->
     <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col lg:flex-row items-center justify-between gap-4">
         
-        <!-- Search Input -->
-        <div class="relative w-full lg:w-72">
-            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                <i class="fa-solid fa-magnifying-glass text-xs"></i>
-            </div>
-            <input type="text" x-model="search" placeholder="Search position, dept, or ID..." 
-                   class="w-full pl-9 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-xs shadow-sm transition-all">
-            <button x-show="search" @click="search=''" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600">
-                <i class="fa-solid fa-xmark text-xs"></i>
-            </button>
+        <div class="flex items-center bg-slate-100 dark:bg-slate-900/50 p-1 rounded-xl w-full lg:w-auto">
+            <a href="?view=active" class="flex-1 lg:flex-none text-center px-4 py-2 rounded-lg text-xs font-bold transition-all <?= ($data['viewMode'] ?? 'active') === 'active' ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-sky-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200' ?>">
+                <i class="fa-solid fa-check-circle mr-1"></i> Active
+            </a>
+            <a href="?view=inactive" class="flex-1 lg:flex-none text-center px-4 py-2 rounded-lg text-xs font-bold transition-all <?= ($data['viewMode'] ?? 'active') === 'inactive' ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-sky-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200' ?>">
+                <i class="fa-solid fa-archive mr-1"></i> Archived
+            </a>
         </div>
 
-        <!-- Filter and Sort Group -->
-        <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-            <!-- Department Filter -->
-            <div class="flex items-center gap-2 flex-1 sm:flex-initial">
-                <select x-model="deptFilter" class="w-full sm:w-auto px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-xs shadow-sm cursor-pointer font-medium">
-                    <option value="">All Departments</option>
-                    <?php foreach($data['departments'] as $dept): ?>
-                        <option value="<?= $dept['DeptID'] ?>"><?= htmlspecialchars($dept['DeptName']) ?></option>
-                    <?php endforeach; ?>
-                </select>
+        <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+            <!-- Search Input -->
+            <div class="relative w-full sm:w-64">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                </div>
+                <input type="text" x-model="search" placeholder="Search position, dept, or ID..." 
+                       class="w-full pl-9 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-xs shadow-sm transition-all">
+                <button x-show="search" @click="search=''" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-xs"></i>
+                </button>
             </div>
 
-            <!-- Sort By Dropdown -->
-            <div class="flex items-center gap-2 flex-1 sm:flex-initial">
-                <label class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap hidden sm:flex items-center gap-1.5">
-                    <i class="fa-solid fa-arrow-down-short-wide text-indigo-500"></i> Sort:
-                </label>
-                <select @change="
-                    const val = $event.target.value.split('-');
-                    sortField = val[0];
-                    sortDir = val[1];
-                " class="w-full sm:w-auto px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-xs shadow-sm cursor-pointer font-medium">
-                    <option value="PositionID-desc" :selected="sortField === 'PositionID' && sortDir === 'desc'">ID (Descending - Newest First)</option>
-                    <option value="PositionID-asc" :selected="sortField === 'PositionID' && sortDir === 'asc'">ID (Ascending - Oldest First)</option>
-                    <option value="PositionName-asc" :selected="sortField === 'PositionName' && sortDir === 'asc'">Position Name (A - Z)</option>
-                    <option value="PositionName-desc" :selected="sortField === 'PositionName' && sortDir === 'desc'">Position Name (Z - A)</option>
-                    <option value="DeptName-asc" :selected="sortField === 'DeptName' && sortDir === 'asc'">Department (A - Z)</option>
-                    <option value="DeptName-desc" :selected="sortField === 'DeptName' && sortDir === 'desc'">Department (Z - A)</option>
-                    <option value="BasicSalary-desc" :selected="sortField === 'BasicSalary' && sortDir === 'desc'">Salary (High to Low)</option>
-                    <option value="BasicSalary-asc" :selected="sortField === 'BasicSalary' && sortDir === 'asc'">Salary (Low to High)</option>
-                </select>
+            <!-- Filter and Sort Group -->
+            <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                <!-- Department Filter -->
+                <div class="flex items-center gap-2 flex-1 sm:flex-initial">
+                    <select x-model="deptFilter" class="w-full sm:w-auto px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-xs shadow-sm cursor-pointer font-medium">
+                        <option value="">All Departments</option>
+                        <?php foreach($data['departments'] as $dept): ?>
+                            <option value="<?= $dept['DeptID'] ?>"><?= htmlspecialchars($dept['DeptName']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <!-- Sort By Dropdown -->
+                <div class="flex items-center gap-2 flex-1 sm:flex-initial">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap hidden sm:flex items-center gap-1.5">
+                        <i class="fa-solid fa-arrow-down-short-wide text-indigo-500"></i> Sort:
+                    </label>
+                    <select @change="
+                        const val = $event.target.value.split('-');
+                        sortField = val[0];
+                        sortDir = val[1];
+                    " class="w-full sm:w-auto px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-xs shadow-sm cursor-pointer font-medium">
+                        <option value="PositionID-desc" :selected="sortField === 'PositionID' && sortDir === 'desc'">ID (Desc)</option>
+                        <option value="PositionID-asc" :selected="sortField === 'PositionID' && sortDir === 'asc'">ID (Asc)</option>
+                        <option value="PositionName-asc" :selected="sortField === 'PositionName' && sortDir === 'asc'">Position (A-Z)</option>
+                        <option value="PositionName-desc" :selected="sortField === 'PositionName' && sortDir === 'desc'">Position (Z-A)</option>
+                        <option value="DeptName-asc" :selected="sortField === 'DeptName' && sortDir === 'asc'">Dept (A-Z)</option>
+                        <option value="DeptName-desc" :selected="sortField === 'DeptName' && sortDir === 'desc'">Dept (Z-A)</option>
+                        <option value="BasicSalary-desc" :selected="sortField === 'BasicSalary' && sortDir === 'desc'">Salary (High-Low)</option>
+                        <option value="BasicSalary-asc" :selected="sortField === 'BasicSalary' && sortDir === 'asc'">Salary (Low-High)</option>
+                    </select>
+                </div>
             </div>
         </div>
     </div>
@@ -242,18 +253,29 @@
                             </td>
                             <td class="px-6 py-4 text-right">
                                 <div class="flex items-center justify-end gap-2">
-                                    <button @click="editPosition(pos.PositionID, pos.PositionName, pos.DeptID, pos.BasicSalary)" 
-                                            class="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-600 dark:bg-indigo-950/50 dark:hover:bg-indigo-900/60 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 font-bold text-xs transition-all hover:scale-105 shadow-sm">
-                                        <i class="fa-solid fa-pen-to-square mr-1"></i> Edit
-                                    </button>
-                                    <form action="/payrollsystem/admin/positions" method="POST" class="inline m-0 p-0" onsubmit="return confirm('Are you sure you want to delete this position?');">
-                                        <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
-                                        <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="id" :value="pos.PositionID">
-                                        <button type="submit" class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950/50 dark:hover:bg-rose-900/60 dark:text-rose-400 border border-rose-200 dark:border-rose-800 font-bold text-xs transition-all hover:scale-105 shadow-sm">
-                                            <i class="fa-solid fa-trash mr-1"></i> Delete
+                                    <?php if(($data['viewMode'] ?? 'active') === 'active'): ?>
+                                        <button @click="editPosition(pos.PositionID, pos.PositionName, pos.DeptID, pos.BasicSalary)" 
+                                                class="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-600 dark:bg-indigo-950/50 dark:hover:bg-indigo-900/60 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 font-bold text-xs transition-all hover:scale-105 shadow-sm">
+                                            <i class="fa-solid fa-pen-to-square mr-1"></i> Edit
                                         </button>
-                                    </form>
+                                        <form action="/payrollsystem/admin/positions?view=active" method="POST" class="inline m-0 p-0" onsubmit="return confirm('Are you sure you want to delete this position?');">
+                                            <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+                                            <input type="hidden" name="action" value="delete">
+                                            <input type="hidden" name="id" :value="pos.PositionID">
+                                            <button type="submit" class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950/50 dark:hover:bg-rose-900/60 dark:text-rose-400 border border-rose-200 dark:border-rose-800 font-bold text-xs transition-all hover:scale-105 shadow-sm">
+                                                <i class="fa-solid fa-trash mr-1"></i> Delete
+                                            </button>
+                                        </form>
+                                    <?php else: ?>
+                                        <form action="/payrollsystem/admin/positions?view=inactive" method="POST" class="inline m-0 p-0" onsubmit="return confirm('Are you sure you want to restore this position?');">
+                                            <input type="hidden" name="csrf_token" value="<?= $this->generateCsrfToken() ?>">
+                                            <input type="hidden" name="action" value="restore">
+                                            <input type="hidden" name="id" :value="pos.PositionID">
+                                            <button type="submit" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-600 dark:bg-emerald-950/50 dark:hover:bg-emerald-900/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 font-bold text-xs transition-all hover:scale-105 shadow-sm">
+                                                <i class="fa-solid fa-rotate-left mr-1"></i> Restore
+                                            </button>
+                                        </form>
+                                    <?php endif; ?>
                                 </div>
                             </td>
                         </tr>
